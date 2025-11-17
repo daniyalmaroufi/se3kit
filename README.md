@@ -169,16 +169,3 @@ See the README for short examples or inspect:
 - Forward kinematics usage: `src/robot.py`
 - Transform/rotation examples: `src/transformation.py`, `src/rotation.py`
 
-Files
------
-- `src/__init__.py`
-- `src/transformation.py`
-- `src/rotation.py`
-- `src/translation.py`
-- `src/hpoint.py`
-- `src/robot.py`
-- `src/utils.py`
-- `src/degrees.py`
-- `src/ros_compat.py`
-- `src/tests.py`
-
