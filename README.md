@@ -27,15 +27,7 @@ Overview
 --------
 se3kit implements core SE(3) building blocks and a minimal robot FK example:
 - Homogeneous transforms follow the standard block form
-
-$
-T=
-\begin{bmatrix}
-R & t\\
-0 & 1
-\end{bmatrix}
-$
-
+!(homogtrans)[https://latex.codecogs.com/svg.latex?T=%5Cbegin%7Bbmatrix%7D%20R%20%26%20t%20%5C%5C%200%20%26%201%20%5Cend%7Bbmatrix%7D]
 where $R\in SO(3)$ and $t\in\mathbb{R}^3$.
 - Rotations are stored as 3×3 matrices in `rotation.Rotation`.
 - Translations are stored as 3-vectors in `translation.Translation`.
