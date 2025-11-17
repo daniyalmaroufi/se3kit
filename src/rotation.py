@@ -35,10 +35,12 @@ class Rotation:
             # Default to the identity rotation (3x3 identity matrix)
             self.m = np.eye(3)
 
-        elif isinstance(init_value, np.quaternion):
-            # Case 2: Input is a numpy quaternion
-            # Convert quaternion to a 3x3 rotation matrix
-            self.m = np.quaternion.as_rotation_matrix(init_value)
+        # elif isinstance(init_value, np.quaternion):
+        #     # Case 2: Input is a numpy quaternion
+        #     # Convert quaternion to a 3x3 rotation matrix
+        #     self.m = np.quaternion.as_rotation_matrix(init_value)
+        # TODO: solve AttributeError: module 'numpy' has no attribute 'quaternion'
+
 
         elif use_geomsg and isinstance(init_value, Quaternion):
             # Case 3: Input is a ROS geometry_msgs Quaternion (ROS1 or ROS2)
@@ -49,8 +51,6 @@ class Rotation:
         elif isinstance(init_value, np.ndarray):
             # Case 4: Input is a numpy array
             # Expecting a 3x3 rotation matrix directly
-            if init_value.shape != (3, 3):
-                raise ValueError(f"Cannot initialize Rotation from array of shape {init_value.shape}")
             self.m = init_value
 
         elif isinstance(init_value, Rotation):
@@ -61,6 +61,10 @@ class Rotation:
         else:
             # Case 6: Input type is not supported
             raise TypeError(f"Cannot initialize Rotation from {type(init_value)}")
+        
+        if not Rotation.is_valid(self.m):
+            raise ValueError(f"Rotation matrix is invalid.")
+
 
     def __mul__(self, other):
         """
@@ -387,3 +391,28 @@ class Rotation:
         :rtype: np.ndarray
         """
         return self.m[:, 2]
+
+    @staticmethod
+    def is_valid(mat, verbose=False, tol=1e-6):
+        try:
+            if not isinstance(mat, np.ndarray):
+                raise ValueError(f"Rotation matrix must be of type np.ndarray, got {type(mat)}")
+
+            if mat.shape != (3, 3):
+                raise ValueError(f"Rotation matrix must be 3x3, got {mat.shape}")
+
+            if not np.allclose(mat.T @ mat, np.eye(3), atol=tol):
+                raise ValueError("Matrix is not orthogonal (R.T @ R != I)")
+
+            det_val = np.linalg.det(mat)
+            if not np.isclose(det_val, 1.0, atol=tol):
+                raise ValueError(f"Determinant must be 1, got {det_val}")
+
+        except ValueError as e:
+            if verbose:
+                print("❌ ", e)
+            return False
+
+        if verbose:
+            print("✔️  Matrix is a valid rotation matrix.")
+        return True
