@@ -2,7 +2,7 @@ import numpy as np
 from rotation import Rotation
 from translation import Translation
 from hpoint import HPoint
-from ros_compat import use_geomsg, Pose, Point, Quaternion, Vector3
+from ros_compat import Pose #, use_geomsg
 
 class Transformation:
     """Represents a 4x4 homogeneous transformation matrix with rotation and translation."""
@@ -27,12 +27,13 @@ class Transformation:
             init = args[0]
             if isinstance(init, np.ndarray):
                 # Direct 4x4 numpy array treated as a full transformation matrix
-                assert init.shape == (4, 4), f"Matrix must be 4x4, got {init.shape}"
                 self._matrix = init
-            elif use_geomsg and isinstance(init, Pose):
-                # Single argument is a ROS Pose message and rotation and translation are extracted
-                self.rotation = Rotation(init.orientation)
-                self.translation = Translation(init.position)
+            # elif use_geomsg and isinstance(init, Pose):
+            #     # Single argument is a ROS Pose message and rotation and translation are extracted
+            #     self.rotation = Rotation(init.orientation)
+            #     self.translation = Translation(init.position)
+            # TODO: solve issue with use_geomsg
+
             elif isinstance(init, Translation):
                 # Single argument is a Translation object
                 # Only the translation is set; rotation defaults to identity
@@ -46,6 +47,9 @@ class Transformation:
             # Any other combination of arguments is invalid
             # Raise a TypeError to indicate incorrect usage
             raise TypeError(f"Invalid arguments for Transformation: {args}")
+        
+        if not Transformation.is_valid(self.m):
+            raise ValueError(f"Transformation matrix is invalid.")
 
     def __mul__(self, other):
         """
@@ -202,10 +206,12 @@ class Transformation:
         :rtype: Pose
         :raises ModuleNotFoundError: if geometry_msgs module not available
         """
-        if not use_geomsg:
-            raise ModuleNotFoundError('geometry_msgs module not available')
-        return Pose(position=self.translation.as_geometry_point(),
-                    orientation=self.rotation.as_geometry_orientation())
+        # if not use_geomsg:
+        #     raise ModuleNotFoundError('geometry_msgs module not available')
+        # return Pose(position=self.translation.as_geometry_point(),
+        #             orientation=self.rotation.as_geometry_orientation())
+        # TODO: fix this
+        pass
 
     
     @staticmethod
@@ -234,3 +240,34 @@ class Transformation:
         :rtype: Transformation
         """
         return Transformation(A.matrix @ B.matrix)
+    
+    @staticmethod
+    def is_valid(mat, verbose = False):
+        try:
+            if not isinstance(mat, np.ndarray):
+                raise ValueError(f"Transformation matrix must be of type np.ndarray, got {type(mat)}")
+            
+            if not mat.shape == (4,4):
+                raise ValueError(f"Transformation matrix must be 4x4, got {mat.shape}.")
+            
+            Rot = mat[:3, :3]
+            if not Rotation.is_valid(Rot):
+                raise ValueError(f"Transformation matrix has invalid rotation part.")
+            
+            Vec = mat[:3, 3]
+            if not Translation.is_valid(Vec):
+                raise ValueError(f"Transformation matrix has invalid translation part.")
+
+            homog_vec = mat[3, :]
+            if not np.allclose(homog_vec, np.asarray([0, 0, 0, 1]), atol=1e-9):
+                raise ValueError("Transformation matrix is not affine. Last row must be [0, 0, 0, 1], got {mat[3, :]}")
+            
+
+        except ValueError as e:
+            if verbose:
+                print("❌ ", e)
+            return False
+
+        if verbose:
+            print("✔️  Matrix is a valid transformation matrix.")
+        return True
