@@ -10,18 +10,6 @@ Key components:
 - `robot.Robot` — simple serial manipulator models and forward kinematics (`src/robot.py`)
 - Utility helpers in `src/utils.py` and angle convenience class `degrees.Degrees` (`src/degrees.py`)
 
-Repository files:
-- `src/__init__.py`
-- `src/transformation.py`
-- `src/rotation.py`
-- `src/translation.py`
-- `src/hpoint.py`
-- `src/robot.py`
-- `src/utils.py`
-- `src/degrees.py`
-- `src/ros_compat.py`
-- `src/tests.py`
-- `LICENSE`
 
 Overview
 --------
