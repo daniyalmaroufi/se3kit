@@ -8,7 +8,7 @@ Compatible with ROS1 and ROS2 using ros_compat.py.
 """
 
 import numpy as np
-from ros_compat import use_geomsg, Point, Vector3
+from ros_compat import Point, Vector3 #, use_geomsg, 
 from hpoint import HPoint  # Assuming you have HPoint defined elsewhere
 
 
@@ -31,9 +31,10 @@ class Translation:
         if init_xyz is None:
             # Default zero vector
             self.m = np.zeros(3)
-        elif use_geomsg and isinstance(init_xyz, (Point, Vector3)):
-            # ROS Point/Vector3 message
-            self.m = np.array([init_xyz.x, init_xyz.y, init_xyz.z])
+        # elif use_geomsg and isinstance(init_xyz, (Point, Vector3)):
+        #     # ROS Point/Vector3 message
+        #     self.m = np.array([init_xyz.x, init_xyz.y, init_xyz.z])
+        # TODO: solve issue with use_geomsg
         elif isinstance(init_xyz, HPoint):
             # Homogeneous point
             self.m = init_xyz.xyz
@@ -43,10 +44,9 @@ class Translation:
         else:
             # Array or list-like input
             self.m = np.squeeze(np.array(init_xyz))
-
-            # If the size is not 3, then raise an error
-            if self.m.size != 3:
-                raise ValueError(f"Cannot initialize Translation from shape {self.m.shape}")
+            
+        if not Translation.is_valid(self.m):
+            raise ValueError(f"Translation vector is invalid.")
 
     
     def __add__(self, other):
@@ -235,6 +235,25 @@ class Translation:
         :rtype: Translation
         """
         return self.scaled_copy(0.001)
+
+    @staticmethod
+    def is_valid(vec, verbose = False):
+        try:
+            if not isinstance(vec, np.ndarray):
+                raise ValueError(f"Translation vector must be np.ndarray, got {type(type(vec))}")
+
+            if vec.size != 3:
+                raise ValueError(f"Translation vector must be of length 3, got {vec.size}")
+
+        except ValueError as e:
+            if verbose:
+                print("❌ ", e)
+            return False
+
+        if verbose:
+            print("✔️  Vector is a valid translation vector.")
+        return True
+    
 
     # ---------------- ROS message conversion ----------------
     def as_geometry_point(self):
