@@ -8,7 +8,7 @@ Key components:
 - `translation.Translation` — 3D translation vectors and unit helpers (`src/translation.py`)
 - `hpoint.HPoint` — homogeneous point (4×1) wrapper (`src/hpoint.py`)
 - `robot.Robot` — simple serial manipulator models and forward kinematics (`src/robot.py`)
-- Utility helpers in `src/utils.py` and angle convenience class `degrees.Degrees` (`src/degrees.py`)
+- Utility helpers in `src/utils.py` convenience class `degrees.Degrees` (`src/degrees.py`)
 
 Repository files:
 - `src/__init__.py`
