@@ -8,8 +8,8 @@ methods for axis-angle, ZYX Euler angles, and ROS geometry types.
 
 import numpy as np
 from math import pi, sin, cos, atan2, sqrt
-from utils import deg2rad, rad2deg, is_identity, skew_to_vector
-from ros_compat import get_ros_geometry_msgs, ROS_VERSION
+from se3kit.utils import deg2rad, rad2deg, is_identity, skew_to_vector
+from se3kit.ros_compat import get_ros_geometry_msgs, ROS_VERSION
 
 # Retrieve the ROS geometry message types (Point, Quaternion, Pose, Vector3)
 Point, Quaternion, Pose, Vector3 = get_ros_geometry_msgs()
@@ -172,7 +172,7 @@ class Rotation:
         :return: Rotation object representing the rotation
         :rtype: Rotation
         """
-        return from_ABC(abc, degrees=True)
+        return Rotation.from_ABC(abc, degrees=True)
 
 
     def from_rpy(rpy, degrees=False):

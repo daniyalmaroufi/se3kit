@@ -8,8 +8,8 @@ Compatible with ROS1 and ROS2 using ros_compat.py.
 """
 
 import numpy as np
-from ros_compat import Point, Vector3 #, use_geomsg, 
-from hpoint import HPoint  # Assuming you have HPoint defined elsewhere
+from se3kit.ros_compat import Point, Vector3, use_geomsg
+from se3kit.hpoint import HPoint
 
 
 class Translation:

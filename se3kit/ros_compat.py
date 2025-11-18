@@ -5,15 +5,19 @@ This module provides lightweight imports and utilities for
 handling ROS1 vs ROS2 message type differences.
 """
 
+use_geomsg = False
+
 try:
     import rclpy  # ROS2
     from geometry_msgs.msg import Pose, Point, Quaternion, Vector3
     ROS_VERSION = 2
+    use_geomsg = True
 except ModuleNotFoundError:
     try:
         import rospy  # ROS1
         from geometry_msgs.msg import Pose, Point, Quaternion, Vector3
         ROS_VERSION = 1
+        use_geomsg = True
     except ModuleNotFoundError:
         # Not running in a ROS environment at all
         Pose = Point = Quaternion = Vector3 = None
