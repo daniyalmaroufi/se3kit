@@ -141,8 +141,12 @@ class Tests(unittest.TestCase):
         Transformation.Transformation.is_valid(Mat, verbose= True)
         # temp_test = Transformation.Transformation(Mat)
 
+    def test_rotation_from_zyx(self):
+        angles = [0 ,0 ,0]
+        print(Rotation.Rotation.from_rpy(angles).is_identity())
+
 
 # --- Script execution entry point ---
 if __name__ == '__main__':
     Tests = Tests()
-    Tests.test_rotation_matrix_validity()
+    Tests.test_rotation_from_zyx()
