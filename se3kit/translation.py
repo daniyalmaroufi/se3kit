@@ -236,7 +236,7 @@ class Translation:
         return self.scaled_copy(0.001)
 
     @staticmethod
-    def is_valid(vec, verbose = False):
+    def is_valid(vec, verbose=False):
         """
         Checks if the input is a valid translation vector.
 
