@@ -27,12 +27,15 @@ class Transformation:
             init = args[0]
             if isinstance(init, np.ndarray):
                 # Direct 4x4 numpy array treated as a full transformation matrix
-                assert init.shape == (4, 4), f"Matrix must be 4x4, got {init.shape}"
+                if not Transformation.is_valid(init):
+                    raise ValueError(f"Transformation matrix is invalid.")
                 self._matrix = init
+
             elif use_geomsg and isinstance(init, Pose):
                 # Single argument is a ROS Pose message and rotation and translation are extracted
                 self.rotation = Rotation(init.orientation)
                 self.translation = Translation(init.position)
+
             elif isinstance(init, Translation):
                 # Single argument is a Translation object
                 # Only the translation is set; rotation defaults to identity
@@ -46,6 +49,8 @@ class Transformation:
             # Any other combination of arguments is invalid
             # Raise a TypeError to indicate incorrect usage
             raise TypeError(f"Invalid arguments for Transformation: {args}")
+        
+        
 
     def __mul__(self, other):
         """
@@ -234,3 +239,50 @@ class Transformation:
         :rtype: Transformation
         """
         return Transformation(A.matrix @ B.matrix)
+    
+    @staticmethod
+    def is_valid(mat, verbose=False):
+        """
+        Checks if the input is a valid 4x4 homogeneous transformation matrix.
+
+        A valid transformation matrix must:
+        - Be a numpy ndarray of shape (4, 4)
+        - Have a valid rotation part (upper-left 3x3 submatrix)
+        - Have a valid translation part (first three elements of the last column)
+        - Have the last row equal to [0, 0, 0, 1] (homogeneous row)
+
+        :param mat: Matrix to validate
+        :type mat: np.ndarray
+        :param verbose: If True, prints detailed validation messages
+        :type verbose: bool
+        :return: True if valid transformation matrix, False otherwise
+        :rtype: bool
+        """
+        try:
+            if not isinstance(mat, np.ndarray):
+                raise ValueError(f"Transformation matrix must be of type np.ndarray, got {type(mat)}")
+            
+            if not mat.shape == (4,4):
+                raise ValueError(f"Transformation matrix must be 4x4, got {mat.shape}.")
+            
+            Rot = mat[:3, :3]
+            if not Rotation.is_valid(Rot):
+                raise ValueError(f"Transformation matrix has invalid rotation part.")
+            
+            Vec = mat[:3, 3]
+            if not Translation.is_valid(Vec):
+                raise ValueError(f"Transformation matrix has invalid translation part.")
+
+            homog_vec = mat[3, :]
+            if not np.allclose(homog_vec, np.asarray([0, 0, 0, 1]), atol=1e-9):
+                raise ValueError(f"Transformation matrix is not affine. Last row must be [0, 0, 0, 1], got {mat[3, :]}")
+            
+
+        except ValueError as e:
+            if verbose:
+                print("❌ ", e)
+            return False
+
+        if verbose:
+            print("✔️  Matrix is a valid transformation matrix.")
+        return True

@@ -7,6 +7,7 @@ methods for axis-angle, ZYX Euler angles, and ROS geometry types.
 """
 
 import numpy as np
+import quaternion  # Requires numpy-quaternion package
 from math import pi, sin, cos, atan2, sqrt
 from se3kit.utils import deg2rad, rad2deg, is_identity, skew_to_vector
 from se3kit.ros_compat import get_ros_geometry_msgs, ROS_VERSION
@@ -35,10 +36,11 @@ class Rotation:
             # Default to the identity rotation (3x3 identity matrix)
             self.m = np.eye(3)
 
-        elif isinstance(init_value, np.quaternion):
+        elif isinstance(init_value, quaternion.quaternion):
             # Case 2: Input is a numpy quaternion
             # Convert quaternion to a 3x3 rotation matrix
-            self.m = np.quaternion.as_rotation_matrix(init_value)
+            self.m = quaternion.as_rotation_matrix(init_value)
+
 
         elif use_geomsg and isinstance(init_value, Quaternion):
             # Case 3: Input is a ROS geometry_msgs Quaternion (ROS1 or ROS2)
@@ -49,8 +51,8 @@ class Rotation:
         elif isinstance(init_value, np.ndarray):
             # Case 4: Input is a numpy array
             # Expecting a 3x3 rotation matrix directly
-            if init_value.shape != (3, 3):
-                raise ValueError(f"Cannot initialize Rotation from array of shape {init_value.shape}")
+            if not Rotation.is_valid(init_value):
+                raise ValueError(f"Rotation matrix is invalid.")
             self.m = init_value
 
         elif isinstance(init_value, Rotation):
@@ -61,7 +63,7 @@ class Rotation:
         else:
             # Case 6: Input type is not supported
             raise TypeError(f"Cannot initialize Rotation from {type(init_value)}")
-
+        
     def __mul__(self, other):
         """
         Multiplies two rotations and returns the product.
@@ -133,6 +135,7 @@ class Rotation:
     # # Create Rotation from roll-pitch-yaw sequence (XYZ order), flipping to ZYX internally
     # from_rpy = lambda rpy, degrees=False: Rotation.from_zyx(np.flip(rpy), degrees=degrees)
 
+    @staticmethod
     def from_zyx_degrees(euler):
         """
         Creates a Rotation object from ZYX Euler angles in degrees.
@@ -144,7 +147,7 @@ class Rotation:
         """
         return Rotation.from_zyx(euler, degrees=True)
 
-
+    @staticmethod
     def from_ABC(abc, degrees=False):
         """
         Creates a Rotation object from ABC angles, equivalent to ZYX Euler angles.
@@ -158,7 +161,7 @@ class Rotation:
         """
         return Rotation.from_zyx(abc, degrees=degrees)
 
-
+    @staticmethod
     def from_ABC_degrees(abc):
         """
         Creates a Rotation object from ABC angles in degrees.
@@ -170,7 +173,7 @@ class Rotation:
         """
         return Rotation.from_ABC(abc, degrees=True)
 
-
+    @staticmethod
     def from_rpy(rpy, degrees=False):
         """
         Creates a Rotation object from roll-pitch-yaw angles (XYZ order),
@@ -387,3 +390,46 @@ class Rotation:
         :rtype: np.ndarray
         """
         return self.m[:, 2]
+
+    @staticmethod
+    def is_valid(mat, verbose=False, tol=1e-6):
+        """
+        Checks if the given matrix is a valid 3x3 rotation matrix.
+
+        A valid rotation matrix is a 3x3 orthogonal matrix with a determinant of 1.
+        This method verifies the following:
+          - The input is a numpy ndarray of shape (3, 3)
+          - The matrix is orthogonal (R.T @ R == I within tolerance)
+          - The determinant of the matrix is 1 (within tolerance)
+
+        :param mat: Matrix to check for validity as a rotation matrix.
+        :type mat: np.ndarray
+        :param verbose: If True, prints detailed error messages or success confirmation.
+        :type verbose: bool, optional
+        :param tol: Tolerance for orthogonality and determinant checks.
+        :type tol: float, optional
+        :return: True if the matrix is a valid rotation matrix, False otherwise.
+        :rtype: bool
+        """
+        try:
+            if not isinstance(mat, np.ndarray):
+                raise ValueError(f"Rotation matrix must be of type np.ndarray, got {type(mat)}")
+
+            if mat.shape != (3, 3):
+                raise ValueError(f"Rotation matrix must be 3x3, got {mat.shape}")
+
+            if not np.allclose(mat.T @ mat, np.eye(3), atol=tol):
+                raise ValueError("Matrix is not orthogonal (R.T @ R != I)")
+
+            det_val = np.linalg.det(mat)
+            if not np.isclose(det_val, 1.0, atol=tol):
+                raise ValueError(f"Determinant must be 1, got {det_val}")
+
+        except ValueError as e:
+            if verbose:
+                print("❌ ", e)
+            return False
+
+        if verbose:
+            print("✔️  Matrix is a valid rotation matrix.")
+        return True

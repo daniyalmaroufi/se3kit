@@ -11,8 +11,11 @@ import numpy as np
 import math
 
 # Import ROS compatibility layer and core SE3Kit modules
-from ros_compat import ROS_VERSION
-from robot import Robot  # assuming robot.py exists in same folder
+from se3kit.ros_compat import ROS_VERSION
+from se3kit.robot import Robot  # assuming robot.py exists in same folder
+import se3kit.rotation as Rotation
+import se3kit.translation as Translation
+import se3kit.transformation as Transformation
 
 
 class Tests(unittest.TestCase):
@@ -83,11 +86,67 @@ class Tests(unittest.TestCase):
         """
         self.assertIn(ROS_VERSION, [0, 1, 2], "Invalid ROS version detected.")
 
+    def test_rotation_matrix_validity(self):
+        Mat = np.asarray(
+            [[0.8389628,  0.4465075, -0.3110828],
+             [0.1087932,  0.4224873,  0.8998158],
+             [0.5332030, -0.7887557,  0.3058742 ]])
+        print(Mat)
+        Rotation.Rotation.is_valid(Mat, verbose= True)
+        # temp_test = Rotation.Rotation(Mat)
+
+        Mat = np.asarray(
+            [[1.8389628,  0.4465075, -0.3110828],
+             [0.1087932,  0.4224873,  0.8998158],
+             [0.5332030, -0.7887557,  0.3058742 ]])
+        print('\n', Mat)
+        Rotation.Rotation.is_valid(Mat, verbose= True)
+        # temp_test = Rotation.Rotation(Mat)
+
+
+    def test_translation_vector_validity(self):
+        vec = np.asarray([1, 2, 3])
+        print(vec)
+        Translation.Translation.is_valid(vec, verbose=True)
+
+        vec = np.asarray([[1], [2], [3.0], [3]])
+        print('\n', vec)
+        Translation.Translation.is_valid(vec, verbose= True)
+        # temp_test = Translation.Translation(vec)
+
+    def test_transformation_validity(self):
+        Mat = np.asarray(
+            [[0.8389628,  0.4465075, -0.3110828],
+             [0.1087932,  0.4224873,  0.8998158],
+             [0.5332030, -0.7887557,  0.3058742 ]])
+        
+        print(Mat)
+        Transformation.Transformation.is_valid(Mat, verbose= True)
+        # temp_test = Transformation.Transformation(Mat)
+
+        Mat = np.asarray(
+            [[0.8389628,  0.4465075, -0.3110828, 1],
+             [0.1087932,  0.4224873,  0.8998158, 2.0],
+             [0.5332030, -0.7887557,  0.3058742 , -3]])
+        print('\n', Mat)
+        Transformation.Transformation.is_valid(Mat, verbose=True)
+        # temp_test = Transformation.Transformation(Mat)
+
+        Mat = np.asarray(
+            [[0.8389628,  0.4465075, -0.3110828, 1],
+             [0.1087932,  0.4224873,  0.8998158, 2.0],
+             [0.5332030, -0.7887557,  0.3058742 , -3],
+             [0, 0, 0, 1]])
+        print('\n', Mat)
+        Transformation.Transformation.is_valid(Mat, verbose= True)
+        # temp_test = Transformation.Transformation(Mat)
+
+    def test_rotation_from_zyx(self):
+        angles = [0 ,0 ,0]
+        print(Rotation.Rotation.from_rpy(angles).is_identity())
+
 
 # --- Script execution entry point ---
 if __name__ == '__main__':
-    if ROS_VERSION == 2:
-        import rclpy
-        rclpy.init()
-
-    unittest.main(verbosity=2)
+    Tests = Tests()
+    Tests.test_rotation_from_zyx()
