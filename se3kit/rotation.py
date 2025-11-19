@@ -396,6 +396,24 @@ class Rotation:
 
     @staticmethod
     def is_valid(mat, verbose=False, tol=1e-6):
+        """
+        Checks if the given matrix is a valid 3x3 rotation matrix.
+
+        A valid rotation matrix is a 3x3 orthogonal matrix with a determinant of 1.
+        This method verifies the following:
+          - The input is a numpy ndarray of shape (3, 3)
+          - The matrix is orthogonal (R.T @ R == I within tolerance)
+          - The determinant of the matrix is 1 (within tolerance)
+
+        :param mat: Matrix to check for validity as a rotation matrix.
+        :type mat: np.ndarray
+        :param verbose: If True, prints detailed error messages or success confirmation.
+        :type verbose: bool, optional
+        :param tol: Tolerance for orthogonality and determinant checks.
+        :type tol: float, optional
+        :return: True if the matrix is a valid rotation matrix, False otherwise.
+        :rtype: bool
+        """
         try:
             if not isinstance(mat, np.ndarray):
                 raise ValueError(f"Rotation matrix must be of type np.ndarray, got {type(mat)}")
