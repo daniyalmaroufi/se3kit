@@ -13,6 +13,8 @@ import quaternion  # Requires numpy-quaternion package
 
 from se3kit.ros_compat import get_ros_geometry_msgs
 from se3kit.utils import deg2rad, is_identity, rad2deg, skew_to_vector
+from scipy.spatial.transform import Rotation as R
+
 
 # Retrieve the ROS geometry message types (Point, Quaternion, Pose, Vector3)
 Point, Quaternion, Pose, Vector3 = get_ros_geometry_msgs()
@@ -287,7 +289,15 @@ class Rotation:
         :return: Quaternion representing the rotation
         :rtype: np.quaternion
         """
-        return np.quaternion.from_rotation_matrix(self.m)
+        # Convert 3x3 matrix to a scipy Rotation object
+        r = R.from_matrix(self.m)
+
+        # scipy returns quaternion as [x, y, z, w]
+        x, y, z, w = r.as_quat()
+
+        # Return as np.quaternion (w, x, y, z)
+        return quaternion.quaternion(w, x, y, z)
+        # return np.quaternion.from_rotation_matrix(self.m)
 
     def as_geometry_orientation(self):
         """
