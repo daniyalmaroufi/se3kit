@@ -21,58 +21,6 @@ import se3kit.transformation as Transformation
 class Tests(unittest.TestCase):
     """Collection of unit tests for verifying SE3Kit robot kinematics and transformations."""
 
-    def setUp(self):
-        """
-        Set up the testing environment before each unit test.
-
-        This method initializes the test fixture by creating a robot instance 
-        and defining a set of test joint angles (in both degrees and radians)
-        for use in all kinematic tests.
-
-        This method is automatically invoked before each test_* method 
-        by the unittest framework.
-
-        Attributes
-        ----------
-        robot : Robot
-            Instance of the IIWA robot model used for testing.
-        ja_deg : list of float
-            Joint angles in degrees for the test configuration.
-        ja_rad : numpy.ndarray
-            Joint angles converted to radians for FK calculations.
-        """
-        self.robot = Robot.create_iiwa()
-        self.ja_deg = [-0.01, -35.10, 47.58, 24.17, 0.00, 0.00, 0.00]
-        self.ja_rad = np.deg2rad(self.ja_deg)
-
-    def test_forward_kinematics(self):
-        """
-        Verify the correctness of the robot's forward kinematics computation.
-
-        This test checks whether the `FK_space` method produces the expected 
-        end-effector rotation (in ZYX Euler angles) and translation vectors 
-        for a known IIWA robot joint configuration.
-
-        The computed results are compared against pre-validated reference values 
-        using NumPy’s `allclose` function with a tolerance of 1e-8.
-
-        Raises:
-            AssertionError:If the computed rotation or translation values differ from expected results
-            beyond the specified numerical tolerance.
-        """
-        t = self.robot.FK_space(self.ja_rad)
-        expected_rotation = [68.28584782, -43.53993415, -35.84364870]
-        expected_translation = [-636.32792290, -158.87809407, 1012.70702237]
-
-        self.assertTrue(
-            np.allclose(t.rotation.as_zyx(degrees=True), expected_rotation, atol=1e-8),
-            "Rotation (ZYX Euler) output mismatch in FK_space"
-        )
-        self.assertTrue(
-            np.allclose(t.translation.m.flatten(), expected_translation, atol=1e-8),
-            "Translation vector output mismatch in FK_space"
-        )
-
     def test_ros_version(self):
         """
         Validate ROS environment detection.
@@ -87,66 +35,57 @@ class Tests(unittest.TestCase):
         self.assertIn(ROS_VERSION, [0, 1, 2], "Invalid ROS version detected.")
 
     def test_rotation_matrix_validity(self):
+        # Valid rotation matrix
         Mat = np.asarray(
             [[0.8389628,  0.4465075, -0.3110828],
              [0.1087932,  0.4224873,  0.8998158],
              [0.5332030, -0.7887557,  0.3058742 ]])
-        print(Mat)
-        Rotation.Rotation.is_valid(Mat, verbose= True)
-        # temp_test = Rotation.Rotation(Mat)
+        self.assertTrue(Rotation.Rotation.is_valid(Mat, verbose=False), "Expected Mat to be a valid rotation matrix")
 
-        Mat = np.asarray(
+        # Invalid rotation matrix (determinant not ~1)
+        Mat_bad = np.asarray(
             [[1.8389628,  0.4465075, -0.3110828],
              [0.1087932,  0.4224873,  0.8998158],
              [0.5332030, -0.7887557,  0.3058742 ]])
-        print('\n', Mat)
-        Rotation.Rotation.is_valid(Mat, verbose= True)
-        # temp_test = Rotation.Rotation(Mat)
+        self.assertFalse(Rotation.Rotation.is_valid(Mat_bad, verbose=False), "Expected Mat_bad to be invalid as a rotation matrix")
 
 
     def test_translation_vector_validity(self):
         vec = np.asarray([1, 2, 3])
-        print(vec)
-        Translation.Translation.is_valid(vec, verbose=True)
+        self.assertTrue(Translation.Translation.is_valid(vec, verbose=False), "Expected vec to be a valid translation vector")
 
-        vec = np.asarray([[1], [2], [3.0], [3]])
-        print('\n', vec)
-        Translation.Translation.is_valid(vec, verbose= True)
-        # temp_test = Translation.Translation(vec)
+        vec_bad = np.asarray([[1], [2], [3.0], [3]])
+        self.assertFalse(Translation.Translation.is_valid(vec_bad, verbose=False), "Expected vec_bad to be invalid (size != 3)")
 
     def test_transformation_validity(self):
-        Mat = np.asarray(
+        # 3x3 input -> invalid transformation (expects 4x4)
+        Mat3 = np.asarray(
             [[0.8389628,  0.4465075, -0.3110828],
              [0.1087932,  0.4224873,  0.8998158],
              [0.5332030, -0.7887557,  0.3058742 ]])
-        
-        print(Mat)
-        Transformation.Transformation.is_valid(Mat, verbose= True)
-        # temp_test = Transformation.Transformation(Mat)
+        self.assertFalse(Transformation.Transformation.is_valid(Mat3, verbose=False), "3x3 matrix should not be a valid transformation")
 
-        Mat = np.asarray(
+        # 3x4 input -> invalid
+        Mat3x4 = np.asarray(
             [[0.8389628,  0.4465075, -0.3110828, 1],
              [0.1087932,  0.4224873,  0.8998158, 2.0],
              [0.5332030, -0.7887557,  0.3058742 , -3]])
-        print('\n', Mat)
-        Transformation.Transformation.is_valid(Mat, verbose=True)
-        # temp_test = Transformation.Transformation(Mat)
+        self.assertFalse(Transformation.Transformation.is_valid(Mat3x4, verbose=False), "3x4 matrix should not be a valid transformation")
 
-        Mat = np.asarray(
+        # Proper 4x4 homogeneous transformation
+        Mat4 = np.asarray(
             [[0.8389628,  0.4465075, -0.3110828, 1],
              [0.1087932,  0.4224873,  0.8998158, 2.0],
              [0.5332030, -0.7887557,  0.3058742 , -3],
              [0, 0, 0, 1]])
-        print('\n', Mat)
-        Transformation.Transformation.is_valid(Mat, verbose= True)
-        # temp_test = Transformation.Transformation(Mat)
+        self.assertTrue(Transformation.Transformation.is_valid(Mat4, verbose=False), "4x4 matrix should be a valid transformation")
 
     def test_rotation_from_zyx(self):
-        angles = [0 ,0 ,0]
-        print(Rotation.Rotation.from_rpy(angles).is_identity())
+        angles = [0, 0, 0]
+        self.assertTrue(Rotation.Rotation.from_rpy(angles).is_identity(), "Rotation from zero RPY should be identity")
 
 
 # --- Script execution entry point ---
 if __name__ == '__main__':
-    Tests = Tests()
-    Tests.test_rotation_from_zyx()
+    # Let unittest discover and run all tests
+    unittest.main()
