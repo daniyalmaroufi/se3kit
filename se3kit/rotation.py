@@ -10,11 +10,10 @@ from math import atan2, cos, pi, sin, sqrt
 
 import numpy as np
 import quaternion  # Requires numpy-quaternion package
+from scipy.spatial.transform import Rotation as ScipyRotation
 
 from se3kit.ros_compat import get_ros_geometry_msgs
 from se3kit.utils import deg2rad, is_identity, rad2deg, skew_to_vector
-from scipy.spatial.transform import Rotation as R
-
 
 # Retrieve the ROS geometry message types (Point, Quaternion, Pose, Vector3)
 Point, Quaternion, Pose, Vector3 = get_ros_geometry_msgs()
@@ -290,7 +289,7 @@ class Rotation:
         :rtype: np.quaternion
         """
         # Convert 3x3 matrix to a scipy Rotation object
-        r = R.from_matrix(self.m)
+        r = ScipyRotation.from_matrix(self.m)
 
         # scipy returns quaternion as [x, y, z, w]
         x, y, z, w = r.as_quat()

@@ -11,10 +11,10 @@ import unittest
 import numpy as np
 
 from se3kit import rotation, transformation, translation
+from se3kit.robot import Robot
 
 # Import ROS compatibility layer and core SE3Kit modules
 from se3kit.ros_compat import ROS_VERSION
-from se3kit.robot import Robot
 from se3kit.utils import deg2rad
 
 TOLERANCE = 1e-8
@@ -124,8 +124,7 @@ class Tests(unittest.TestCase):
             "Rotation from zero RPY should be identity",
         )
 
-
-    def test_FK_space_iiwa(self):
+    def test_fk_space_iiwa(self):
         r = Robot.create_iiwa()
 
         ja_deg = [-0.01, -35.10, 47.58, 24.17, 0.00, 0.00, 0.00]
@@ -134,16 +133,19 @@ class Tests(unittest.TestCase):
         t = r.fk_space(ja_rad)
 
         self.assertTrue(
-            np.allclose(t.rotation.as_zyx(degrees=True),
-                        [68.28584782, -43.53993415, -35.84364870], atol=TOLERANCE)
+            np.allclose(
+                t.rotation.as_zyx(degrees=True),
+                [68.28584782, -43.53993415, -35.84364870],
+                atol=TOLERANCE,
+            )
         )
         self.assertTrue(
-            np.allclose(t.rotation.as_rpy(degrees=True),
-                        [-35.844, -43.540, 68.286], atol=TOLERANCE)
+            np.allclose(t.rotation.as_rpy(degrees=True), [-35.844, -43.540, 68.286], atol=TOLERANCE)
         )
         self.assertTrue(
-            np.allclose(t.translation.m,
-                        [-636.32792290, -158.87809407, 1012.70702237], atol=TOLERANCE)
+            np.allclose(
+                t.translation.m, [-636.32792290, -158.87809407, 1012.70702237], atol=TOLERANCE
+            )
         )
 
     # def test_rotation_from_ABC_legacy(self):
@@ -172,23 +174,26 @@ class Tests(unittest.TestCase):
         q2 = np.array(q2)
         return np.allclose(q1, q2, atol=tol) or np.allclose(q1, -q2, atol=tol)
 
-
-    def test_rotation_from_ABC_legacy(self):
+    def test_rotation_from_abc_legacy(self):
         """Compare Rotation.from_ABC_degrees to a manually computed quaternion."""
 
         def legacy_quat(adeg, bdeg, cdeg):
-            Ar, Br, Cr = (deg2rad(d) for d in (adeg, bdeg, cdeg))
-            x = np.cos(Ar/2)*np.cos(Br/2)*np.sin(Cr/2) - np.sin(Ar/2)*np.sin(Br/2)*np.cos(Cr/2)
-            y = np.cos(Ar/2)*np.sin(Br/2)*np.cos(Cr/2) + np.sin(Ar/2)*np.cos(Br/2)*np.sin(Cr/2)
-            z = np.sin(Ar/2)*np.cos(Br/2)*np.cos(Cr/2) - np.cos(Ar/2)*np.sin(Br/2)*np.sin(Cr/2)
-            w = np.cos(Ar/2)*np.cos(Br/2)*np.cos(Cr/2) + np.sin(Ar/2)*np.sin(Br/2)*np.sin(Cr/2)
+            ar, br, cr = (deg2rad(d) for d in (adeg, bdeg, cdeg))
+            x = np.cos(ar / 2) * np.cos(br / 2) * np.sin(cr / 2) - np.sin(ar / 2) * np.sin(
+                br / 2
+            ) * np.cos(cr / 2)
+            y = np.cos(ar / 2) * np.sin(br / 2) * np.cos(cr / 2) + np.sin(ar / 2) * np.cos(
+                br / 2
+            ) * np.sin(cr / 2)
+            z = np.sin(ar / 2) * np.cos(br / 2) * np.cos(cr / 2) - np.cos(ar / 2) * np.sin(
+                br / 2
+            ) * np.sin(cr / 2)
+            w = np.cos(ar / 2) * np.cos(br / 2) * np.cos(cr / 2) + np.sin(ar / 2) * np.sin(
+                br / 2
+            ) * np.sin(cr / 2)
             return (x, y, z, w)
 
-        test_angles = [
-            (20, 30, -40),
-            (-15, 22, 10),
-            (0, 190, -600)
-        ]
+        test_angles = [(20, 30, -40), (-15, 22, 10), (0, 190, -600)]
 
         for eg in test_angles:
             q_obj = rotation.Rotation.from_ABC_degrees(list(eg)).as_quat()
@@ -197,38 +202,29 @@ class Tests(unittest.TestCase):
             q2 = legacy_quat(*eg)
             self.assertTrue(
                 self.quat_equal(qxyzw, q2),
-                f"Quaternion mismatch for ABC={eg}, got {qxyzw}, expected {q2}"
-        )
+                f"Quaternion mismatch for ABC={eg}, got {qxyzw}, expected {q2}",
+            )
 
-
-    def test_rotation_zyx_is_ABC(self):
+    def test_rotation_zyx_is_abc(self):
         egs = [
             [1, 0, 0],
             [0, 1, 0],
             [0, 0, 1],
-            [np.pi/2, -np.pi/4, 0],
+            [np.pi / 2, -np.pi / 4, 0],
         ]
 
         for eg in egs:
             self.assertTrue(
-                np.allclose(
-                    rotation.Rotation.from_ABC(eg).as_ABC() - eg, 0, atol=1e-10
-                )
+                np.allclose(rotation.Rotation.from_ABC(eg).as_ABC() - eg, 0, atol=1e-10)
             )
             self.assertTrue(
-                np.allclose(
-                    rotation.Rotation.from_ABC(eg).as_zyx() - eg, 0, atol=1e-10
-                )
+                np.allclose(rotation.Rotation.from_ABC(eg).as_zyx() - eg, 0, atol=1e-10)
             )
             self.assertTrue(
-                np.allclose(
-                    rotation.Rotation.from_zyx(eg).as_zyx() - eg, 0, atol=1e-10
-                )
+                np.allclose(rotation.Rotation.from_zyx(eg).as_zyx() - eg, 0, atol=1e-10)
             )
             self.assertTrue(
-                np.allclose(
-                    rotation.Rotation.from_zyx(eg).as_ABC() - eg, 0, atol=1e-10
-                )
+                np.allclose(rotation.Rotation.from_zyx(eg).as_ABC() - eg, 0, atol=1e-10)
             )
 
             # rotation matrices equal
@@ -245,13 +241,13 @@ class Tests(unittest.TestCase):
             [1, 0, 0],
             [0, 1, 0],
             [0, 0, 1],
-            [np.pi/2, -np.pi/4, 0],
+            [np.pi / 2, -np.pi / 4, 0],
         ]
 
         for eg in egs:
-            Rzyx = rotation.Rotation.from_zyx(eg)
-            Rrpy = rotation.Rotation.from_rpy(np.flip(eg))
-            self.assertTrue(np.allclose(Rzyx.m, Rrpy.m, atol=1e-10))
+            rzyx = rotation.Rotation.from_zyx(eg)
+            rrpy = rotation.Rotation.from_rpy(np.flip(eg))
+            self.assertTrue(np.allclose(rzyx.m, rrpy.m, atol=1e-10))
 
         for eg in egs:
             rpy = rotation.Rotation.from_zyx(eg).as_rpy()
