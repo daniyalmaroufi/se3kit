@@ -88,6 +88,18 @@ class Rotation:
         """
         return Rotation()
 
+    def is_identity(self):
+        """
+        Checks whether the rotation matrix represents the identity rotation.
+
+        This means the rotation matrix is effectively the 3x3 identity matrix,
+        with no rotation applied.
+
+        :return: True if rotation is identity, False otherwise.
+        :rtype: bool
+        """
+        return is_identity(self.m)
+
     @staticmethod
     def from_zyx(euler, degrees=False):
         """
@@ -127,32 +139,6 @@ class Rotation:
             )
         )
 
-    # # Create Rotation from Euler angles in degrees
-    # from_zyx_degrees = lambda euler: Rotation.from_zyx(euler, degrees=True)
-
-    # # Alias for from_zyx, using ABC notation (same as ZYX)
-    # from_ABC = lambda abc, degrees=False: Rotation.from_zyx(abc, degrees=degrees)
-
-    # # ABC notation with degrees
-    # from_ABC_degrees = lambda abc: Rotation.from_ABC(abc, degrees=True)
-
-    # # Create Rotation from roll-pitch-yaw sequence (XYZ order), flipping to ZYX internally
-    # from_rpy = lambda rpy, degrees=False: Rotation.from_zyx(np.flip(rpy), degrees=degrees)
-
-    @staticmethod
-    def from_zyx_degrees(euler):
-        """
-        Creates a Rotation object from ZYX Euler angles in degrees.
-
-        :param euler: Euler angles [Z, Y, X] in degrees
-        :type euler: list, tuple, or np.ndarray
-        :return: Rotation object representing the rotation
-        :rtype: Rotation
-        """
-        return Rotation.from_zyx(euler, degrees=True)
-
-    # legacy mixed-case name removed in favor of lowercase alias below
-
     @staticmethod
     def from_abc(abc, degrees=False):
         """
@@ -160,16 +146,8 @@ class Rotation:
         """
         return Rotation.from_zyx(abc, degrees=degrees)
 
-    @staticmethod
-    def from_abc_degrees(abc):
-        """
-        Lowercase alias for creating a Rotation from ABC angles (degrees).
-        """
-        return Rotation.from_abc(abc, degrees=True)
-
     # Backwards-compatible aliases (legacy mixed-case names)
     from_ABC = from_abc  # noqa: N815
-    from_ABC_degrees = from_abc_degrees  # noqa: N815
 
     @staticmethod
     def from_rpy(rpy, degrees=False):
@@ -185,18 +163,6 @@ class Rotation:
         :rtype: Rotation
         """
         return Rotation.from_zyx(np.flip(rpy), degrees=degrees)
-
-    def is_identity(self):
-        """
-        Checks whether the rotation matrix represents the identity rotation.
-
-        This means the rotation matrix is effectively the 3x3 identity matrix,
-        with no rotation applied.
-
-        :return: True if rotation is identity, False otherwise.
-        :rtype: bool
-        """
-        return is_identity(self.m)
 
     def as_zyx(self, degrees=False):
         """
@@ -236,17 +202,6 @@ class Rotation:
         # Convert to degrees if requested, otherwise leave in radians
 
         return rad2deg(angles) if degrees else angles
-
-    # # Returns ZYX Euler angles (alias for as_zyx), optionally in degrees
-    # as_ABC = lambda self, degrees=False: self.as_zyx(degrees)
-
-    # # Returns roll-pitch-yaw (RPY) Euler angles by flipping the order of ZYX angles
-    # # Useful when interfacing with systems that expect RPY instead of ZYX
-    # as_rpy = lambda self, degrees=False: np.flip(self.as_zyx(degrees))
-
-    # # Converts the rotation matrix to a quaternion using numpy-quaternion
-    # # Returns a np.quaternion object representing the same rotation
-    # as_quat = lambda self: np.quaternion.from_rotation_matrix(self.m)
 
     def as_abc(self, degrees=False):
         """
@@ -422,9 +377,9 @@ class Rotation:
 
         except ValueError as e:
             if verbose:
-                print("❌ ", e)
+                print("Not a valid rotation: ", e)
             return False
 
         if verbose:
-            print("✔️  Matrix is a valid rotation matrix.")
+            print("Matrix is a valid rotation matrix.")
         return True
