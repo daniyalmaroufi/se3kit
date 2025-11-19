@@ -242,6 +242,22 @@ class Transformation:
     
     @staticmethod
     def is_valid(mat, verbose = False):
+        """
+        Checks if the input is a valid 4x4 homogeneous transformation matrix.
+
+        A valid transformation matrix must:
+        - Be a numpy ndarray of shape (4, 4)
+        - Have a valid rotation part (upper-left 3x3 submatrix)
+        - Have a valid translation part (first three elements of the last column)
+        - Have the last row equal to [0, 0, 0, 1] (homogeneous row)
+
+        :param mat: Matrix to validate
+        :type mat: np.ndarray
+        :param verbose: If True, prints detailed validation messages
+        :type verbose: bool
+        :return: True if valid transformation matrix, False otherwise
+        :rtype: bool
+        """
         try:
             if not isinstance(mat, np.ndarray):
                 raise ValueError(f"Transformation matrix must be of type np.ndarray, got {type(mat)}")
