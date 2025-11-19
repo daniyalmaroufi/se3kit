@@ -64,9 +64,6 @@ class Rotation:
             # Case 6: Input type is not supported
             raise TypeError(f"Cannot initialize Rotation from {type(init_value)}")
         
-        
-
-
     def __mul__(self, other):
         """
         Multiplies two rotations and returns the product.
