@@ -129,7 +129,7 @@ class Tests(unittest.TestCase):
              [0.1087932,  0.4224873,  0.8998158, 2.0],
              [0.5332030, -0.7887557,  0.3058742 , -3]])
         print('\n', Mat)
-        Transformation.Transformation.is_valid(Mat, verbose= True)
+        Transformation.Transformation.is_valid(Mat, verbose=True)
         # temp_test = Transformation.Transformation(Mat)
 
         Mat = np.asarray(
