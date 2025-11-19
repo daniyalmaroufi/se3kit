@@ -1,5 +1,10 @@
 import numpy as np
 
+# Constants to avoid magic numbers
+_CARTESIAN_SIZE = 3
+_HOMOGENEOUS_SIZE = 4
+
+
 class HPoint:
     """Represents a homogeneous point in 3D space (4x1 vector)."""
 
@@ -15,18 +20,18 @@ class HPoint:
         :raises ValueError: if array size is not 3 or 4, or invalid number of arguments
         :raises TypeError: if input type is invalid
         """
-        if len(args) == 3:
+        if len(args) == _CARTESIAN_SIZE:
             # Three separate coordinates provided (x, y, z)
             self.m = np.reshape([args[0], args[1], args[2], 1.0], (4, 1))
         elif len(args) == 1:
             # A single argument provided — could be a NumPy array or similar
             arr = args[0]
             if isinstance(arr, np.ndarray):
-                if arr.size == 3:
+                if arr.size == _CARTESIAN_SIZE:
                     # If it's a 3-element vector [x, y, z]
                     # → Convert to homogeneous coordinates by appending 1
                     self.m = np.reshape([arr[0], arr[1], arr[2], 1.0], (4, 1))
-                elif arr.size == 4:
+                elif arr.size == _HOMOGENEOUS_SIZE:
                     # If it's already a 4-element homogeneous vector [x, y, z, w]
                     # → Just reshape it into a 4x1 column vector
                     self.m = np.reshape(arr, (4, 1))
@@ -40,7 +45,6 @@ class HPoint:
             # Invalid number of arguments — must be either 3 (x, y, z) or 1 (array)
             raise ValueError(f"Cannot initialize HPoint from {len(args)} arguments")
 
-    
     @property
     def x(self):
         """

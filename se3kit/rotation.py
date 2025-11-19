@@ -6,10 +6,13 @@ with constructors from quaternions, Euler angles, and utility
 methods for axis-angle, ZYX Euler angles, and ROS geometry types.
 """
 
+from math import atan2, cos, pi, sin, sqrt
+
 import numpy as np
-from math import pi, sin, cos, atan2, sqrt
-from utils import deg2rad, rad2deg, is_identity, skew_to_vector
-from ros_compat import get_ros_geometry_msgs, ROS_VERSION
+import quaternion  # Requires numpy-quaternion package
+
+from se3kit.ros_compat import get_ros_geometry_msgs
+from se3kit.utils import deg2rad, is_identity, rad2deg, skew_to_vector
 
 # Retrieve the ROS geometry message types (Point, Quaternion, Pose, Vector3)
 Point, Quaternion, Pose, Vector3 = get_ros_geometry_msgs()
@@ -35,10 +38,10 @@ class Rotation:
             # Default to the identity rotation (3x3 identity matrix)
             self.m = np.eye(3)
 
-        elif isinstance(init_value, np.quaternion):
+        elif isinstance(init_value, quaternion.quaternion):
             # Case 2: Input is a numpy quaternion
             # Convert quaternion to a 3x3 rotation matrix
-            self.m = np.quaternion.as_rotation_matrix(init_value)
+            self.m = quaternion.as_rotation_matrix(init_value)
 
         elif use_geomsg and isinstance(init_value, Quaternion):
             # Case 3: Input is a ROS geometry_msgs Quaternion (ROS1 or ROS2)
@@ -49,8 +52,8 @@ class Rotation:
         elif isinstance(init_value, np.ndarray):
             # Case 4: Input is a numpy array
             # Expecting a 3x3 rotation matrix directly
-            if init_value.shape != (3, 3):
-                raise ValueError(f"Cannot initialize Rotation from array of shape {init_value.shape}")
+            if not Rotation.is_valid(init_value):
+                raise ValueError("Rotation matrix is invalid.")
             self.m = init_value
 
         elif isinstance(init_value, Rotation):
@@ -114,12 +117,15 @@ class Rotation:
 
         # Construct the 3x3 rotation matrix using ZYX (yaw-pitch-roll) convention
         # Rows correspond to new x, y, z axes after rotation
-        return Rotation(np.array([
-            [ca*cb,  ca*sb*sg - sa*cg,  ca*sb*cg + sa*sg],
-            [sa*cb,  sa*sb*sg + ca*cg,  sa*sb*cg - ca*sg],
-            [-sb,    cb*sg,             cb*cg]
-        ]))
-
+        return Rotation(
+            np.array(
+                [
+                    [ca * cb, ca * sb * sg - sa * cg, ca * sb * cg + sa * sg],
+                    [sa * cb, sa * sb * sg + ca * cg, sa * sb * cg - ca * sg],
+                    [-sb, cb * sg, cb * cg],
+                ]
+            )
+        )
 
     # # Create Rotation from Euler angles in degrees
     # from_zyx_degrees = lambda euler: Rotation.from_zyx(euler, degrees=True)
@@ -133,6 +139,7 @@ class Rotation:
     # # Create Rotation from roll-pitch-yaw sequence (XYZ order), flipping to ZYX internally
     # from_rpy = lambda rpy, degrees=False: Rotation.from_zyx(np.flip(rpy), degrees=degrees)
 
+    @staticmethod
     def from_zyx_degrees(euler):
         """
         Creates a Rotation object from ZYX Euler angles in degrees.
@@ -144,33 +151,27 @@ class Rotation:
         """
         return Rotation.from_zyx(euler, degrees=True)
 
+    # legacy mixed-case name removed in favor of lowercase alias below
 
-    def from_ABC(abc, degrees=False):
+    @staticmethod
+    def from_abc(abc, degrees=False):
         """
-        Creates a Rotation object from ABC angles, equivalent to ZYX Euler angles.
-
-        :param abc: Angles in ABC (ZYX) order
-        :type abc: list, tuple, or np.ndarray
-        :param degrees: If True, angles are in degrees; otherwise radians
-        :type degrees: bool
-        :return: Rotation object representing the rotation
-        :rtype: Rotation
+        Lowercase alias for creating a Rotation from ABC angles (ZYX order).
         """
         return Rotation.from_zyx(abc, degrees=degrees)
 
-
-    def from_ABC_degrees(abc):
+    @staticmethod
+    def from_abc_degrees(abc):
         """
-        Creates a Rotation object from ABC angles in degrees.
-
-        :param abc: Angles in ABC (ZYX) order, in degrees
-        :type abc: list, tuple, or np.ndarray
-        :return: Rotation object representing the rotation
-        :rtype: Rotation
+        Lowercase alias for creating a Rotation from ABC angles (degrees).
         """
-        return from_ABC(abc, degrees=True)
+        return Rotation.from_abc(abc, degrees=True)
 
+    # Backwards-compatible aliases (legacy mixed-case names)
+    from_ABC = from_abc  # noqa: N815
+    from_ABC_degrees = from_abc_degrees  # noqa: N815
 
+    @staticmethod
     def from_rpy(rpy, degrees=False):
         """
         Creates a Rotation object from roll-pitch-yaw angles (XYZ order),
@@ -184,7 +185,6 @@ class Rotation:
         :rtype: Rotation
         """
         return Rotation.from_zyx(np.flip(rpy), degrees=degrees)
-
 
     def is_identity(self):
         """
@@ -215,21 +215,20 @@ class Rotation:
         :rtype: np.ndarray
         """
 
-
         if self.is_identity():
             # If the rotation is the identity matrix (no rotation), return zero angles
             return np.zeros(3)
 
         # Compute ZYX Euler angles from the rotation matrix
         # a = yaw (rotation about Z axis)
-        a = atan2(self.m[1,0], self.m[0,0])
+        a = atan2(self.m[1, 0], self.m[0, 0])
 
         # b = pitch (rotation about Y axis)
         # sqrt(self.m[2,1]**2 + self.m[2,2]**2) computes the projection of the rotation onto the XZ-plane
-        b = atan2(-self.m[2,0], sqrt(self.m[2,1]**2 + self.m[2,2]**2))
+        b = atan2(-self.m[2, 0], sqrt(self.m[2, 1] ** 2 + self.m[2, 2] ** 2))
 
         # g = roll (rotation about X axis)
-        g = atan2(self.m[2,1], self.m[2,2])
+        g = atan2(self.m[2, 1], self.m[2, 2])
 
         # Combine the three Euler angles into a single array [yaw, pitch, roll]
         angles = np.array([a, b, g])
@@ -249,7 +248,7 @@ class Rotation:
     # # Returns a np.quaternion object representing the same rotation
     # as_quat = lambda self: np.quaternion.from_rotation_matrix(self.m)
 
-    def as_ABC(self, degrees=False):
+    def as_abc(self, degrees=False):
         """
         Returns the Euler angles in ABC order (ZYX), optionally in degrees.
 
@@ -262,6 +261,8 @@ class Rotation:
         """
         return self.as_zyx(degrees=degrees)
 
+    # Legacy alias
+    as_ABC = as_abc  # noqa: N815
 
     def as_rpy(self, degrees=False):
         """
@@ -277,7 +278,6 @@ class Rotation:
         """
         return np.flip(self.as_zyx(degrees=degrees))
 
-
     def as_quat(self):
         """
         Converts the rotation matrix to a quaternion.
@@ -288,7 +288,6 @@ class Rotation:
         :rtype: np.quaternion
         """
         return np.quaternion.from_rotation_matrix(self.m)
-
 
     def as_geometry_orientation(self):
         """
@@ -304,9 +303,9 @@ class Rotation:
         # Check if the ROS geometry messages are available (ROS1 or ROS2)
         if not use_geomsg:
             # If unavailable, then raise an error
-            raise ModuleNotFoundError('geometry_msgs module not available')
-        
-        # Convert the internal rotation matrix to a quaternion object 
+            raise ModuleNotFoundError("geometry_msgs module not available")
+
+        # Convert the internal rotation matrix to a quaternion object
         q = self.as_quat()
 
         # Construct and return a ROS-compatible Quaternion message
@@ -330,20 +329,19 @@ class Rotation:
         :rtype: (np.ndarray, float)
         """
 
-
         tr = np.trace(self.m)
-        if self.is_identity(): # Identity case
+        if self.is_identity():  # Identity case
             # if the rotation is the identity
             return np.array([1, 0, 0]), 0
         elif abs(tr + 1) < TOLERANCE:  # 180 degree case
             # Loop through diagonal elements to find a valid axis component
             for i in range(3):
-                if abs(self.m[i,i] + 1) > TOLERANCE:
+                if abs(self.m[i, i] + 1) > TOLERANCE:
                     w = np.zeros(3)
-                    w[i] = self.m[i,i] + 1
+                    w[i] = self.m[i, i] + 1
                     w /= np.linalg.norm(w)
                     return w, pi
-        else: # General case
+        else:  # General case
             # Compute axis-angle from rotation matrix
             theta = np.arccos((tr - 1) / 2)
             w = skew_to_vector((self.m - self.m.T) * 0.5 / np.sin(theta))
@@ -387,3 +385,46 @@ class Rotation:
         :rtype: np.ndarray
         """
         return self.m[:, 2]
+
+    @staticmethod
+    def is_valid(mat, verbose=False, tol=1e-6):
+        """
+        Checks if the given matrix is a valid 3x3 rotation matrix.
+
+        A valid rotation matrix is a 3x3 orthogonal matrix with a determinant of 1.
+        This method verifies the following:
+          - The input is a numpy ndarray of shape (3, 3)
+          - The matrix is orthogonal (R.T @ R == I within tolerance)
+          - The determinant of the matrix is 1 (within tolerance)
+
+        :param mat: Matrix to check for validity as a rotation matrix.
+        :type mat: np.ndarray
+        :param verbose: If True, prints detailed error messages or success confirmation.
+        :type verbose: bool, optional
+        :param tol: Tolerance for orthogonality and determinant checks.
+        :type tol: float, optional
+        :return: True if the matrix is a valid rotation matrix, False otherwise.
+        :rtype: bool
+        """
+        try:
+            if not isinstance(mat, np.ndarray):
+                raise ValueError(f"Rotation matrix must be of type np.ndarray, got {type(mat)}")
+
+            if mat.shape != (3, 3):
+                raise ValueError(f"Rotation matrix must be 3x3, got {mat.shape}")
+
+            if not np.allclose(mat.T @ mat, np.eye(3), atol=tol):
+                raise ValueError("Matrix is not orthogonal (R.T @ R != I)")
+
+            det_val = np.linalg.det(mat)
+            if not np.isclose(det_val, 1.0, atol=tol):
+                raise ValueError(f"Determinant must be 1, got {det_val}")
+
+        except ValueError as e:
+            if verbose:
+                print("❌ ", e)
+            return False
+
+        if verbose:
+            print("✔️  Matrix is a valid rotation matrix.")
+        return True

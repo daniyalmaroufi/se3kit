@@ -1,4 +1,4 @@
-# se3kit
+# SE3kit
 
 Lightweight Python library for 3D rigid-body transforms, rotations, and simple robot kinematics.
 
@@ -10,18 +10,58 @@ Key components:
 - `robot.Robot` — simple serial manipulator models and forward kinematics (`src/robot.py`)
 - Utility helpers in `src/utils.py` convenience class `degrees.Degrees` (`src/degrees.py`)
 
-Repository files:
-- `src/__init__.py`
-- `src/transformation.py`
-- `src/rotation.py`
-- `src/translation.py`
-- `src/hpoint.py`
-- `src/robot.py`
-- `src/utils.py`
-- `src/degrees.py`
-- `src/ros_compat.py`
-- `src/tests.py`
-- `LICENSE`
+
+# Contributing to SE3kit
+
+- Install development dependencies
+    - Install or update editable dev environment (installs test and lint tools such as pre-commit, black, isort, flake8, mypy, pytest):
+        ```sh
+        pip install -U '.[dev]'
+        ```
+    - This will ensure local tooling matches CI and the repository's pre-commit hooks.
+
+- Pre-commit hooks (required before committing)
+    - Install the git hooks into your repository (run once per clone):
+        ```sh
+        pre-commit install
+        ```
+    - Run hooks locally against all files (recommended before pushing):
+        ```sh
+        pre-commit run --all-files
+        ```
+    - Typical hooks included:
+        - black (auto-format)
+        - isort (imports)
+        - flake8 (lint)
+        - mypy (static types)
+        - pytest or test-runner checks (optional)
+    - If a hook modifies files (e.g., black/isort), re-stage the changes and re-run the hooks before committing:
+        ```sh
+        git add .
+        pre-commit run --all-files
+        git commit
+        ```
+
+- CI and enforcement
+    - The CI pipeline runs the same checks; commits or PRs that fail lint/tests will be blocked until fixed.
+    - Keep changes small and run pre-commit + tests locally to avoid friction in code review.
+
+- Troubleshooting
+    - If you update dev dependencies, reinstall hooks:
+        ```sh
+        pip install -U '.[dev]'
+        pre-commit install --overwrite
+        ```
+    - To run a single hook locally:
+        ```sh
+        pre-commit run <hook-id> --all-files
+        ```
+
+- Guidelines
+    - Run formatting and tests before opening a PR.
+    - Commit only after pre-commit hooks and tests pass locally.
+    - Add tests for behavioral changes and keep commits focused and well-scoped.
+
 
 Overview
 --------
@@ -180,17 +220,4 @@ Examples
 See the README for short examples or inspect:
 - Forward kinematics usage: `src/robot.py`
 - Transform/rotation examples: `src/transformation.py`, `src/rotation.py`
-
-Files
------
-- `src/__init__.py`
-- `src/transformation.py`
-- `src/rotation.py`
-- `src/translation.py`
-- `src/hpoint.py`
-- `src/robot.py`
-- `src/utils.py`
-- `src/degrees.py`
-- `src/ros_compat.py`
-- `src/tests.py`
 

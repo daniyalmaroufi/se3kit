@@ -1,0 +1,42 @@
+name: Python package
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10, 3.11, 3.12]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install runtime dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install dev dependencies (black, ruff, pre-commit, isort)
+        run: |
+          # Install project dev extras; quoting prevents shell globbing
+          pip install -U '.[dev]'
+
+      - name: Run pre-commit hooks (black, ruff, unit tests)
+        run: |
+          # ensure pre-commit is available in the runner
+          python -m pip install --upgrade pip
+          python -m pip install pre-commit
+          # install hooks so that hook environments are prepared (no-op if already prepared)
+          pre-commit install --install-hooks || true
+          # run all hooks across the repo; our local `run-unittests` hook will run the test suite
+          pre-commit run --all-files --show-diff-on-failure

@@ -1,7 +1,8 @@
 import numpy as np
 from scipy import linalg
-from utils import vector_to_skew
-from transformation import Transformation  # Ensure these exist in ros_compat.py
+
+from se3kit.transformation import Transformation  # Ensure these exist in ros_compat.py
+from se3kit.utils import vector_to_skew
 
 
 class Robot:
@@ -40,37 +41,28 @@ class Robot:
         :rtype: Robot
         """
         r = Robot()
-        r.name = 'Kuka iiwa R14'
+        r.name = "Kuka iiwa R14"
 
         # Home pose (tool pointing downward, base at origin)
-        r.home = np.array([
-            [1, 0, 0, 0],
-            [0, 1, 0, 0],
-            [0, 0, 1, 1306],
-            [0, 0, 0, 1]
-        ])
+        r.home = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 1306], [0, 0, 0, 1]])
 
         # Joint axes (all revolute)
-        r.axes = np.array([
-            [0, 0, 1],
-            [0, 1, 0],
-            [0, 0, 1],
-            [0, -1, 0],
-            [0, 0, 1],
-            [0, 1, 0],
-            [0, 0, 1]
-        ])
+        r.axes = np.array(
+            [[0, 0, 1], [0, 1, 0], [0, 0, 1], [0, -1, 0], [0, 0, 1], [0, 1, 0], [0, 0, 1]]
+        )
 
         # Link offsets (joint origins in base frame)
-        r.offset = np.array([
-            [0, 0, 170],
-            [0, 0, 360],
-            [0, 0, 600],
-            [0, 0, 780],
-            [0, 0, 1000],
-            [0, -60, 1180],
-            [0, 0, 1271]
-        ])
+        r.offset = np.array(
+            [
+                [0, 0, 170],
+                [0, 0, 360],
+                [0, 0, 600],
+                [0, 0, 780],
+                [0, 0, 1000],
+                [0, -60, 1180],
+                [0, 0, 1271],
+            ]
+        )
 
         r.dof = r.axes.shape[0]
 
@@ -94,37 +86,36 @@ class Robot:
         :rtype: Robot
         """
         r = Robot()
-        r.name = 'Franka Emika Panda (FP3)'
+        r.name = "Franka Emika Panda (FP3)"
 
         # Home configuration (tool forward, z-up, standard home pose)
-        r.home = np.array([
-            [1, 0, 0, 0.0],
-            [0, 1, 0, 0.0],
-            [0, 0, 1, 0.590],
-            [0, 0, 0, 1]
-        ])
+        r.home = np.array([[1, 0, 0, 0.0], [0, 1, 0, 0.0], [0, 0, 1, 0.590], [0, 0, 0, 1]])
 
         # Joint axes (all revolute, in space frame)
-        r.axes = np.array([
-            [0, 0, 1],  # J1 (base yaw)
-            [0, 1, 0],  # J2 (shoulder pitch)
-            [0, 0, 1],  # J3 (shoulder yaw)
-            [0, 1, 0],  # J4 (elbow pitch)
-            [0, 0, 1],  # J5 (wrist yaw)
-            [0, 1, 0],  # J6 (wrist pitch)
-            [0, 0, 1]   # J7 (flange rotate)
-        ])
+        r.axes = np.array(
+            [
+                [0, 0, 1],  # J1 (base yaw)
+                [0, 1, 0],  # J2 (shoulder pitch)
+                [0, 0, 1],  # J3 (shoulder yaw)
+                [0, 1, 0],  # J4 (elbow pitch)
+                [0, 0, 1],  # J5 (wrist yaw)
+                [0, 1, 0],  # J6 (wrist pitch)
+                [0, 0, 1],  # J7 (flange rotate)
+            ]
+        )
 
         # Link offsets (approx. from URDF distances in meters)
-        r.offset = np.array([
-            [0, 0, 0.333],
-            [0, 0, 0.333],
-            [0, 0, 0.649],
-            [0, 0, 0.649],
-            [0, 0, 0.649],
-            [0, 0, 0.649],
-            [0, 0, 0.649]
-        ])
+        r.offset = np.array(
+            [
+                [0, 0, 0.333],
+                [0, 0, 0.333],
+                [0, 0, 0.649],
+                [0, 0, 0.649],
+                [0, 0, 0.649],
+                [0, 0, 0.649],
+                [0, 0, 0.649],
+            ]
+        )
 
         r.dof = r.axes.shape[0]
 
@@ -138,7 +129,7 @@ class Robot:
 
     # -------------------------- Kinematics --------------------------
 
-    def FK_space(self, joint_angles):
+    def fk_space(self, joint_angles):
         """
         Computes the forward kinematics of the robot in the space (base) frame.
 

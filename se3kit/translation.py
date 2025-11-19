@@ -8,8 +8,12 @@ Compatible with ROS1 and ROS2 using ros_compat.py.
 """
 
 import numpy as np
-from ros_compat import use_geomsg, Point, Vector3
-from hpoint import HPoint  # Assuming you have HPoint defined elsewhere
+
+from se3kit.hpoint import HPoint
+from se3kit.ros_compat import Point, Vector3, use_geomsg
+
+# Constants
+_CARTESIAN_SIZE = 3
 
 
 class Translation:
@@ -42,13 +46,10 @@ class Translation:
             self.m = np.copy(init_xyz.m)
         else:
             # Array or list-like input
+            if not Translation.is_valid(init_xyz):
+                raise ValueError("Translation vector is invalid.")
             self.m = np.squeeze(np.array(init_xyz))
 
-            # If the size is not 3, then raise an error
-            if self.m.size != 3:
-                raise ValueError(f"Cannot initialize Translation from shape {self.m.shape}")
-
-    
     def __add__(self, other):
         """
         Adds two Translation vectors element-wise.
@@ -105,7 +106,6 @@ class Translation:
             return Translation(self.m / other)
         raise TypeError(f"Cannot divide Translation with {type(other)}")
 
-    
     @property
     def x(self):
         """
@@ -176,7 +176,6 @@ class Translation:
         """
         return self.m
 
-    
     def norm(self):
         """
         Computes the Euclidean norm (magnitude) of the translation vector.
@@ -236,6 +235,38 @@ class Translation:
         """
         return self.scaled_copy(0.001)
 
+    @staticmethod
+    def is_valid(vec, verbose=False):
+        """
+        Checks if the input is a valid translation vector.
+
+        A valid translation vector is a NumPy ndarray of length 3.
+
+        :param vec: The vector to validate.
+        :type vec: np.ndarray
+        :param verbose: If True, prints validation messages.
+        :type verbose: bool
+        :return: True if valid, False otherwise.
+        :rtype: bool
+        """
+        try:
+            if not isinstance(vec, np.ndarray):
+                raise ValueError(f"Translation vector must be np.ndarray, got {type(vec)}")
+
+            if vec.size != _CARTESIAN_SIZE:
+                raise ValueError(
+                    f"Translation vector must be of length {_CARTESIAN_SIZE}, got {vec.size}"
+                )
+
+        except ValueError as e:
+            if verbose:
+                print("❌ ", e)
+            return False
+
+        if verbose:
+            print("✔️  Vector is a valid translation vector.")
+        return True
+
     # ---------------- ROS message conversion ----------------
     def as_geometry_point(self):
         """
@@ -248,5 +279,5 @@ class Translation:
         :raises ModuleNotFoundError: If geometry_msgs is not available
         """
         if not use_geomsg:
-            raise ModuleNotFoundError('geometry_msgs module not available')
+            raise ModuleNotFoundError("geometry_msgs module not available")
         return Point(x=self.x, y=self.y, z=self.z)
