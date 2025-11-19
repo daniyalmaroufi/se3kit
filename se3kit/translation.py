@@ -42,10 +42,11 @@ class Translation:
             self.m = np.copy(init_xyz.m)
         else:
             # Array or list-like input
-            if not Translation.is_valid(init_xyz):
-                raise ValueError(f"Translation vector is invalid.")
             self.m = np.squeeze(np.array(init_xyz))
-            
+
+            # If the size is not 3, then raise an error
+            if self.m.size != 3:
+                raise ValueError(f"Cannot initialize Translation from shape {self.m.shape}")
 
     
     def __add__(self, other):
@@ -234,37 +235,6 @@ class Translation:
         :rtype: Translation
         """
         return self.scaled_copy(0.001)
-
-    @staticmethod
-    def is_valid(vec, verbose=False):
-        """
-        Checks if the input is a valid translation vector.
-
-        A valid translation vector is a NumPy ndarray of length 3.
-
-        :param vec: The vector to validate.
-        :type vec: np.ndarray
-        :param verbose: If True, prints validation messages.
-        :type verbose: bool
-        :return: True if valid, False otherwise.
-        :rtype: bool
-        """
-        try:
-            if not isinstance(vec, np.ndarray):
-                raise ValueError(f"Translation vector must be np.ndarray, got {type(vec)}")
-
-            if vec.size != 3:
-                raise ValueError(f"Translation vector must be of length 3, got {vec.size}")
-
-        except ValueError as e:
-            if verbose:
-                print("❌ ", e)
-            return False
-
-        if verbose:
-            print("✔️  Vector is a valid translation vector.")
-        return True
-    
 
     # ---------------- ROS message conversion ----------------
     def as_geometry_point(self):
