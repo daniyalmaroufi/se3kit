@@ -107,7 +107,7 @@ class Tests(unittest.TestCase):
     def test_translation_vector_validity(self):
         vec = np.asarray([1, 2, 3])
         print(vec)
-        Translation.Translation.is_valid(vec, verbose= True)
+        Translation.Translation.is_valid(vec, verbose=True)
 
         vec = np.asarray([[1], [2], [3.0], [3]])
         print('\n', vec)
