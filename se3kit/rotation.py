@@ -101,15 +101,19 @@ class Rotation:
         return is_identity(self.m)
 
     @staticmethod
-    def from_zyx(euler, degrees=False):
+    def from_zyx(euler, extrinsic=False, degrees=False):
         """
-        Creates a Rotation from ZYX Euler angles.
+        Creates a Rotation from ZYX (default intrinsic) Euler angles.
+        More on intrinsic and extrinsic 3D rotations:
+        https://dominicplein.medium.com/extrinsic-intrinsic-rotation-do-i-multiply-from-right-or-left-357c38c1abfd
 
-        The input angles are applied in Z (yaw), Y (pitch), X (roll) order to generate
+        The input angles are applied in Z, Y, X order using intrinsic or extrinsic rotation to generate
         the corresponding 3x3 rotation matrix.
 
         :param euler: Euler angles as [z, y, x]
         :type euler: array-like of 3 floats
+        :param extrinsic: If True, extrinsic rotation is applied (with respect to the fixed frame)
+        :type extrinsic: bool
         :param degrees: If True, input is in degrees. Defaults to False (radians)
         :type degrees: bool
         :return: Rotation object representing the specified rotation.
@@ -119,15 +123,19 @@ class Rotation:
         # Convert input Euler angles to radians if they are in degrees, else just convert to NumPy array
         e = deg2rad(euler) if degrees else np.array(euler)
 
-        # Unpack angles into separate components: a = Z (yaw), b = Y (pitch), g = X (roll)
-        a, b, g = e
+        # Extrinsic rotation is equivalent to flipping the order of intrinsic rotation
+        if extrinsic:
+            euler = np.flip(euler)
+
+        # Unpack angles into separate components: alpha = Z , beta = Y' , gamma = X"
+        alpha, beta, gamma = e
 
         # Precompute cosines and sines of each angle for matrix construction
-        ca, sa = cos(a), sin(a)
-        cb, sb = cos(b), sin(b)
-        cg, sg = cos(g), sin(g)
+        ca, sa = cos(alpha), sin(alpha)
+        cb, sb = cos(beta), sin(beta)
+        cg, sg = cos(gamma), sin(gamma)
 
-        # Construct the 3x3 rotation matrix using ZYX (yaw-pitch-roll) convention
+        # Construct the 3x3 rotation matrix using ZY'X" convention
         # Rows correspond to new x, y, z axes after rotation
         return Rotation(
             np.array(
