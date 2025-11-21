@@ -6,8 +6,6 @@ with constructors from quaternions, Euler angles, and utility
 methods for axis-angle, ZYX Euler angles, and ROS geometry types.
 """
 
-from math import atan2, cos, pi, sin, sqrt
-
 import numpy as np
 import quaternion  # Requires numpy-quaternion package
 
@@ -131,9 +129,9 @@ class Rotation:
         alpha, beta, gamma = e
 
         # Precompute cosines and sines of each angle for matrix construction
-        ca, sa = cos(alpha), sin(alpha)
-        cb, sb = cos(beta), sin(beta)
-        cg, sg = cos(gamma), sin(gamma)
+        ca, sa = np.cos(alpha), np.sin(alpha)
+        cb, sb = np.cos(beta), np.sin(beta)
+        cg, sg = np.cos(gamma), np.sin(gamma)
 
         # Construct the 3x3 rotation matrix using ZY'X" convention
         # Rows correspond to new x, y, z axes after rotation
@@ -150,7 +148,8 @@ class Rotation:
     @staticmethod
     def from_abc(abc, degrees=False):
         """
-        Lowercase alias for creating a Rotation from ABC angles (ZYX order).
+        Lowercase alias for creating a Rotation from ABC angles (ZY'X" order).
+        This method assumes intrinsic rotation, as KUKA notation.
         """
         return Rotation.from_zyx(abc, degrees=degrees)
 
@@ -158,34 +157,33 @@ class Rotation:
     from_ABC = from_abc  # noqa: N815
 
     @staticmethod
-    def from_rpy(rpy, degrees=False):
+    def from_rpy(rpy, extrinsic=True, degrees=False):
         """
-        Creates a Rotation object from roll-pitch-yaw angles (XYZ order),
-        flipping them internally to ZYX.
+        Creates a Rotation object from roll-pitch-yaw angles (XYZ order).
+        As in aviation roll-pitch-yaw are usually considered among fix axes, this method assumes extrinsic rotation as default.
 
         :param rpy: Roll-Pitch-Yaw angles [X, Y, Z]
         :type rpy: list, tuple, or np.ndarray
+        :param extrinsic: If True, extrinsic rotation is applied (with respect to the fixed frame)
+        :type extrinsic: bool
         :param degrees: If True, angles are in degrees; otherwise radians
         :type degrees: bool
         :return: Rotation object representing the rotation
         :rtype: Rotation
         """
-        return Rotation.from_zyx(np.flip(rpy), degrees=degrees)
+        return Rotation.from_zyx(rpy, extrinsic=extrinsic, degrees=degrees)
 
-    def as_zyx(self, degrees=False):
+    def as_zyx(self, extrinsic=False, degrees=False):
         """
-        Converts the rotation matrix to ZYX Euler angles (yaw-pitch-roll).
-
-        The ZYX convention represents rotations applied in order:
-        1. Rotation about Z-axis (yaw)
-        2. Rotation about Y-axis (pitch)
-        3. Rotation about X-axis (roll)
+        Converts the rotation matrix to ZY'X" Euler angles, using intrinsic rotation as default.
 
         Handles the singularity cases when the rotation is identity or near 180 degrees.
 
         :param degrees: If True, returns angles in degrees; otherwise in radians.
         :type degrees: bool, optional (default=False)
-        :return: Euler angles as a 3-element array [z, y, x].
+        :param extrinsic: If True, extrinsic rotation is assumed (with respect to the fixed frame)
+        :type extrinsic: bool
+        :return: Euler angles as a 3-element array [z, y', x"].
         :rtype: np.ndarray
         """
 
@@ -193,33 +191,34 @@ class Rotation:
             # If the rotation is the identity matrix (no rotation), return zero angles
             return np.zeros(3)
 
-        # Compute ZYX Euler angles from the rotation matrix
-        # a = yaw (rotation about Z axis)
-        a = atan2(self.m[1, 0], self.m[0, 0])
+        # Compute ZY'X" Euler angles from the rotation matrix
+        # alpha = rotation about Z axis
+        alpha = np.arctan2(self.m[1, 0], self.m[0, 0])
 
-        # b = pitch (rotation about Y axis)
-        # sqrt(self.m[2,1]**2 + self.m[2,2]**2) computes the projection of the rotation onto the XZ-plane
-        b = atan2(-self.m[2, 0], sqrt(self.m[2, 1] ** 2 + self.m[2, 2] ** 2))
+        # beta = rotation about Y' axis
+        beta = np.arctan2(-self.m[2, 0], np.sqrt(self.m[2, 1] ** 2 + self.m[2, 2] ** 2))
 
-        # g = roll (rotation about X axis)
-        g = atan2(self.m[2, 1], self.m[2, 2])
+        # gamma = rotation about X" axis
+        gamma = np.arctan2(self.m[2, 1], self.m[2, 2])
 
         # Combine the three Euler angles into a single array [yaw, pitch, roll]
-        angles = np.array([a, b, g])
+        angles = (
+            np.flip(np.array([alpha, beta, gamma])) if extrinsic else np.array([alpha, beta, gamma])
+        )
 
         # Convert to degrees if requested, otherwise leave in radians
-
         return rad2deg(angles) if degrees else angles
 
     def as_abc(self, degrees=False):
         """
-        Returns the Euler angles in ABC order (ZYX), optionally in degrees.
+        Returns the Euler angles in ABC order (ZY'X"), optionally in degrees.
+        Assumed intrinsic rotation similar to KUKA notation.
 
         This is an alias for `as_zyx`.
 
         :param degrees: If True, angles are returned in degrees; otherwise in radians
         :type degrees: bool
-        :return: Euler angles [A, B, C] (same as ZYX order)
+        :return: Euler angles [A, B, C] (same as ZY'X" order)
         :rtype: np.ndarray
         """
         return self.as_zyx(degrees=degrees)
@@ -227,19 +226,18 @@ class Rotation:
     # Legacy alias
     as_ABC = as_abc  # noqa: N815
 
-    def as_rpy(self, degrees=False):
+    def as_rpy(self, extrinsic=True, degrees=False):
         """
-        Returns the Euler angles in roll-pitch-yaw (RPY) order [X, Y, Z].
+        Returns the Euler angles in roll-pitch-yaw (RPY) order [X, Y, Z] assuming extrinsic rotation as default.
 
-        Internally flips the ZYX angles to XYZ order.
-        Useful when interfacing with systems that expect RPY instead of ZYX.
-
+        :param extrinsic: If True, extrinsic rotation is assumed (with respect to the fixed frame)
+        :type extrinsic: bool
         :param degrees: If True, angles are returned in degrees; otherwise in radians
         :type degrees: bool
         :return: Euler angles [roll, pitch, yaw]
         :rtype: np.ndarray
         """
-        return np.flip(self.as_zyx(degrees=degrees))
+        return self.as_zyx(extrinsic=extrinsic, degrees=degrees)
 
     def as_quat(self):
         """
@@ -248,9 +246,9 @@ class Rotation:
         Uses `numpy-quaternion` to generate a quaternion representing the same rotation.
 
         :return: Quaternion representing the rotation
-        :rtype: np.quaternion
+        :rtype: quaternion.quaternion
         """
-        return np.quaternion.from_rotation_matrix(self.m)
+        return quaternion.from_rotation_matrix(self.m)
 
     def as_geometry_orientation(self):
         """
@@ -275,7 +273,7 @@ class Rotation:
         # The ROS Quaternion fields are ordered as x, y, z, w
         return Quaternion(x=q.x, y=q.y, z=q.z, w=q.w)
 
-    def as_axisangle(self):
+    def as_axisangle(self, degrees=False):
         """
         Returns axis-angle representation of rotation.
 
@@ -286,29 +284,32 @@ class Rotation:
         - Identity rotation: angle=0, axis arbitrary ([1,0,0] used)
         - 180-degree rotation: handled separately to avoid division by zero
 
+        :param degrees: If True, angle is returned in degrees; otherwise in radians
+        :type degrees: bool
         :return: Tuple containing:
                 - axis vector as a 3-element np.ndarray
                 - rotation angle in radians as a float
         :rtype: (np.ndarray, float)
         """
-
         tr = np.trace(self.m)
-        if self.is_identity():  # Identity case
+
+        if self.is_identity():
             # if the rotation is the identity
             return np.array([1, 0, 0]), 0
-        elif abs(tr + 1) < TOLERANCE:  # 180 degree case
+
+        elif abs(tr + 1) < TOLERANCE:  # tr == -1, 180 degree case
             # Loop through diagonal elements to find a valid axis component
-            for i in range(3):
-                if abs(self.m[i, i] + 1) > TOLERANCE:
-                    w = np.zeros(3)
-                    w[i] = self.m[i, i] + 1
-                    w /= np.linalg.norm(w)
-                    return w, pi
+            i = np.argmax(np.array([self.m(i, i) for i in range(3)]))
+            if abs(self.m[i, i] + 1) > TOLERANCE:
+                w = np.array([self.m(j, i) for j in range(3)])
+                w[i] += 1
+                w /= np.sqrt(2 * (1 + self.m[i, i]))
+                return w, np.pi if not degrees else w, 180.0
         else:  # General case
             # Compute axis-angle from rotation matrix
             theta = np.arccos((tr - 1) / 2)
-            w = skew_to_vector((self.m - self.m.T) * 0.5 / np.sin(theta))
-            return w, theta
+            w = skew_to_vector((self.m - self.m.T) / (2 * np.sin(theta)))
+            return w, theta if not degrees else w, rad2deg(theta)
 
     @property
     def x_axis(self):
