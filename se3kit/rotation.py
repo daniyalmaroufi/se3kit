@@ -326,17 +326,17 @@ class Rotation:
 
         elif abs(tr + 1) < TOLERANCE:  # tr == -1, 180 degree case
             # Loop through diagonal elements to find a valid axis component
-            i = np.argmax(np.array([self.m(i, i) for i in range(3)]))
+            i = np.argmax(np.array([self.m[i, i] for i in range(3)]))
             if abs(self.m[i, i] + 1) > TOLERANCE:
-                w = np.array([self.m(j, i) for j in range(3)])
+                w = np.array([self.m[j, i] for j in range(3)])
                 w[i] += 1
                 w /= np.sqrt(2 * (1 + self.m[i, i]))
-                return w, np.pi if not degrees else w, 180.0
+                return w, (np.pi if not degrees else 180.0)
         else:  # General case
             # Compute axis-angle from rotation matrix
             theta = np.arccos((tr - 1) / 2)
             w = skew_to_vector((self.m - self.m.T) / (2 * np.sin(theta)))
-            return w, theta if not degrees else w, rad2deg(theta)
+            return w, (theta if not degrees else rad2deg(theta))
 
     @property
     def x_axis(self):
