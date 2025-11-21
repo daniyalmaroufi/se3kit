@@ -100,6 +100,14 @@ class Rotation:
 
     @staticmethod
     def rotate_x(theta, degrees=False):
+        """
+        Produces a rotation matrix for rotation of 'theta' angle around x axis.
+
+        :param theta: Rotation angle
+        :type theta: float
+        :return: Rotation matrix around x axis
+        :rtype: Rotation
+        """
         theta = deg2rad(theta) if degrees else theta
         return Rotation(
             np.array(
@@ -109,6 +117,14 @@ class Rotation:
 
     @staticmethod
     def rotate_y(theta, degrees=False):
+        """
+        Produces a rotation matrix for rotation of 'theta' angle around y axis.
+
+        :param theta: Rotation angle
+        :type theta: float
+        :return: Rotation matrix around y axis
+        :rtype: Rotation
+        """
         theta = deg2rad(theta) if degrees else theta
         return Rotation(
             np.array(
@@ -118,6 +134,14 @@ class Rotation:
 
     @staticmethod
     def rotate_z(theta, degrees=False):
+        """
+        Produces a rotation matrix for rotation of 'theta' angle around z axis.
+
+        :param theta: Rotation angle
+        :type theta: float
+        :return: Rotation matrix around z axis
+        :rtype: Rotation
+        """
         theta = deg2rad(theta) if degrees else theta
         return Rotation(
             np.array(
