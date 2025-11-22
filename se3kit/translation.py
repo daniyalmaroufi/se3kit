@@ -35,7 +35,7 @@ class Translation:
         if init_xyz is None:
             # Default zero vector
             self.m = np.zeros(3)
-        elif use_geomsg and isinstance(init_xyz, (Point, Vector3)):
+        elif use_geomsg and isinstance(init_xyz, Point | Vector3):
             # ROS Point/Vector3 message
             self.m = np.array([init_xyz.x, init_xyz.y, init_xyz.z])
         elif isinstance(init_xyz, HPoint):
@@ -88,7 +88,7 @@ class Translation:
         :rtype: Translation
         :raises TypeError: If `other` is not a numeric scalar
         """
-        if isinstance(other, (int, float)):
+        if isinstance(other, int | float):
             return Translation(self.m * other)
         raise TypeError(f"Cannot multiply Translation with {type(other)}")
 
@@ -102,7 +102,7 @@ class Translation:
         :rtype: Translation
         :raises TypeError: If `other` is not a numeric scalar
         """
-        if isinstance(other, (int, float)):
+        if isinstance(other, int | float):
             return Translation(self.m / other)
         raise TypeError(f"Cannot divide Translation with {type(other)}")
 

@@ -66,7 +66,7 @@ class Robot:
 
         r.dof = r.axes.shape[0]
 
-        # Compute screw axes (6 × DOF matrix)
+        # Compute screw axes (6 x DOF matrix)
         r.screw = np.empty([6, r.dof])
         for i in range(r.dof):
             r.screw[0:3, i] = r.axes[i]
@@ -119,7 +119,7 @@ class Robot:
 
         r.dof = r.axes.shape[0]
 
-        # Compute screw axes (6 × DOF matrix)
+        # Compute screw axes (6 x DOF matrix)
         r.screw = np.empty([6, r.dof])
         for i in range(r.dof):
             r.screw[0:3, i] = r.axes[i]
