@@ -18,7 +18,7 @@ def deg2rad(d):
     :return: The angle in radians
     :return_type: float | np.ndarray
     """
-    if isinstance(d, (np.ndarray, list, tuple)):
+    if isinstance(d, np.ndarray | list | tuple):
         return np.deg2rad(np.array(d))
     return d / 180 * pi
 
@@ -30,7 +30,7 @@ def rad2deg(r):
     :return: The angle in degrees
     :return_type: float | np.ndarray
     """
-    if isinstance(r, (np.ndarray, list, tuple)):
+    if isinstance(r, np.ndarray | list | tuple):
         return np.rad2deg(np.array(r))
     return r / pi * 180
 

@@ -6,6 +6,9 @@ with constructors from quaternions, Euler angles, and utility
 methods for axis-angle, ZYX Euler angles, and ROS geometry types.
 """
 
+
+import logging
+
 import numpy as np
 import quaternion  # Requires numpy-quaternion package
 
@@ -15,6 +18,9 @@ from se3kit.utils import deg2rad, is_identity, rad2deg, skew_to_vector
 # Retrieve the ROS geometry message types (Point, Quaternion, Pose, Vector3)
 Point, Quaternion, Pose, Vector3 = get_ros_geometry_msgs()
 use_geomsg = Quaternion is not None
+
+# module logger
+logger = logging.getLogger(__name__)
 
 TOLERANCE = 1e-14
 
@@ -450,8 +456,9 @@ class Rotation:
         :rtype: bool
         """
         try:
+            # Type mismatch indicates incorrect usage of the API
             if not isinstance(mat, np.ndarray):
-                raise ValueError(f"Rotation matrix must be of type np.ndarray, got {type(mat)}")
+                raise TypeError(f"Rotation matrix must be of type np.ndarray, got {type(mat)}")
 
             if mat.shape != (3, 3):
                 raise ValueError(f"Rotation matrix must be 3x3, got {mat.shape}")
@@ -463,11 +470,11 @@ class Rotation:
             if not np.isclose(det_val, 1.0, atol=tol):
                 raise ValueError(f"Determinant must be 1, got {det_val}")
 
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             if verbose:
-                print("Not a valid rotation: ", e)
+                logger.error("Not a valid rotation: %s", e)
             return False
 
         if verbose:
-            print("Matrix is a valid rotation matrix.")
+            logger.info("Matrix is a valid rotation matrix.")
         return True
