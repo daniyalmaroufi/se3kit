@@ -466,6 +466,24 @@ class Rotation:
         return rad2deg(np.arccos(cos_theta)) if degrees else np.arccos(cos_theta)
 
     @staticmethod
+    def are_close(rot_1, rot_2, tol=0.0174533, degrees=False):
+        """
+        Returns a bool specifying whether two rotation matrices are too similar by checking the angle difference in axis angle representation.
+
+        :param rot_1: First rotation matrix
+        :type rot_1: se3kit.rotation.Rotation
+        :param rot_2: Second rotation matrix
+        :type rot_2: se3kit.rotation.Rotation
+        :param tol: Tolerance. Default value corresponding to 1 deg
+        :type tol: bool
+        :param degrees: If True, tol angle should be inputted in degrees; otherwise in radians
+        :type degrees: bool
+        :return: specifying whether two rotation matrices are too similar
+        :rtype: bool
+        """
+        return Rotation.angle_difference(rot_1, rot_2, degrees=degrees) < tol
+
+    @staticmethod
     def is_valid(mat, verbose=False, tol=1e-6):
         """
         Checks if the given matrix is a valid 3x3 rotation matrix.
