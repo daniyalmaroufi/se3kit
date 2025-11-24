@@ -29,6 +29,7 @@ class TestRotation(unittest.TestCase):
             rotation.Rotation.is_valid(mat, verbose=False),
             "Expected mat to be a valid rotation matrix",
         )
+
     def test_rotation_matrix_valid(self):
         """Test validation of a valid rotation matrix."""
         mat = np.asarray(

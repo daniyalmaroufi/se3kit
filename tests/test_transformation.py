@@ -15,9 +15,8 @@ from se3kit import transformation
 class TestTransformation(unittest.TestCase):
     """Tests for the Transformation class."""
 
-    def test_transformation_validity(self):
-        """Test validation of transformation matrices."""
-        # 3x3 input -> invalid transformation (expects 4x4)
+    def test_invalid_transformation_3x3(self):
+        """3x3 input -> invalid transformation (expects 4x4)."""
         mat3 = np.asarray(
             [
                 [0.8389628, 0.4465075, -0.3110828],
@@ -30,7 +29,8 @@ class TestTransformation(unittest.TestCase):
             "3x3 matrix should not be a valid transformation",
         )
 
-        # 3x4 input -> invalid
+    def test_invalid_transformation_3x4(self):
+        """3x4 input -> invalid transformation (expects 4x4)."""
         mat3x4 = np.asarray(
             [
                 [0.8389628, 0.4465075, -0.3110828, 1],
@@ -43,7 +43,8 @@ class TestTransformation(unittest.TestCase):
             "3x4 matrix should not be a valid transformation",
         )
 
-        # Proper 4x4 homogeneous transformation
+    def test_valid_transformation_4x4(self):
+        """Proper 4x4 homogeneous transformation -> valid."""
         mat4 = np.asarray(
             [
                 [0.8389628, 0.4465075, -0.3110828, 1],
