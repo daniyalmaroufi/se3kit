@@ -253,6 +253,29 @@ class Transformation:
         return Transformation(a.matrix @ b.matrix)
 
     @staticmethod
+    def are_close(transform_1, transform_2, rot_tol=0.0174533, trans_tol=0.001, degrees=False):
+        """
+        Returns a bool specifying whether two transformation matrices are too similar by checking their
+        rotational and translational parts.
+
+        :param transform_1: First transformation matrix
+        :type transform_1: se3kit.transformation.Transformation
+        :param transform_2: Second transformation matrix
+        :type transform_2: se3kit.transformation.Transformation
+        :param rot_tol: Rotational tolerance. Default value corresponding to 1 deg
+        :type rot_tol: float
+        :param trans_tol: Translation tolerance. Default value corresponding to 1 mm
+        :type trans_tol: float
+        :param degrees: If True, rot_tol angle should be inputted in degrees; otherwise in radians
+        :type degrees: bool
+        :return: specifying whether two transformation matrices are close
+        :rtype: bool
+        """
+        return Rotation.are_close(
+            transform_1.rotation, transform_2.rotation, tol=rot_tol, degrees=degrees
+        ) and Translation.are_close(transform_1.translation, transform_2.translation, tol=trans_tol)
+
+    @staticmethod
     def is_valid(mat, verbose=False):
         """
         Checks if the input is a valid 4x4 homogeneous transformation matrix.
