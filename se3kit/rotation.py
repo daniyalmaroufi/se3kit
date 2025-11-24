@@ -410,6 +410,16 @@ class Rotation:
         return self.m[:, 0]
 
     @property
+    def T(self):  # noqa: N802
+        """
+        Returns the transpose of the rotation matrix.
+
+        :return: Transposed rotation matrix
+        :rtype: se3kit.rotation.Rotation
+        """
+        return Rotation(self.m.T)
+
+    @property
     def y_axis(self):
         """
         Returns the y-axis of the rotation matrix.
