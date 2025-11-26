@@ -32,7 +32,7 @@ class PivotCalibration:
 
     def __init__(self, init_value=None):
         """
-        Initializes rotation from a list of ROS poses or list of se3kit.transformation.Transformation poses.
+        Initializes calibration from a list of ROS poses or list of se3kit.transformation.Transformation poses.
 
         :param init_value: list of ROS poses or se3kit.transformation.Transformation poses
         :type init_value: list
@@ -61,9 +61,9 @@ class PivotCalibration:
     def run_pivot_calibration(self):
         """
         Runs the pivot calibration optimization and returns the tip location with respect to (wrt) the End Effector (EE),
-        the divot location wrt the EE, and the residual distance.
+        the divot location wrt the EE, and the calibration residual.
 
-        :return: tuple of tip wrt EE (3x1 ndarray), divot wrt EE (3x1 ndarray), calibration residual (float)
+        :return: tuple of tip wrt EE (tuple of 3 floats), divot wrt EE (tuple of 3 floats), calibration residual (ndarray of floats)
         :rtype: tuple
         """
 
@@ -120,7 +120,7 @@ class PivotCalibration:
 
     def remove_poses(self, idx_poses):
         """
-        Removes poses with specific indices form the poses list.
+        Removes poses with specific indices from the poses list.
 
         :param idx_poses: a list of indices to be removed
         :type idx_poses: list
@@ -142,6 +142,8 @@ class PivotCalibration:
 
         elif all(isinstance(pose_i, Pose) for pose_i in poses):
             self.calib_poses.extend([Transformation(pose_i) for pose_i in poses])
+        else:
+            raise TypeError(f"Cannot add poses from {type(poses[0])}")
 
     def reset_poses(self):
         """
