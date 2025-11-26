@@ -54,8 +54,11 @@ class EyeInHandCalibration:
             """
             Helper function for creating blocks used for rotation solving
             """
-            s1, v1 = q_a[0], q_a[1:]  # quaternion in numpy-quaternion is of shape (w,x,y,z)
-            s2, v2 = q_b[0], q_b[1:]
+            q_arr_a = quaternion.as_float_array(q_a)  # (w, x, y, z)
+            q_arr_b = quaternion.as_float_array(q_b)
+
+            s1, v1 = q_arr_a[0], q_arr_a[1:]
+            s2, v2 = q_arr_b[0], q_arr_b[1:]
 
             left = np.hstack([(s1 - s2), (v1 - v2)])
             left = left.reshape(4, 1)
@@ -68,7 +71,7 @@ class EyeInHandCalibration:
 
         if len(self.robot_transforms) < MIN_NUMBER_OF_POSES:
             raise ValueError(
-                f"Need at least 2 poses for calibration got {len(self.robot_transforms)}."
+                f"Need at least 2 poses for calibration, got {len(self.robot_transforms)}."
             )
 
         m_list = []
