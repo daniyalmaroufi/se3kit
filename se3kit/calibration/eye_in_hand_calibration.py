@@ -31,6 +31,9 @@ class EyeInHandCalibration:
         elif len(robot_transforms) != len(camera_transforms):
             raise ValueError("Robot and camera lists must be same length.")
 
+        elif len(robot_transforms) == 0:
+            raise ValueError("Cannot initialize calibration with empty transform lists.")
+
         elif all(isinstance(pose_i, Transformation) for pose_i in robot_transforms) and all(
             isinstance(pose_i, Transformation) for pose_i in camera_transforms
         ):
@@ -50,7 +53,7 @@ class EyeInHandCalibration:
         :rtype: se3kit.transformation.Transformation
         """
 
-        def make_m_block(q_a, q_b):
+        def _make_m_block(q_a, q_b):
             """
             Helper function for creating blocks used for rotation solving
             """
@@ -74,20 +77,27 @@ class EyeInHandCalibration:
                 f"Need at least 2 poses for calibration, got {len(self.robot_transforms)}."
             )
 
-        m_list = []
+        def _compute_motion_pairs(robot_transforms, camera_transforms):
+            """Compute all pairwise robot and camera motions."""
+            motion_pairs = []
+            for i in range(len(robot_transforms) - 1):
+                for j in range(i + 1, len(robot_transforms)):
+                    # Robot motions
+                    mat_a = robot_transforms[i].inv * robot_transforms[j]
+
+                    # Camera motions
+                    mat_b = camera_transforms[i] * camera_transforms[j].inv
+
+                    motion_pairs.append((mat_a, mat_b))
+
+            return motion_pairs
+
+        motion_pairs = _compute_motion_pairs(self.robot_transforms, self.camera_transforms)
+
         # 1. Form all pairwise motion pairs (i,j)
-        for i in range(len(self.robot_transforms) - 1):
-            for j in range(i + 1, len(self.robot_transforms)):
-                # Robot motions
-                mat_a = self.robot_transforms[i].inv * self.robot_transforms[j]
-                # Camera motions
-                mat_b = self.camera_transforms[i] * self.camera_transforms[j].inv
-
-                # Convert to quaternions
-                q_a = mat_a.rotation.as_quat()
-                q_b = mat_b.rotation.as_quat()
-
-                m_list.append(make_m_block(q_a, q_b))
+        m_list = [
+            _make_m_block(ii[0].rotation.as_quat(), ii[1].rotation.as_quat()) for ii in motion_pairs
+        ]
 
         # Stacking
         m = np.vstack(m_list)
@@ -100,21 +110,11 @@ class EyeInHandCalibration:
         r_x = Rotation(q_x).m
 
         # 3. Translation solve (lhs * p_x = rhs)
-        lhs = []
-        rhs = []
-
-        for i in range(len(self.robot_transforms) - 1):
-            for j in range(i + 1, len(self.robot_transforms)):
-                mat_a = self.robot_transforms[i].inv * self.robot_transforms[j]
-                mat_b = self.camera_transforms[i] * self.camera_transforms[j].inv
-
-                r_a = mat_a.rotation.m
-
-                t_a = mat_a.translation.m
-                t_b = mat_b.translation.m
-
-                lhs.append(r_a - np.eye(3))
-                rhs.append((r_x @ (t_b - t_a).T).reshape(3, 1))
+        lhs = [(ii[0].rotation.m - np.eye(3)) for ii in motion_pairs]
+        rhs = [
+            (r_x @ (ii[1].translation.m - ii[0].translation.m).T).reshape(3, 1)
+            for ii in motion_pairs
+        ]
 
         lhs = np.vstack(lhs)
         rhs = np.vstack(rhs)
