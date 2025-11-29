@@ -12,6 +12,7 @@ from math import atan2, cos, pi, sin, sqrt
 
 import numpy as np
 import quaternion  # Requires numpy-quaternion package
+from scipy.spatial.transform import Rotation as ScipyRotation
 
 from se3kit.ros_compat import get_ros_geometry_msgs
 from se3kit.utils import deg2rad, is_identity, rad2deg, skew_to_vector
@@ -292,7 +293,9 @@ class Rotation:
         :return: Quaternion representing the rotation
         :rtype: np.quaternion
         """
-        return np.quaternion.from_rotation_matrix(self.m)
+        r = ScipyRotation.from_matrix(self.m)
+        q = r.as_quat()  # x, y, z, w
+        return quaternion.quaternion(q[3], q[0], q[1], q[2])  # np.quaternion(w, x, y, z)
 
     def as_geometry_orientation(self):
         """
@@ -434,3 +437,21 @@ class Rotation:
         if verbose:
             logger.info("✔️  Matrix is a valid rotation matrix.")
         return True
+
+    @staticmethod
+    def from_quat(q):
+        """
+        Create Rotation from quaternion tuple (x, y, z, w)
+        """
+        q_np = quaternion.quaternion(q[3], q[0], q[1], q[2])
+        return Rotation(q_np)
+
+    @staticmethod
+    def from_axis_angle(axis, angle_rad):
+        """
+        Create Rotation from axis-angle
+        """
+        from scipy.spatial.transform import Rotation as R_scipy
+
+        r = R_scipy.from_rotvec(axis * angle_rad)
+        return Rotation(r.as_matrix())

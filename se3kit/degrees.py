@@ -5,7 +5,7 @@ between degrees and radians.
 
 """
 
-from utils import deg2rad, rad2deg
+from se3kit.utils import deg2rad, rad2deg
 
 
 class Degrees:
