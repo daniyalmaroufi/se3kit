@@ -34,7 +34,9 @@ class TestEyeInHandCalibration(unittest.TestCase):
         robot_tf = []
         cam_tf = []
 
-        for i in range(10):
+        num_poses = q_robot.shape[0]
+
+        for i in range(num_poses):
             # Each quaternion in file stored as (w, x, y, z).
             # Rotation initializer expects numpy-quaternion (w, x, y, z).
             q_r = quaternion.from_float_array(

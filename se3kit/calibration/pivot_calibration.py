@@ -64,10 +64,10 @@ class PivotCalibration:
 
     def run_pivot_calibration(self):
         """
-        Runs the pivot calibration optimization and returns the tip location with respect to (wrt) the End Effector (EE),
-        the divot location wrt the EE, and the calibration residual.
+        Runs the pivot calibration optimization and returns the tip location with respect to (wrt) the body frame,
+        the divot location wrt the world frame, and the calibration residual.
 
-        :return: tuple of tip wrt EE (tuple of 3 floats), divot wrt EE (tuple of 3 floats), calibration residual (ndarray of floats)
+        :return: tuple of tip wrt body frame (tuple of 3 floats), divot wrt world frame (tuple of 3 floats), calibration residual (ndarray of floats)
         :rtype: (tuple, tuple, np.ndarray)
         """
 
