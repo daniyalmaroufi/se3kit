@@ -12,7 +12,6 @@ from math import atan2, cos, pi, sin, sqrt
 
 import numpy as np
 import quaternion  # Requires numpy-quaternion package
-from scipy.spatial.transform import Rotation as ScipyRotation
 
 from se3kit.ros_compat import get_ros_geometry_msgs
 from se3kit.utils import deg2rad, is_identity, rad2deg, skew_to_vector
@@ -286,16 +285,42 @@ class Rotation:
 
     def as_quat(self):
         """
-        Converts the rotation matrix to a quaternion.
+        Convert the rotation matrix to a quaternion (np.quaternion) using
+        a pure numpy implementation.
 
-        Uses `numpy-quaternion` to generate a quaternion representing the same rotation.
-
-        :return: Quaternion representing the rotation
-        :rtype: np.quaternion
+        Returns w, x, y, z in np.quaternion format.
         """
-        r = ScipyRotation.from_matrix(self.m)
-        q = r.as_quat()  # x, y, z, w
-        return quaternion.quaternion(q[3], q[0], q[1], q[2])  # np.quaternion(w, x, y, z)
+        r = self.m
+        tr = np.trace(r)
+
+        if tr > 0:
+            s = np.sqrt(tr + 1.0) * 2  # s = 4*w
+            w = 0.25 * s
+            x = (r[2, 1] - r[1, 2]) / s
+            y = (r[0, 2] - r[2, 0]) / s
+            z = (r[1, 0] - r[0, 1]) / s
+
+            # Find the largest diagonal element
+        elif (r[0, 0] > r[1, 1]) and (r[0, 0] > r[2, 2]):
+            s = np.sqrt(1.0 + r[0, 0] - r[1, 1] - r[2, 2]) * 2  # s = 4*x
+            w = (r[2, 1] - r[1, 2]) / s
+            x = 0.25 * s
+            y = (r[0, 1] + r[1, 0]) / s
+            z = (r[0, 2] + r[2, 0]) / s
+        elif r[1, 1] > r[2, 2]:
+            s = np.sqrt(1.0 + r[1, 1] - r[0, 0] - r[2, 2]) * 2  # s = 4*y
+            w = (r[0, 2] - r[2, 0]) / s
+            x = (r[0, 1] + r[1, 0]) / s
+            y = 0.25 * s
+            z = (r[1, 2] + r[2, 1]) / s
+        else:
+            s = np.sqrt(1.0 + r[2, 2] - r[0, 0] - r[1, 1]) * 2  # s = 4*z
+            w = (r[1, 0] - r[0, 1]) / s
+            x = (r[0, 2] + r[2, 0]) / s
+            y = (r[1, 2] + r[2, 1]) / s
+            z = 0.25 * s
+
+        return np.quaternion(w, x, y, z)
 
     def as_geometry_orientation(self):
         """
@@ -441,17 +466,58 @@ class Rotation:
     @staticmethod
     def from_quat(q):
         """
-        Create Rotation from quaternion tuple (x, y, z, w)
+        Create a ``Rotation`` object from a quaternion.
+
+        The input quaternion is expected in the format ``(x, y, z, w)``, where
+        ``w`` is the real component. Internally this is converted into an
+        ``np.quaternion`` object with ordering ``(w, x, y, z)`` before being passed
+        to the ``Rotation`` constructor.
+
+        :param q: Quaternion as a tuple or list in the order ``(x, y, z, w)``.
+        :type q: tuple[float, float, float, float]
+        :return: A ``Rotation`` instance representing the same rotation.
+        :rtype: Rotation
         """
         q_np = quaternion.quaternion(q[3], q[0], q[1], q[2])
         return Rotation(q_np)
 
     @staticmethod
-    def from_axis_angle(axis, angle_rad):
+    def from_axisangle(axis, angle_rad):
         """
-        Create Rotation from axis-angle
-        """
-        from scipy.spatial.transform import Rotation as R_scipy
+        Construct a ``Rotation`` object from an axis-angle representation using
+        Rodrigues' rotation formula.
 
-        r = R_scipy.from_rotvec(axis * angle_rad)
-        return Rotation(r.as_matrix())
+        The axis must be a 3D vector and does not need to be normalized; it will be
+        normalized internally. The angle is given in radians. This method computes
+        the corresponding 3x3 rotation matrix:
+
+        .. math::
+            R = I \\cos\\theta + (1 - \\cos\\theta) \\, a a^T + [a]_\\times \\sin\\theta
+
+        where ``a`` is the unit rotation axis and ``[a]_x`` is the cross-product
+        (skew-symmetric) matrix of ``a``.
+
+        :param axis: 3D rotation axis. Does not need to be unit length.
+        :type axis: array-like of float with shape (3,)
+        :param angle_rad: Rotation angle in radians.
+        :type angle_rad: float
+        :return: A ``Rotation`` instance representing the given rotation.
+        :rtype: Rotation
+        """
+        axis = np.asarray(axis, dtype=float)
+        axis = axis / np.linalg.norm(axis)
+
+        x, y, z = axis
+        c = np.cos(angle_rad)
+        s = np.sin(angle_rad)
+        c_factor = 1 - c
+
+        r_mat = np.array(
+            [
+                [c + x * x * c_factor, x * y * c_factor - z * s, x * z * c_factor + y * s],
+                [y * x * c_factor + z * s, c + y * y * c_factor, y * z * c_factor - x * s],
+                [z * x * c_factor - y * s, z * y * c_factor + x * s, c + z * z * c_factor],
+            ]
+        )
+
+        return Rotation(r_mat)

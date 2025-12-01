@@ -60,10 +60,19 @@ class TestUtils(unittest.TestCase):
         i = np.eye(3)
         self.assertTrue(is_identity(i))
 
-    def test_is_identity_noisy(self):
+    def test_is_identity_small_perturbations(self):
+        """Matrix with tiny perturbations should still be considered identity."""
         i = np.eye(4)
-        i[1, 2] = 1e-15  # Below tolerance
-        self.assertTrue(is_identity(i))
+
+        # Add tiny noise to multiple entries (still below tolerance)
+        i[0, 1] = 1e-15
+        i[1, 2] = 2e-15
+        i[2, 0] = -3e-15
+        i[3, 1] = 5e-16
+
+        self.assertTrue(
+            is_identity(i), msg=f"Matrix with small perturbations should still be identity: {i}"
+        )
 
     def test_is_identity_false(self):
         m = np.eye(3)
@@ -123,6 +132,19 @@ class TestUtils(unittest.TestCase):
         )
         expected = np.array([1, 2, 3])
         self.assertTrue(np.allclose(skew_to_vector(sk), expected))
+
+    def test_skew_to_vector_invalid_symmetric(self):
+        """A symmetric matrix should be rejected as invalid skew-symmetric."""
+        symmetric = np.array(
+            [
+                [0, 1, 2],
+                [1, 0, 3],
+                [2, 3, 0],
+            ]
+        )
+
+        with self.assertRaises(ValueError):
+            skew_to_vector(symmetric)
 
     def test_skew_to_vector_invalid_shape(self):
         with self.assertRaises(ValueError):

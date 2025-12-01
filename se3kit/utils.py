@@ -87,7 +87,7 @@ def vector_to_skew(v):
         raise ValueError(f"Not implemented for input size {v.size}")
 
 
-def skew_to_vector(sk):
+def skew_to_vector(sk, tol=1e-8):
     """
     Converts a 3x3 skew-symmetric matrix back into a 3D vector.
 
@@ -96,9 +96,15 @@ def skew_to_vector(sk):
     :return: Corresponding 3D vector [x, y, z].
     :rtype: np.ndarray
 
-    :raises ValueError: If input matrix is not 3x3.
+    :raises ValueError: If input matrix is not 3x3 or not skew-symmetric.
     """
-    if sk.shape == (3, 3):
-        return np.array([sk[2, 1], sk[0, 2], sk[1, 0]])
-    else:
+    sk = np.asarray(sk)
+
+    if sk.shape != (3, 3):
         raise ValueError(f"Not implemented for shape {sk.shape}")
+
+    # Check skew-symmetry: S + S.T should be near zero
+    if not np.allclose(sk + sk.T, np.zeros((3, 3)), atol=tol):
+        raise ValueError("Matrix is not skew-symmetric")
+
+    return np.array([sk[2, 1], sk[0, 2], sk[1, 0]])

@@ -10,7 +10,7 @@ import unittest
 import numpy as np
 
 from se3kit import rotation
-from se3kit.utils import deg2rad
+from se3kit.utils import deg2rad, is_near
 
 
 class TestRotation(unittest.TestCase):
@@ -69,102 +69,133 @@ class TestRotation(unittest.TestCase):
 
     def quat_equal(self, q1, q2, tol=1e-7):
         """
-        Compare two quaternions (np.quaternion or tuple) up to sign.
-        Returns True if they are equal up to ±1 (q or -q).
+        Compare two quaternions while accounting for the fact that q and -q
+        represent the same 3D rotation.
+
+        Returns True if q1 ≈ q2 or q1 ≈ -q2 within the given tolerance.
         """
-        # Convert np.quaternion to tuple (x, y, z, w)
+
+        # Normalize both inputs to tuples (x, y, z, w)
         if hasattr(q1, "x"):
             q1 = (q1.x, q1.y, q1.z, q1.w)
         if hasattr(q2, "x"):
             q2 = (q2.x, q2.y, q2.z, q2.w)
 
-        # Direct comparison
-        direct = all(abs(a - b) < tol for a, b in zip(q1, q2, strict=True))
-        # Compare with negated quaternion
-        negated = all(abs(a + b) < tol for a, b in zip(q1, q2, strict=True))
+        # Direct comparison using is_near
+        direct = all(is_near(a, b, tol) for a, b in zip(q1, q2, strict=True))
+
+        # Comparison with negated quaternion using is_near
+        negated = all(is_near(a, -b, tol) for a, b in zip(q1, q2, strict=True))
+
         return direct or negated
 
-    def test_rotation_from_abc_legacy(self):
-        """Compare Rotation.from_ABC_degrees to a manually computed quaternion."""
+    @staticmethod
+    def legacy_quat(adeg, bdeg, cdeg):
+        """Compute the legacy quaternion from ABC degrees."""
+        ar, br, cr = (deg2rad(d) for d in (adeg, bdeg, cdeg))
+        x = np.cos(ar / 2) * np.cos(br / 2) * np.sin(cr / 2) - np.sin(ar / 2) * np.sin(
+            br / 2
+        ) * np.cos(cr / 2)
+        y = np.cos(ar / 2) * np.sin(br / 2) * np.cos(cr / 2) + np.sin(ar / 2) * np.cos(
+            br / 2
+        ) * np.sin(cr / 2)
+        z = np.sin(ar / 2) * np.cos(br / 2) * np.cos(cr / 2) - np.cos(ar / 2) * np.sin(
+            br / 2
+        ) * np.sin(cr / 2)
+        w = np.cos(ar / 2) * np.cos(br / 2) * np.cos(cr / 2) + np.sin(ar / 2) * np.sin(
+            br / 2
+        ) * np.sin(cr / 2)
+        return (x, y, z, w)
 
-        def legacy_quat(adeg, bdeg, cdeg):
-            ar, br, cr = (deg2rad(d) for d in (adeg, bdeg, cdeg))
-            x = np.cos(ar / 2) * np.cos(br / 2) * np.sin(cr / 2) - np.sin(ar / 2) * np.sin(
-                br / 2
-            ) * np.cos(cr / 2)
-            y = np.cos(ar / 2) * np.sin(br / 2) * np.cos(cr / 2) + np.sin(ar / 2) * np.cos(
-                br / 2
-            ) * np.sin(cr / 2)
-            z = np.sin(ar / 2) * np.cos(br / 2) * np.cos(cr / 2) - np.cos(ar / 2) * np.sin(
-                br / 2
-            ) * np.sin(cr / 2)
-            w = np.cos(ar / 2) * np.cos(br / 2) * np.cos(cr / 2) + np.sin(ar / 2) * np.sin(
-                br / 2
-            ) * np.sin(cr / 2)
-            return (x, y, z, w)
+    def test_rotation_from_abc_legacy_case1(self):
+        """Test ABC=(20, 30, -40)."""
+        eg = (20, 30, -40)
+        q_obj = rotation.Rotation.from_ABC_degrees(list(eg)).as_quat()
+        qxyzw = (q_obj.x, q_obj.y, q_obj.z, q_obj.w)
+        q2 = self.legacy_quat(*eg)
+        self.assertTrue(
+            self.quat_equal(qxyzw, q2),
+            f"Quaternion mismatch for ABC={eg}, got {qxyzw}, expected {q2}",
+        )
 
-        test_angles = [(20, 30, -40), (-15, 22, 10), (0, 190, -600)]
+    def test_rotation_from_abc_legacy_case2(self):
+        """Test ABC=(-15, 22, 10)."""
+        eg = (-15, 22, 10)
+        q_obj = rotation.Rotation.from_ABC_degrees(list(eg)).as_quat()
+        qxyzw = (q_obj.x, q_obj.y, q_obj.z, q_obj.w)
+        q2 = self.legacy_quat(*eg)
+        self.assertTrue(
+            self.quat_equal(qxyzw, q2),
+            f"Quaternion mismatch for ABC={eg}, got {qxyzw}, expected {q2}",
+        )
 
-        for eg in test_angles:
-            q_obj = rotation.Rotation.from_ABC_degrees(list(eg)).as_quat()
-            # Convert np.quaternion to numeric tuple (x, y, z, w)
-            qxyzw = (q_obj.x, q_obj.y, q_obj.z, q_obj.w)
-            q2 = legacy_quat(*eg)
-            self.assertTrue(
-                self.quat_equal(qxyzw, q2),
-                f"Quaternion mismatch for ABC={eg}, got {qxyzw}, expected {q2}",
+    def test_rotation_from_abc_legacy_case3(self):
+        """Test ABC=(0, 190, -600)."""
+        eg = (0, 190, -600)
+        q_obj = rotation.Rotation.from_ABC_degrees(list(eg)).as_quat()
+        qxyzw = (q_obj.x, q_obj.y, q_obj.z, q_obj.w)
+        q2 = self.legacy_quat(*eg)
+        self.assertTrue(
+            self.quat_equal(qxyzw, q2),
+            f"Quaternion mismatch for ABC={eg}, got {qxyzw}, expected {q2}",
+        )
+
+    # -------------------------------
+    # Rotation ABC / ZYX tests
+    # -------------------------------
+    def _check_abc_zyx_consistency(self, eg):
+        self.assertTrue(np.allclose(rotation.Rotation.from_ABC(eg).as_ABC() - eg, 0, atol=1e-10))
+        self.assertTrue(np.allclose(rotation.Rotation.from_ABC(eg).as_zyx() - eg, 0, atol=1e-10))
+        self.assertTrue(np.allclose(rotation.Rotation.from_zyx(eg).as_zyx() - eg, 0, atol=1e-10))
+        self.assertTrue(np.allclose(rotation.Rotation.from_zyx(eg).as_ABC() - eg, 0, atol=1e-10))
+        self.assertTrue(
+            np.allclose(
+                rotation.Rotation.from_zyx(eg).m,
+                rotation.Rotation.from_ABC(eg).m,
+                atol=1e-10,
             )
+        )
 
-    def test_rotation_zyx_is_abc(self):
-        egs = [
-            [1, 0, 0],
-            [0, 1, 0],
-            [0, 0, 1],
-            [np.pi / 2, -np.pi / 4, 0],
-        ]
+    def test_rotation_abc_zyx_case1(self):
+        self._check_abc_zyx_consistency([1, 0, 0])
 
-        for eg in egs:
-            self.assertTrue(
-                np.allclose(rotation.Rotation.from_ABC(eg).as_ABC() - eg, 0, atol=1e-10)
-            )
-            self.assertTrue(
-                np.allclose(rotation.Rotation.from_ABC(eg).as_zyx() - eg, 0, atol=1e-10)
-            )
-            self.assertTrue(
-                np.allclose(rotation.Rotation.from_zyx(eg).as_zyx() - eg, 0, atol=1e-10)
-            )
-            self.assertTrue(
-                np.allclose(rotation.Rotation.from_zyx(eg).as_ABC() - eg, 0, atol=1e-10)
-            )
+    def test_rotation_abc_zyx_case2(self):
+        self._check_abc_zyx_consistency([0, 1, 0])
 
-            # rotation matrices equal
-            self.assertTrue(
-                np.allclose(
-                    rotation.Rotation.from_zyx(eg).m,
-                    rotation.Rotation.from_ABC(eg).m,
-                    atol=1e-10,
-                )
-            )
+    def test_rotation_abc_zyx_case3(self):
+        self._check_abc_zyx_consistency([0, 0, 1])
 
-    def test_rotation_rpy_is_zyx_reversed(self):
-        egs = [
-            [1, 0, 0],
-            [0, 1, 0],
-            [0, 0, 1],
-            [np.pi / 2, -np.pi / 4, 0],
-        ]
+    def test_rotation_abc_zyx_case4(self):
+        self._check_abc_zyx_consistency([np.pi / 2, -np.pi / 4, 0])
 
-        for eg in egs:
-            rzyx = rotation.Rotation.from_zyx(eg)
-            rrpy = rotation.Rotation.from_rpy(np.flip(eg))
-            self.assertTrue(np.allclose(rzyx.m, rrpy.m, atol=1e-10))
+    # -------------------------------
+    # Rotation RPY / ZYX reversed tests
+    # -------------------------------
+    def _check_rpy_zyx_consistency(self, eg):
+        rzyx = rotation.Rotation.from_zyx(eg)
+        rrpy = rotation.Rotation.from_rpy(np.flip(eg))
+        self.assertTrue(np.allclose(rzyx.m, rrpy.m, atol=1e-10))
 
-        for eg in egs:
-            rpy = rotation.Rotation.from_zyx(eg).as_rpy()
-            self.assertTrue(np.allclose(np.flip(rpy), eg, atol=1e-10))
+        rpy = rotation.Rotation.from_zyx(eg).as_rpy()
+        self.assertTrue(np.allclose(np.flip(rpy), eg, atol=1e-10))
+
+    def test_rotation_rpy_zyx_case1(self):
+        self._check_rpy_zyx_consistency([1, 0, 0])
+
+    def test_rotation_rpy_zyx_case2(self):
+        self._check_rpy_zyx_consistency([0, 1, 0])
+
+    def test_rotation_rpy_zyx_case3(self):
+        self._check_rpy_zyx_consistency([0, 0, 1])
+
+    def test_rotation_rpy_zyx_case4(self):
+        self._check_rpy_zyx_consistency([np.pi / 2, -np.pi / 4, 0])
 
     def test_custom_rotation_matrix(self):
-        """Test a specific custom rotation matrix from 3D Rotation Converter."""
+        """
+        Test a specific custom rotation matrix from 3D Rotation Converter.
+        3D Rotation Converter: https://www.andre-gaschler.com/rotationconverter/
+        """
         # Rotation matrix from your input
         r_mat = np.array(
             [
@@ -189,7 +220,9 @@ class TestRotation(unittest.TestCase):
         # The reconstructed matrix should be close to original
         self.assertTrue(
             np.allclose(r.m, r2.m, atol=1e-7),
-            f"Round-trip ZYX Euler → matrix failed: {r.m} vs {r2.m}",
+            f"Round-trip ZYX Euler → matrix mismatch:\n"
+            f"Expected (original):\n{r.m}\n"
+            f"Got (reconstructed):\n{r2.m}",
         )
 
         # Optionally: round-trip via ABC Euler (if available)
@@ -197,7 +230,9 @@ class TestRotation(unittest.TestCase):
         r3 = rotation.Rotation.from_ABC(abc)
         self.assertTrue(
             np.allclose(r.m, r3.m, atol=1e-7),
-            f"Round-trip ABC Euler → matrix failed: {r.m} vs {r3.m}",
+            f"Round-trip ABC Euler → matrix mismatch:\n"
+            f"Expected (original):\n{r.m}\n"
+            f"Got (reconstructed):\n{r3.m}",
         )
 
     def test_custom_quaternion_roundtrip(self):
@@ -213,17 +248,22 @@ class TestRotation(unittest.TestCase):
         q2 = (q2_obj.x, q2_obj.y, q2_obj.z, q2_obj.w)
 
         # Check if original and round-trip quaternion match (up to sign)
-        self.assertTrue(self.quat_equal(q, q2), f"Quaternion roundtrip failed: {q} vs {q2}")
+        self.assertTrue(
+            self.quat_equal(q, q2),
+            f"Quaternion roundtrip mismatch:\n"
+            f"Expected (original): {q}\n"
+            f"Got (round-trip):     {q2}",
+        )
 
     def test_custom_axis_angle_roundtrip(self):
         """Test round-trip: axis-angle → matrix → axis-angle."""
         # Axis-angle from converter: axis normalized, angle in degrees
         axis = np.array([0.4472136, 0, -0.8944272])
         angle_deg = 58.4118645
-        angle_rad = np.deg2rad(angle_deg)
+        angle_rad = deg2rad(angle_deg)
 
         # Create rotation
-        r = rotation.Rotation.from_axis_angle(axis, angle_rad)
+        r = rotation.Rotation.from_axisangle(axis, angle_rad)
 
         # Convert back to axis-angle
         axis2, angle2 = r.as_axisangle()
@@ -237,6 +277,39 @@ class TestRotation(unittest.TestCase):
         self.assertAlmostEqual(
             angle_rad, angle2, delta=1e-7, msg=f"Angle mismatch: {angle_rad} vs {angle2}"
         )
+
+    def test_invalid_non_orthogonal_matrix(self):
+        """Rotation constructor should raise ValueError for non-orthogonal matrix."""
+        r = np.eye(3)
+        r[0, 1] = 0.1  # breaks orthogonality
+        with self.assertRaises(ValueError):
+            rotation.Rotation(r)
+
+    def test_invalid_improper_rotation_det_minus_one(self):
+        """Rotation constructor should raise ValueError for improper rotation (determinant=-1)."""
+        r = np.eye(3)
+        r[2, 2] = -1  # flips determinant to -1
+        with self.assertRaises(ValueError):
+            rotation.Rotation(r)
+
+    def test_invalid_wrong_shape_matrix(self):
+        """Rotation constructor should raise ValueError for wrong shape matrix."""
+        r = np.eye(4)  # 4x4 matrix
+        with self.assertRaises(ValueError):
+            rotation.Rotation(r)
+
+    def test_invalid_wrong_type_matrix(self):
+        """Rotation constructor should raise TypeError for non-ndarray input."""
+        r = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]  # list instead of np.ndarray
+        with self.assertRaises(TypeError):
+            rotation.Rotation(r)
+
+    def test_invalid_almost_orthogonal_matrix(self):
+        """Matrix nearly orthogonal but violates tolerance should raise ValueError."""
+        r = np.eye(3)
+        r[0, 0] = 1 + 1e-3  # violates orthogonality within default tol
+        with self.assertRaises(ValueError):
+            rotation.Rotation(r)
 
 
 if __name__ == "__main__":
