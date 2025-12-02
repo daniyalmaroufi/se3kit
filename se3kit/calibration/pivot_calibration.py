@@ -141,15 +141,16 @@ class PivotCalibration:
         if not isinstance(poses, list):
             raise TypeError("Input is not a list.")
 
+        if len(poses) == 0:
+            raise TypeError("Cannot add poses from empty list.")
+
         elif all(isinstance(pose_i, Transformation) for pose_i in poses):
             self.calib_poses.extend(poses)
 
         elif all(isinstance(pose_i, Pose) for pose_i in poses):
             self.calib_poses.extend([Transformation(pose_i) for pose_i in poses])
         else:
-            raise TypeError(
-                f"Cannot add poses from {type(poses[0]) if poses else 'unknown (empty list)'}"
-            )
+            raise TypeError(f"Cannot add poses from {type(poses)}")
 
     def reset_poses(self):
         """
