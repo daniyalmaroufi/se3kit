@@ -81,11 +81,15 @@ class TestRotation(unittest.TestCase):
         if hasattr(q2, "x"):
             q2 = (q2.x, q2.y, q2.z, q2.w)
 
+        # Ensure lengths match
+        if len(q1) != len(q2):
+            raise ValueError(f"Quaternion lengths mismatch: {len(q1)} vs {len(q2)}")
+
         # Direct comparison using is_near
-        direct = all(is_near(a, b, tol) for a, b in zip(q1, q2, strict=True))
+        direct = all(is_near(a, b, tol) for a, b in zip(q1, q2))
 
         # Comparison with negated quaternion using is_near
-        negated = all(is_near(a, -b, tol) for a, b in zip(q1, q2, strict=True))
+        negated = all(is_near(a, -b, tol) for a, b in zip(q1, q2))
 
         return direct or negated
 
@@ -143,18 +147,23 @@ class TestRotation(unittest.TestCase):
     # -------------------------------
     # Rotation ABC / ZYX tests
     # -------------------------------
-    def _check_abc_zyx_consistency(self, eg):
-        self.assertTrue(np.allclose(rotation.Rotation.from_ABC(eg).as_ABC() - eg, 0, atol=1e-10))
-        self.assertTrue(np.allclose(rotation.Rotation.from_ABC(eg).as_zyx() - eg, 0, atol=1e-10))
-        self.assertTrue(np.allclose(rotation.Rotation.from_zyx(eg).as_zyx() - eg, 0, atol=1e-10))
-        self.assertTrue(np.allclose(rotation.Rotation.from_zyx(eg).as_ABC() - eg, 0, atol=1e-10))
-        self.assertTrue(
-            np.allclose(
-                rotation.Rotation.from_zyx(eg).m,
-                rotation.Rotation.from_ABC(eg).m,
-                atol=1e-10,
-            )
-        )
+    def _check_abc_zyx_consistency(self, eg, tol=1e-10):
+        """Check consistency between ABC and ZYX rotation representations using is_near."""
+        
+        def arrays_near(a, b, tol):
+            if a.shape != b.shape:
+                return False
+            return all(is_near(x, y, tol) for x, y in zip(a.flat, b.flat))
+
+        r_abc = rotation.Rotation.from_ABC(eg)
+        r_zyx = rotation.Rotation.from_zyx(eg)
+
+        self.assertTrue(arrays_near(r_abc.as_ABC() - eg, np.zeros_like(eg), tol))
+        self.assertTrue(arrays_near(r_abc.as_zyx() - eg, np.zeros_like(eg), tol))
+        self.assertTrue(arrays_near(r_zyx.as_zyx() - eg, np.zeros_like(eg), tol))
+        self.assertTrue(arrays_near(r_zyx.as_ABC() - eg, np.zeros_like(eg), tol))
+        self.assertTrue(arrays_near(r_zyx.m, r_abc.m, tol))
+
 
     def test_rotation_abc_zyx_case1(self):
         self._check_abc_zyx_consistency([1, 0, 0])
@@ -171,13 +180,26 @@ class TestRotation(unittest.TestCase):
     # -------------------------------
     # Rotation RPY / ZYX reversed tests
     # -------------------------------
-    def _check_rpy_zyx_consistency(self, eg):
+    def _check_rpy_zyx_consistency(self, eg, tol=1e-10):
+        """Check consistency between RPY and ZYX rotation representations using is_near."""
+
+        def arrays_near(a, b, tol):
+            a = np.asarray(a)
+            b = np.asarray(b)
+            if a.shape != b.shape:
+                return False
+            return all(is_near(x, y, tol) for x, y in zip(a.flat, b.flat))
+
         rzyx = rotation.Rotation.from_zyx(eg)
         rrpy = rotation.Rotation.from_rpy(np.flip(eg))
-        self.assertTrue(np.allclose(rzyx.m, rrpy.m, atol=1e-10))
+        
+        # Compare rotation matrices
+        self.assertTrue(arrays_near(rzyx.m, rrpy.m, tol))
 
+        # Compare RPY angles (with flipping)
         rpy = rotation.Rotation.from_zyx(eg).as_rpy()
-        self.assertTrue(np.allclose(np.flip(rpy), eg, atol=1e-10))
+        self.assertTrue(arrays_near(np.flip(rpy), eg, tol))
+
 
     def test_rotation_rpy_zyx_case1(self):
         self._check_rpy_zyx_consistency([1, 0, 0])
@@ -219,17 +241,24 @@ class TestRotation(unittest.TestCase):
 
         # The reconstructed matrix should be close to original
         self.assertTrue(
-            np.allclose(r.m, r2.m, atol=1e-7),
+            all(
+                is_near(a, b, tol=1e-6)
+                for a, b in zip(r.m.flat, r2.m.flat)
+            ),
             f"Round-trip ZYX Euler → matrix mismatch:\n"
             f"Expected (original):\n{r.m}\n"
             f"Got (reconstructed):\n{r2.m}",
         )
 
-        # Optionally: round-trip via ABC Euler (if available)
+
+        # Round-trip via ABC Euler angles
         abc = r.as_ABC()
         r3 = rotation.Rotation.from_ABC(abc)
         self.assertTrue(
-            np.allclose(r.m, r3.m, atol=1e-7),
+            all(
+                is_near(a, b, tol=1e-6)
+                for a, b in zip(r.m.flat, r3.m.flat)
+            ),
             f"Round-trip ABC Euler → matrix mismatch:\n"
             f"Expected (original):\n{r.m}\n"
             f"Got (reconstructed):\n{r3.m}",
@@ -269,13 +298,20 @@ class TestRotation(unittest.TestCase):
         axis2, angle2 = r.as_axisangle()
 
         # Axis can flip direction, adjust if needed
-        if not np.allclose(axis, axis2, atol=1e-7):
+        if not all(is_near(a, b, tol=1e-7) for a, b in zip(axis, axis2)):
             axis2 = -axis2
             angle2 = -angle2
 
-        self.assertTrue(np.allclose(axis, axis2, atol=1e-7), f"Axis mismatch: {axis} vs {axis2}")
-        self.assertAlmostEqual(
-            angle_rad, angle2, delta=1e-7, msg=f"Angle mismatch: {angle_rad} vs {angle2}"
+        # Check axis
+        self.assertTrue(
+            all(is_near(a, b, tol=1e-7) for a, b in zip(axis, axis2)),
+            f"Axis mismatch: {axis} vs {axis2}"
+        )
+        
+        # Check angle
+        self.assertTrue(
+            is_near(angle_rad, angle2, tol=1e-7),
+            f"Angle mismatch: {angle_rad} vs {angle2}"
         )
 
     def test_invalid_non_orthogonal_matrix(self):

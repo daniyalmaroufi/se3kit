@@ -14,7 +14,7 @@ import numpy as np
 import quaternion  # Requires numpy-quaternion package
 
 from se3kit.ros_compat import get_ros_geometry_msgs
-from se3kit.utils import deg2rad, is_identity, rad2deg, skew_to_vector
+from se3kit.utils import deg2rad, is_identity, is_near, rad2deg, skew_to_vector
 
 # Retrieve the ROS geometry message types (Point, Quaternion, Pose, Vector3)
 Point, Quaternion, Pose, Vector3 = get_ros_geometry_msgs()
@@ -292,7 +292,7 @@ class Rotation:
         """
         r = self.m
         tr = np.trace(r)
-
+        # Find the largest diagonal element
         if tr > 0:
             s = np.sqrt(tr + 1.0) * 2  # s = 4*w
             w = 0.25 * s
@@ -300,7 +300,7 @@ class Rotation:
             y = (r[0, 2] - r[2, 0]) / s
             z = (r[1, 0] - r[0, 1]) / s
 
-            # Find the largest diagonal element
+        
         elif (r[0, 0] > r[1, 1]) and (r[0, 0] > r[2, 2]):
             s = np.sqrt(1.0 + r[0, 0] - r[1, 1] - r[2, 2]) * 2  # s = 4*x
             w = (r[2, 1] - r[1, 2]) / s
@@ -320,7 +320,7 @@ class Rotation:
             y = (r[1, 2] + r[2, 1]) / s
             z = 0.25 * s
 
-        return np.quaternion(w, x, y, z)
+        return quaternion.quaternion(w, x, y, z)
 
     def as_geometry_orientation(self):
         """
@@ -447,8 +447,11 @@ class Rotation:
             if mat.shape != (3, 3):
                 raise ValueError(f"Rotation matrix must be 3x3, got {mat.shape}")
 
-            if not np.allclose(mat.T @ mat, np.eye(3), atol=tol):
+            if not all(
+                is_near(a, b, tol=tol) for a, b in zip((mat.T @ mat).flat, np.eye(3).flat)
+            ):
                 raise ValueError("Matrix is not orthogonal (R.T @ R != I)")
+
 
             det_val = np.linalg.det(mat)
             if not np.isclose(det_val, 1.0, atol=tol):
@@ -505,7 +508,11 @@ class Rotation:
         :rtype: Rotation
         """
         axis = np.asarray(axis, dtype=float)
-        axis = axis / np.linalg.norm(axis)
+        norm = np.linalg.norm(axis)
+        if norm == 0:
+            raise ValueError("Rotation axis has zero length, cannot normalize [0, 0, 0].")
+
+        axis = axis / norm
 
         x, y, z = axis
         c = np.cos(angle_rad)

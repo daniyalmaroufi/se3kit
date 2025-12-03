@@ -6,6 +6,7 @@ from se3kit.hpoint import HPoint
 from se3kit.ros_compat import Pose, use_geomsg
 from se3kit.rotation import Rotation
 from se3kit.translation import Translation
+from se3kit.utils import is_near
 
 # Constants to avoid magic-numbers in argument checks
 _TRANSLATION_ROTATION_ARG_COUNT = 2
@@ -288,9 +289,11 @@ class Transformation:
                 raise ValueError("Transformation matrix has invalid translation part.")
 
             homog_vec = mat[3, :]
-            if not np.allclose(homog_vec, np.asarray([0, 0, 0, 1]), atol=1e-9):
+            expected = np.array([0, 0, 0, 1])
+
+            if not all(is_near(a, b, tol=1e-9) for a, b in zip(homog_vec, expected)):
                 raise ValueError(
-                    f"Transformation matrix is not affine. Last row must be [0, 0, 0, 1], got {mat[3, :] }"
+                    f"Transformation matrix is not affine. Last row must be [0, 0, 0, 1], got {homog_vec}"
                 )
 
         except (ValueError, TypeError) as e:

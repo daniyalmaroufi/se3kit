@@ -62,7 +62,12 @@ def is_identity(a, tol=NUMERICAL_TOLERANCE):
     :return: True if a ≈ I, False otherwise.
     :rtype: bool
     """
-    return np.allclose(a, np.eye(a.shape[0]), atol=tol)
+    n = a.shape[0]
+    identity = np.eye(n)
+    
+    # Flatten both matrices and compare element-wise using is_near
+    return all(is_near(x, y, tol) for x, y in zip(a.flat, identity.flat))
+    
 
 
 def vector_to_skew(v):
@@ -104,7 +109,9 @@ def skew_to_vector(sk, tol=1e-8):
         raise ValueError(f"Not implemented for shape {sk.shape}")
 
     # Check skew-symmetry: S + S.T should be near zero
-    if not np.allclose(sk + sk.T, np.zeros((3, 3)), atol=tol):
-        raise ValueError("Matrix is not skew-symmetric")
+    for i in range(3):
+        for j in range(3):
+            if not is_near(sk[i, j], -sk[j, i], tol):
+                raise ValueError("Matrix is not skew-symmetric")
 
     return np.array([sk[2, 1], sk[0, 2], sk[1, 0]])

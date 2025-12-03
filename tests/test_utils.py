@@ -19,26 +19,30 @@ class TestUtils(unittest.TestCase):
     # deg2rad / rad2deg
     # -----------------------------
     def test_deg2rad_scalar(self):
-        self.assertTrue(np.isclose(deg2rad(180), pi))
-        self.assertTrue(np.isclose(deg2rad(90), pi / 2))
+        self.assertTrue(is_near(deg2rad(180), pi))
+        self.assertTrue(is_near(deg2rad(90), pi / 2))
 
     def test_deg2rad_array(self):
         arr = np.array([0, 90, 180])
         expected = np.array([0, pi / 2, pi])
-        self.assertTrue(np.allclose(deg2rad(arr), expected))
+        self.assertTrue(all(is_near(a, b) for a, b in zip(deg2rad(arr), expected)))
 
     def test_rad2deg_scalar(self):
-        self.assertTrue(np.isclose(rad2deg(pi), 180))
-        self.assertTrue(np.isclose(rad2deg(pi / 2), 90))
+        self.assertTrue(is_near(rad2deg(pi), 180))
+        self.assertTrue(is_near(rad2deg(pi / 2), 90))
 
     def test_rad2deg_array(self):
         arr = np.array([0, pi / 2, pi])
         expected = np.array([0, 90, 180])
-        self.assertTrue(np.allclose(rad2deg(arr), expected))
+        self.assertTrue(all(is_near(a, b) for a, b in zip(rad2deg(arr), expected)))
+
 
     def test_deg2rad_rad2deg_roundtrip(self):
         x = np.array([-180, -90, 0, 45, 123])
-        self.assertTrue(np.allclose(rad2deg(deg2rad(x)), x))
+        
+        self.assertTrue(all(is_near(a, b, tol=1e-12) for a, b in zip(rad2deg(deg2rad(x)), x)))
+
+
 
     # -----------------------------
     # is_near
@@ -94,7 +98,7 @@ class TestUtils(unittest.TestCase):
             ]
         )
 
-        self.assertTrue(np.allclose(sk, expected))
+        self.assertTrue(all(is_near(a, b) for a, b in zip(sk.flat, expected.flat)))
 
     # -----------------------------
     # vector_to_skew (6D screw)
@@ -112,7 +116,7 @@ class TestUtils(unittest.TestCase):
             ]
         )
 
-        self.assertTrue(np.allclose(sk, expected))
+        self.assertTrue(all(is_near(a, b) for a, b in zip(sk.flat, expected.flat)))
 
     def test_vector_to_skew_invalid_size(self):
         v = np.array([1, 2])  # Invalid size
@@ -131,7 +135,7 @@ class TestUtils(unittest.TestCase):
             ]
         )
         expected = np.array([1, 2, 3])
-        self.assertTrue(np.allclose(skew_to_vector(sk), expected))
+        self.assertTrue(all(is_near(a, b) for a, b in zip(skew_to_vector(sk), expected)))
 
     def test_skew_to_vector_invalid_symmetric(self):
         """A symmetric matrix should be rejected as invalid skew-symmetric."""
@@ -155,12 +159,14 @@ class TestUtils(unittest.TestCase):
     # -----------------------------
     def test_round_trip_3d(self):
         v = np.array([4.2, -1.1, 9.5])
-        self.assertTrue(np.allclose(skew_to_vector(vector_to_skew(v)), v))
+        self.assertTrue(all(is_near(a, b) for a, b in zip(skew_to_vector(vector_to_skew(v)), v)))
+
 
     # Also test list input works
     def test_round_trip_list_input(self):
         v = [3, 5, 7]
-        self.assertTrue(np.allclose(skew_to_vector(vector_to_skew(v)), np.array(v)))
+        self.assertTrue(all(is_near(a, b) for a, b in zip(skew_to_vector(vector_to_skew(v)), np.array(v))))
+
 
 
 if __name__ == "__main__":
