@@ -333,7 +333,8 @@ class Rotation:
         Convert the rotation matrix to a quaternion (np.quaternion) using
         a pure numpy implementation.
 
-        Returns w, x, y, z in np.quaternion format.
+        :return: Quaternion representing the rotation
+        :rtype: quaternion.quaternion
         """
         r = self.m
         tr = np.trace(r)
