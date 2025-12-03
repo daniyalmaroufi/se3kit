@@ -24,7 +24,7 @@ _CARTESIAN_SIZE = 3
 class Translation:
     """Represents a 3D translation vector."""
 
-    def __init__(self, init_xyz=None):
+    def __init__(self, init_xyz=None, unit="m"):
         """
         Initializes translation from various sources.
 
@@ -54,6 +54,8 @@ class Translation:
             if not Translation.is_valid(init_xyz):
                 raise ValueError("Translation vector is invalid.")
             self.m = np.squeeze(np.array(init_xyz))
+
+        self.unit = unit
 
     def __add__(self, other):
         """
@@ -240,6 +242,35 @@ class Translation:
         """
         return self.scaled_copy(0.001)
 
+    def as_geometry_point(self):
+        """
+        Converts the translation to a ROS geometry_msgs Point message.
+
+        Works for ROS1 or ROS2 depending on the environment.
+
+        :return: ROS Point message
+        :rtype: Point
+        :raises ModuleNotFoundError: If geometry_msgs is not available
+        """
+        if not use_geomsg:
+            raise ModuleNotFoundError("geometry_msgs module not available")
+        return Point(x=self.x, y=self.y, z=self.z)
+
+    @staticmethod
+    def are_close(trans_1, trans_2, tol=0.001):
+        """
+        Returns a bool specifying whether two translation vectors are close to each other within a given tolerance.
+        The comparison is based on the Euclidean distance between the two translation vectors.
+        :param trans_1: First translation
+        :type trans_1: se3kit.translation.Translation
+        :param trans_2: Second translation
+        :type trans_2: se3kit.translation.Translation
+        :param tol: Tolerance. Default value corresponding to 1 mm
+        :type tol: float
+        :return: True if the translation vectors are close, False otherwise
+        """
+        return (trans_1 - trans_2).norm() < tol
+
     @staticmethod
     def is_valid(vec, verbose=False):
         """
@@ -265,24 +296,9 @@ class Translation:
 
         except (ValueError, TypeError) as e:
             if verbose:
-                logger.error("❌ %s", e)
+                logger.error("Not a valid translation. %s", e)
             return False
 
         if verbose:
-            logger.info("✔️  Vector is a valid translation vector.")
+            logger.info("Vector is a valid translation vector.")
         return True
-
-    # ---------------- ROS message conversion ----------------
-    def as_geometry_point(self):
-        """
-        Converts the translation to a ROS geometry_msgs Point message.
-
-        Works for ROS1 or ROS2 depending on the environment.
-
-        :return: ROS Point message
-        :rtype: Point
-        :raises ModuleNotFoundError: If geometry_msgs is not available
-        """
-        if not use_geomsg:
-            raise ModuleNotFoundError("geometry_msgs module not available")
-        return Point(x=self.x, y=self.y, z=self.z)

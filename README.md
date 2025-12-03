@@ -77,8 +77,7 @@ This library is pure Python with a small NumPy/Scipy dependency for robot expone
 
 - Recommended (editable):
 ```sh
-pip install -e .
-pip install numpy scipy
+pip install .
 ```
 
 If you use ROS message conversions, the package will detect ROS1 or ROS2 via `ros_compat.ROS_VERSION` (`src/ros_compat.py`). Geometry message types are wrapped in `ros_compat.get_ros_geometry_msgs`.
