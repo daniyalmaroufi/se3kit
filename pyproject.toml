@@ -45,7 +45,7 @@ zip-safe = false
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["nanoconf"]
+include = ["se3kit"]
 
 [tool.setuptools_scm]  # same as use_scm_version=True in setup.py
 

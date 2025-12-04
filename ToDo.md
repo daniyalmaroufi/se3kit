@@ -6,6 +6,6 @@
     - Create transforms and compose them
     - Transform a homogeneous point
 - Testing
-- Contributing
-- License
+- (Omid) Test eye_in_hand and pivot calibrations
+- (Omid) Add "add_poses", identify duplicate poses and "remove_poses" methods for eye_in_hand
 
