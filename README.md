@@ -121,7 +121,7 @@ Testing
 Run the unit tests with Python's unittest:
 
 ```sh
-python -m unittest src.tests
+python -m unittest discover -v
 ```
 
 If using ROS2, `src/tests.py` will initialize `rclpy` when run as `__main__`.
