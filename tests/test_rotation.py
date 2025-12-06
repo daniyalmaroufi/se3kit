@@ -114,7 +114,7 @@ class TestRotation(unittest.TestCase):
     def test_rotation_from_abc_legacy_case1(self):
         """Test ABC=(20, 30, -40)."""
         eg = (20, 30, -40)
-        q_obj = rotation.Rotation.from_ABC_degrees(list(eg)).as_quat()
+        q_obj = rotation.Rotation.from_abc(list(eg), degrees=True).as_quat()
         qxyzw = (q_obj.x, q_obj.y, q_obj.z, q_obj.w)
         q2 = self.legacy_quat(*eg)
         self.assertTrue(
@@ -125,7 +125,7 @@ class TestRotation(unittest.TestCase):
     def test_rotation_from_abc_legacy_case2(self):
         """Test ABC=(-15, 22, 10)."""
         eg = (-15, 22, 10)
-        q_obj = rotation.Rotation.from_ABC_degrees(list(eg)).as_quat()
+        q_obj = rotation.Rotation.from_abc(list(eg), degrees=True).as_quat()
         qxyzw = (q_obj.x, q_obj.y, q_obj.z, q_obj.w)
         q2 = self.legacy_quat(*eg)
         self.assertTrue(
@@ -136,7 +136,7 @@ class TestRotation(unittest.TestCase):
     def test_rotation_from_abc_legacy_case3(self):
         """Test ABC=(0, 190, -600)."""
         eg = (0, 190, -600)
-        q_obj = rotation.Rotation.from_ABC_degrees(list(eg)).as_quat()
+        q_obj = rotation.Rotation.from_abc(list(eg), degrees=True).as_quat()
         qxyzw = (q_obj.x, q_obj.y, q_obj.z, q_obj.w)
         q2 = self.legacy_quat(*eg)
         self.assertTrue(
@@ -155,13 +155,13 @@ class TestRotation(unittest.TestCase):
                 return False
             return all(is_near(x, y, tol) for x, y in zip(a.flat, b.flat))  # noqa: B905
 
-        r_abc = rotation.Rotation.from_ABC(eg)
+        r_abc = rotation.Rotation.from_abc(eg)
         r_zyx = rotation.Rotation.from_zyx(eg)
 
-        self.assertTrue(arrays_near(r_abc.as_ABC() - eg, np.zeros_like(eg), tol))
+        self.assertTrue(arrays_near(r_abc.as_abc() - eg, np.zeros_like(eg), tol))
         self.assertTrue(arrays_near(r_abc.as_zyx() - eg, np.zeros_like(eg), tol))
         self.assertTrue(arrays_near(r_zyx.as_zyx() - eg, np.zeros_like(eg), tol))
-        self.assertTrue(arrays_near(r_zyx.as_ABC() - eg, np.zeros_like(eg), tol))
+        self.assertTrue(arrays_near(r_zyx.as_abc() - eg, np.zeros_like(eg), tol))
         self.assertTrue(arrays_near(r_zyx.m, r_abc.m, tol))
 
     def test_rotation_abc_zyx_case1(self):
