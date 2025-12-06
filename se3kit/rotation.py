@@ -333,8 +333,14 @@ class Rotation:
         Convert the rotation matrix to a quaternion (np.quaternion) using
         a pure numpy implementation.
 
-        :return: Quaternion representing the rotation with components (w, x, y, z)
+        :return: Quaternion representing the rotation with components (w, x, y, z),
+            with internal storage order (w, x, y, z) following numpy-quaternion convention.
         :rtype: quaternion.quaternion
+
+        Example:
+            q = rot.as_quat()
+            # Access components:
+            w, x, y, z = q.w, q.x, q.y, q.z
         """
         r = self.m
         tr = np.trace(r)
@@ -590,7 +596,7 @@ class Rotation:
         .. math::
             R = I \\cos\\theta + (1 - \\cos\\theta) \\, a a^T + [a]_\\times \\sin\\theta
 
-        where ``a`` is the unit rotation axis and ``[a]_x`` is the cross-product
+        where ``a`` is the unit rotation axis and ``[a]_\times`` is the cross-product
         (skew-symmetric) matrix of ``a``.
 
         :param axis: 3D rotation axis. Does not need to be unit length.
@@ -602,8 +608,8 @@ class Rotation:
         """
         axis = np.asarray(axis, dtype=float)
         norm = np.linalg.norm(axis)
-        if np.isclose(norm, 0, atol=1e-10):
-            raise ValueError("Rotation axis has zero length, cannot normalize [0, 0, 0].")
+        if is_near(norm, 0, tol=1e-10):
+            raise ValueError(f"Rotation axis has near-zero length ({norm}), cannot normalize axis {axis.tolist()}.")
 
         axis = axis / norm
 
