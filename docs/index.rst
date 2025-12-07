@@ -11,6 +11,7 @@ SE3kit implements core SE(3) building blocks and a minimal robot FK example:
 *   Homogeneous transforms follow the standard block form :math:`T = \begin{bmatrix} R & t \\ 0 & 1 \end{bmatrix}` where :math:`R \in SO(3)` and :math:`t \in \mathbb{R}^3`.
 *   Rotations are stored as 3x3 matrices in ``se3kit.rotation.Rotation``.
 *   Translations are stored as 3-vectors in ``se3kit.translation.Translation``.
+*   ``Robot`` provides factory methods for common robot models and a space-frame forward kinematics method: ``se3kit.robot.Robot.FK_space``.
 
 Installation
 ------------
@@ -45,6 +46,17 @@ Quick usage examples
     from se3kit.hpoint import HPoint
     p = HPoint(0.1, 0.0, 0.0)
     pt = t.transform_hpoint(p)  # uses Transformation.transform_hpoint
+
+**Robot forward kinematics (KUKA iiwa example):**
+
+.. code-block:: python
+
+    from se3kit.robot import Robot
+    import numpy as np
+    
+    r = Robot.create_iiwa()
+    ja_deg = [-0.01, -35.10, 47.58, 24.17, 0.00, 0.00, 0.00]
+    tf = r.FK_space(np.deg2rad(ja_deg))  # returns a Transformation
 
 .. toctree::
    :maxdepth: 4
