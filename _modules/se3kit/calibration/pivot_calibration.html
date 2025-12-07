@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>se3kit.calibration.pivot_calibration &mdash; SE3kit 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SE3kit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../se3kit.html">SE3kit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SE3kit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">se3kit.calibration.pivot_calibration</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for se3kit.calibration.pivot_calibration</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">pivot_calibration.py</span>
+
+<span class="sd">Defines a &quot;pivot calibration&quot; class for pivot calibration.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.ros_compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_ros_geometry_msgs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.rotation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rotation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.transformation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformation</span>
+
+<span class="c1"># Retrieve the ROS geometry message types (Point, Quaternion, Pose, Vector3)</span>
+<span class="n">Point</span><span class="p">,</span> <span class="n">Quaternion</span><span class="p">,</span> <span class="n">Pose</span><span class="p">,</span> <span class="n">Vector3</span> <span class="o">=</span> <span class="n">get_ros_geometry_msgs</span><span class="p">()</span>
+<span class="n">use_geomsg</span> <span class="o">=</span> <span class="n">Quaternion</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+<span class="c1"># module logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">TOLERANCE</span> <span class="o">=</span> <span class="mf">1e-14</span>
+<span class="n">MIN_NUMBER_OF_POSES</span> <span class="o">=</span> <span class="mi">2</span>
+
+
+<div class="viewcode-block" id="PivotCalibration">
+<a class="viewcode-back" href="../../../se3kit.html#se3kit.calibration.PivotCalibration">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PivotCalibration</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a pivot calibration method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes calibration from a list of ROS poses or list of se3kit.transformation.Transformation poses.</span>
+
+<span class="sd">        :param init_value: list of ROS poses or se3kit.transformation.Transformation poses</span>
+<span class="sd">        :type init_value: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">init_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Case 1: No input provided</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot initialize calibration without input data.&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">init_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Case 2: Input is an empty list</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot initialize calibration from empty list.&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="c1"># Case 3: Input is not a list</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input is not a list.&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">pose_i</span><span class="p">,</span> <span class="n">Transformation</span><span class="p">)</span> <span class="k">for</span> <span class="n">pose_i</span> <span class="ow">in</span> <span class="n">init_value</span><span class="p">):</span>
+            <span class="c1"># Case 4: Input is a list of se3kit.transformation.Transformations</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calib_poses</span> <span class="o">=</span> <span class="n">init_value</span>
+
+        <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">pose_i</span><span class="p">,</span> <span class="n">Pose</span><span class="p">)</span> <span class="k">for</span> <span class="n">pose_i</span> <span class="ow">in</span> <span class="n">init_value</span><span class="p">):</span>
+            <span class="c1"># Case 5: Input is a list of ROS poses</span>
+            <span class="c1"># Convert poses to type Transformation first</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calib_poses</span> <span class="o">=</span> <span class="p">[</span><span class="n">Transformation</span><span class="p">(</span><span class="n">pose_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">pose_i</span> <span class="ow">in</span> <span class="n">init_value</span><span class="p">]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Case 6: Input type is not supported</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot initialize calibration from </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">init_value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PivotCalibration.run_pivot_calibration">
+<a class="viewcode-back" href="../../../se3kit.html#se3kit.calibration.PivotCalibration.run_pivot_calibration">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_pivot_calibration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Runs the pivot calibration optimization and returns the tip location with respect to (wrt) the body frame,</span>
+<span class="sd">        the divot location wrt the world frame, and the calibration residual.</span>
+
+<span class="sd">        :return: tuple of tip wrt body frame (tuple of 3 floats), divot wrt world frame (tuple of 3 floats), calibration residual (ndarray of floats)</span>
+<span class="sd">        :rtype: (tuple, tuple, np.ndarray)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">num_of_poses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_poses</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">num_of_poses</span> <span class="o">&lt;</span> <span class="n">MIN_NUMBER_OF_POSES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot run pivot calibration with less than 2 poses. Number of poses provided: </span><span class="si">{</span><span class="n">num_of_poses</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">mat_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">num_of_poses</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        <span class="n">mat_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">num_of_poses</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">pose</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_poses</span><span class="p">):</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">ii</span>
+            <span class="n">mat_b</span><span class="p">[</span><span class="n">c</span> <span class="p">:</span> <span class="n">c</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">pose</span><span class="o">.</span><span class="n">translation</span><span class="o">.</span><span class="n">m</span>
+            <span class="n">mat_a</span><span class="p">[</span><span class="n">c</span> <span class="p">:</span> <span class="n">c</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">pose</span><span class="o">.</span><span class="n">rotation</span><span class="o">.</span><span class="n">m</span>
+            <span class="n">mat_a</span><span class="p">[</span><span class="n">c</span> <span class="p">:</span> <span class="n">c</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">mat_a</span><span class="p">,</span> <span class="n">mat_b</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">resid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">mat_a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">mat_b</span>
+        <span class="n">resid_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">resid</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">tip</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">divot</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calibration_result</span> <span class="o">=</span> <span class="p">(</span><span class="n">tip</span><span class="p">,</span> <span class="n">divot</span><span class="p">,</span> <span class="n">resid_dist</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">tip</span><span class="p">,</span> <span class="n">divot</span><span class="p">,</span> <span class="n">resid_dist</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PivotCalibration.find_similar_poses">
+<a class="viewcode-back" href="../../../se3kit.html#se3kit.calibration.PivotCalibration.find_similar_poses">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_similar_poses</span><span class="p">(</span><span class="n">poses</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds similar poses in &#39;poses&#39; by comparing their rotation part.</span>
+
+<span class="sd">        :param poses: a list of se3kit.transformation.Transformation objects</span>
+<span class="sd">        :type poses: list</span>
+<span class="sd">        :return: list of repeated poses indices</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">clean_poses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">idx_repeated_poses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">similarity_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">pose_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">poses</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">pose_c</span> <span class="ow">in</span> <span class="n">clean_poses</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">are_close</span><span class="p">(</span><span class="n">pose_i</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span> <span class="n">pose_c</span><span class="o">.</span><span class="n">rotation</span><span class="p">):</span>
+                    <span class="n">similarity_flag</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">similarity_flag</span><span class="p">:</span>
+                <span class="n">idx_repeated_poses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span>
+                <span class="n">similarity_flag</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">clean_poses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pose_i</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">idx_repeated_poses</span></div>
+
+
+<div class="viewcode-block" id="PivotCalibration.remove_poses">
+<a class="viewcode-back" href="../../../se3kit.html#se3kit.calibration.PivotCalibration.remove_poses">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_poses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx_poses</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes poses with specific indices from the poses list.</span>
+
+<span class="sd">        :param idx_poses: a list of indices to be removed</span>
+<span class="sd">        :type idx_poses: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calib_poses</span> <span class="o">=</span> <span class="p">[</span><span class="n">pose</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pose</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_poses</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">idx_poses</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="PivotCalibration.add_poses">
+<a class="viewcode-back" href="../../../se3kit.html#se3kit.calibration.PivotCalibration.add_poses">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_poses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poses</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds new poses to calib_poses.</span>
+
+<span class="sd">        :param poses: a list of Transformation poses or ROS poses</span>
+<span class="sd">        :type poses: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">poses</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input is not a list.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">poses</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot add poses from empty list.&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">pose_i</span><span class="p">,</span> <span class="n">Transformation</span><span class="p">)</span> <span class="k">for</span> <span class="n">pose_i</span> <span class="ow">in</span> <span class="n">poses</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calib_poses</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">poses</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">pose_i</span><span class="p">,</span> <span class="n">Pose</span><span class="p">)</span> <span class="k">for</span> <span class="n">pose_i</span> <span class="ow">in</span> <span class="n">poses</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calib_poses</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">Transformation</span><span class="p">(</span><span class="n">pose_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">pose_i</span> <span class="ow">in</span> <span class="n">poses</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot add poses from </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">poses</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PivotCalibration.reset_poses">
+<a class="viewcode-back" href="../../../se3kit.html#se3kit.calibration.PivotCalibration.reset_poses">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_poses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resets the current list of calib_poses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calib_poses</span> <span class="o">=</span> <span class="p">[]</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniyal Maroufi, Omid Rezayof.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

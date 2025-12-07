@@ -1,0 +1,790 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>se3kit.rotation &mdash; SE3kit 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SE3kit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../se3kit.html">SE3kit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SE3kit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">se3kit.rotation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for se3kit.rotation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">rotation.py</span>
+
+<span class="sd">Defines a Rotation class representing a 3x3 rotation matrix</span>
+<span class="sd">with constructors from quaternions, Euler angles, and utility</span>
+<span class="sd">methods for axis-angle, ZYX Euler angles, and ROS geometry types.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">quaternion</span>  <span class="c1"># Requires numpy-quaternion package</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.ros_compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_ros_geometry_msgs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">deg2rad</span><span class="p">,</span> <span class="n">is_identity</span><span class="p">,</span> <span class="n">is_near</span><span class="p">,</span> <span class="n">rad2deg</span><span class="p">,</span> <span class="n">skew_to_vector</span>
+
+<span class="c1"># Retrieve the ROS geometry message types (Point, Quaternion, Pose, Vector3)</span>
+<span class="n">Point</span><span class="p">,</span> <span class="n">Quaternion</span><span class="p">,</span> <span class="n">Pose</span><span class="p">,</span> <span class="n">Vector3</span> <span class="o">=</span> <span class="n">get_ros_geometry_msgs</span><span class="p">()</span>
+<span class="n">use_geomsg</span> <span class="o">=</span> <span class="n">Quaternion</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+<span class="c1"># module logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">TOLERANCE</span> <span class="o">=</span> <span class="mf">1e-14</span>
+
+
+<div class="viewcode-block" id="Rotation">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rotation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a 3x3 rotation matrix used for rotating vectors in 3D space.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes rotation from quaternion, matrix, ROS Quaternion, or another Rotation.</span>
+
+<span class="sd">        :param init_value: Quaternion, 3x3 ndarray, ROS Quaternion, or another Rotation</span>
+<span class="sd">        :type init_value: np.ndarray | np.quaternion | Rotation | Quaternion | None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">init_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Case 1: No input provided</span>
+            <span class="c1"># Default to the identity rotation (3x3 identity matrix)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_value</span><span class="p">,</span> <span class="n">quaternion</span><span class="o">.</span><span class="n">quaternion</span><span class="p">):</span>
+            <span class="c1"># Case 2: Input is a numpy quaternion</span>
+            <span class="c1"># Convert quaternion to a 3x3 rotation matrix</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">quaternion</span><span class="o">.</span><span class="n">as_rotation_matrix</span><span class="p">(</span><span class="n">init_value</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">use_geomsg</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_value</span><span class="p">,</span> <span class="n">Quaternion</span><span class="p">):</span>
+            <span class="c1"># Case 3: Input is a ROS geometry_msgs Quaternion (ROS1 or ROS2)</span>
+            <span class="c1"># Convert ROS Quaternion to numpy quaternion first, then to rotation matrix</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quaternion</span><span class="p">(</span><span class="n">init_value</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="n">init_value</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">init_value</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">init_value</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quaternion</span><span class="o">.</span><span class="n">as_rotation_matrix</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="c1"># Case 4: Input is a numpy array</span>
+            <span class="c1"># Expecting a 3x3 rotation matrix directly</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">init_value</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Rotation matrix is invalid.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">init_value</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_value</span><span class="p">,</span> <span class="n">Rotation</span><span class="p">):</span>
+            <span class="c1"># Case 5: Input is another Rotation object</span>
+            <span class="c1"># Copy its internal rotation matrix</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">init_value</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Case 6: Input type is not supported</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot initialize Rotation from </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">init_value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Multiplies two rotations and returns the product.</span>
+
+<span class="sd">        :param other: Another Rotation object</span>
+<span class="sd">        :type other: Rotation</span>
+<span class="sd">        :return: Product rotation</span>
+<span class="sd">        :rtype: Rotation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Rotation</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">m</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Rotation.eye">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.eye">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eye</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns identity rotation matrix.</span>
+
+<span class="sd">        This is a 3x3 identity rotation matrix, representing no rotation.</span>
+
+<span class="sd">        :return: Identity rotation as a se3kit.rotation.Rotation object.</span>
+<span class="sd">        :rtype: se3kit.rotation.Rotation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Rotation</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Rotation.is_identity">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.is_identity">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_identity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks whether the rotation matrix represents the identity rotation.</span>
+
+<span class="sd">        This means the rotation matrix is effectively the 3x3 identity matrix,</span>
+<span class="sd">        with no rotation applied.</span>
+
+<span class="sd">        :return: True if rotation is identity, False otherwise.</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">is_identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rotation.rotate_x">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.rotate_x">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_x</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Produces a rotation matrix for rotation of &#39;theta&#39; angle around x axis.</span>
+
+<span class="sd">        :param theta: Rotation angle</span>
+<span class="sd">        :type theta: float</span>
+<span class="sd">        :param degrees: If True, theta is in degrees; otherwise in radians (default: False)</span>
+<span class="sd">        :type degrees: bool</span>
+<span class="sd">        :return: Rotation matrix around x axis</span>
+<span class="sd">        :rtype: se3kit.rotation.Rotation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">deg2rad</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="k">if</span> <span class="n">degrees</span> <span class="k">else</span> <span class="n">theta</span>
+        <span class="k">return</span> <span class="n">Rotation</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)]]</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rotation.rotate_y">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.rotate_y">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_y</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Produces a rotation matrix for rotation of &#39;theta&#39; angle around y axis.</span>
+
+<span class="sd">        :param theta: Rotation angle</span>
+<span class="sd">        :type theta: float</span>
+<span class="sd">        :param degrees: If True, theta is in degrees; otherwise in radians (default: False)</span>
+<span class="sd">        :type degrees: bool</span>
+<span class="sd">        :return: Rotation matrix around y axis</span>
+<span class="sd">        :rtype: se3kit.rotation.Rotation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">deg2rad</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="k">if</span> <span class="n">degrees</span> <span class="k">else</span> <span class="n">theta</span>
+        <span class="k">return</span> <span class="n">Rotation</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)]]</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rotation.rotate_z">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.rotate_z">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_z</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Produces a rotation matrix for rotation of &#39;theta&#39; angle around z axis.</span>
+
+<span class="sd">        :param theta: Rotation angle</span>
+<span class="sd">        :type theta: float</span>
+<span class="sd">        :param degrees: If True, theta is in degrees; otherwise in radians (default: False)</span>
+<span class="sd">        :type degrees: bool</span>
+<span class="sd">        :return: Rotation matrix around z axis</span>
+<span class="sd">        :rtype: se3kit.rotation.Rotation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">deg2rad</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="k">if</span> <span class="n">degrees</span> <span class="k">else</span> <span class="n">theta</span>
+        <span class="k">return</span> <span class="n">Rotation</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rotation.from_zyx">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.from_zyx">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_zyx</span><span class="p">(</span><span class="n">euler</span><span class="p">,</span> <span class="n">extrinsic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a Rotation from ZYX (default intrinsic) Euler angles.</span>
+<span class="sd">        More on intrinsic and extrinsic 3D rotations:</span>
+<span class="sd">        https://dominicplein.medium.com/extrinsic-intrinsic-rotation-do-i-multiply-from-right-or-left-357c38c1abfd</span>
+
+<span class="sd">        The input angles are applied in Z, Y, X order using intrinsic or extrinsic rotation to generate</span>
+<span class="sd">        the corresponding 3x3 rotation matrix.</span>
+
+<span class="sd">        :param euler: Euler angles as [z, y, x]</span>
+<span class="sd">        :type euler: array-like of 3 floats</span>
+<span class="sd">        :param extrinsic: If True, extrinsic rotation is applied (with respect to the fixed frame)</span>
+<span class="sd">        :type extrinsic: bool</span>
+<span class="sd">        :param degrees: If True, input is in degrees. Defaults to False (radians)</span>
+<span class="sd">        :type degrees: bool</span>
+<span class="sd">        :return: Rotation object representing the specified rotation.</span>
+<span class="sd">        :rtype: se3kit.rotation.Rotation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Convert input Euler angles to radians if they are in degrees, else just convert to NumPy array</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">deg2rad</span><span class="p">(</span><span class="n">euler</span><span class="p">)</span> <span class="k">if</span> <span class="n">degrees</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">euler</span><span class="p">)</span>
+
+        <span class="c1"># Unpack angles into separate components: alpha = Z , beta = Y , gamma = X</span>
+        <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="n">angles</span>
+
+        <span class="n">rx</span> <span class="o">=</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">rotate_x</span><span class="p">(</span><span class="n">gamma</span><span class="p">)</span>
+        <span class="n">ry</span> <span class="o">=</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">rotate_y</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
+        <span class="n">rz</span> <span class="o">=</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">rotate_z</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+
+        <span class="c1"># Construct the 3x3 rotation matrix</span>
+        <span class="c1"># if intrinsic: 1) rotate for alpha around Z 2) rotate for beta around Y&#39; 3) rotate for gamma around X&quot;</span>
+        <span class="c1"># if extrinsic: 1) rotate for alpha around Z 2) rotate for beta around Y 3) rotate for gamma around X</span>
+        <span class="k">return</span> <span class="n">rz</span> <span class="o">*</span> <span class="n">ry</span> <span class="o">*</span> <span class="n">rx</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">extrinsic</span> <span class="k">else</span> <span class="n">rx</span> <span class="o">*</span> <span class="n">ry</span> <span class="o">*</span> <span class="n">rz</span></div>
+
+
+<div class="viewcode-block" id="Rotation.from_abc">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.from_abc">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_abc</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lowercase alias for creating a Rotation from ABC angles (ZY&#39;X&quot; order).</span>
+<span class="sd">        This method assumes intrinsic rotation, as KUKA notation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">from_zyx</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="n">degrees</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rotation.from_rpy">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.from_rpy">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_rpy</span><span class="p">(</span><span class="n">rpy</span><span class="p">,</span> <span class="n">extrinsic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a Rotation object from roll(around X)-pitch(around Y)-yaw(around Z) angles.</span>
+<span class="sd">        As in aviation roll-pitch-yaw are usually considered among fixed axes, this method assumes extrinsic rotation as default.</span>
+
+<span class="sd">        :param rpy: Roll-Pitch-Yaw angles [X, Y, Z]</span>
+<span class="sd">        :type rpy: list, tuple, or np.ndarray</span>
+<span class="sd">        :param extrinsic: If True, extrinsic rotation is applied (with respect to the fixed frame)</span>
+<span class="sd">        :type extrinsic: bool</span>
+<span class="sd">        :param degrees: If True, angles are in degrees; otherwise radians</span>
+<span class="sd">        :type degrees: bool</span>
+<span class="sd">        :return: Rotation object representing the rotation</span>
+<span class="sd">        :rtype: se3kit.rotation.Rotation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">rpy</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">from_zyx</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">rpy</span><span class="p">),</span> <span class="n">extrinsic</span><span class="o">=</span><span class="ow">not</span> <span class="n">extrinsic</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="n">degrees</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rotation.as_zyx">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.as_zyx">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_zyx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extrinsic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the rotation matrix to ZY&#39;X&quot; Euler angles, using intrinsic rotation as default.</span>
+
+<span class="sd">        Handles the singularity cases when the rotation is identity or near 180 degrees.</span>
+
+<span class="sd">        :param degrees: If True, returns angles in degrees; otherwise in radians.</span>
+<span class="sd">        :type degrees: bool, optional (default=False)</span>
+<span class="sd">        :param extrinsic: If True, extrinsic rotation is assumed (with respect to the fixed frame)</span>
+<span class="sd">        :type extrinsic: bool</span>
+<span class="sd">        :return: Euler angles as a 3-element array [z, y&#39;, x&quot;].</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_identity</span><span class="p">():</span>
+            <span class="c1"># If the rotation is the identity matrix (no rotation), return zero angles</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">extrinsic</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_xyz</span><span class="p">(</span><span class="n">extrinsic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="n">degrees</span><span class="p">))</span>
+
+        <span class="c1"># Compute ZY&#39;X&quot; Euler angles from the rotation matrix</span>
+        <span class="c1"># alpha = rotation about Z axis</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># beta = rotation about Y&#39; axis</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="c1"># gamma = rotation about X&quot; axis</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+
+        <span class="c1"># Combine the three Euler angles into a single array</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">gamma</span><span class="p">])</span>
+
+        <span class="c1"># Convert to degrees if requested, otherwise leave in radians</span>
+        <span class="k">return</span> <span class="n">rad2deg</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span> <span class="k">if</span> <span class="n">degrees</span> <span class="k">else</span> <span class="n">angles</span></div>
+
+
+<div class="viewcode-block" id="Rotation.as_xyz">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.as_xyz">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extrinsic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the rotation matrix to XY&#39;Z&quot; Euler angles, using intrinsic rotation as default.</span>
+
+<span class="sd">        Handles the singularity cases when the rotation is identity or near 180 degrees.</span>
+
+<span class="sd">        :param degrees: If True, returns angles in degrees; otherwise in radians.</span>
+<span class="sd">        :type degrees: bool, optional (default=False)</span>
+<span class="sd">        :param extrinsic: If True, extrinsic rotation is assumed (with respect to the fixed frame)</span>
+<span class="sd">        :type extrinsic: bool</span>
+<span class="sd">        :return: Euler angles as a 3-element array [x, y&#39;, z&quot;].</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_identity</span><span class="p">():</span>
+            <span class="c1"># If the rotation is the identity matrix (no rotation), return zero angles</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">extrinsic</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_zyx</span><span class="p">(</span><span class="n">extrinsic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="n">degrees</span><span class="p">))</span>
+
+        <span class="c1"># Compute XY&#39;Z&quot; Euler angles from the rotation matrix</span>
+        <span class="c1"># alpha = rotation about Z&quot; axis</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># beta = rotation about Y&#39; axis</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="c1"># gamma = rotation about X axis</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+
+        <span class="c1"># Combine the three Euler angles into a single array [X, Y&#39;, Z&quot;]</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">gamma</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">alpha</span><span class="p">])</span>
+
+        <span class="c1"># Convert to degrees if requested, otherwise leave in radians</span>
+        <span class="k">return</span> <span class="n">rad2deg</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span> <span class="k">if</span> <span class="n">degrees</span> <span class="k">else</span> <span class="n">angles</span></div>
+
+
+<div class="viewcode-block" id="Rotation.as_abc">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.as_abc">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_abc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the Euler angles in ABC order (ZY&#39;X&quot;), optionally in degrees.</span>
+<span class="sd">        Assumed intrinsic rotation similar to KUKA notation.</span>
+
+<span class="sd">        This is an alias for `as_zyx`.</span>
+
+<span class="sd">        :param degrees: If True, angles are returned in degrees; otherwise in radians</span>
+<span class="sd">        :type degrees: bool</span>
+<span class="sd">        :return: Euler angles [A, B, C] (same as ZY&#39;X&quot; order)</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_zyx</span><span class="p">(</span><span class="n">degrees</span><span class="o">=</span><span class="n">degrees</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rotation.as_rpy">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.as_rpy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_rpy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extrinsic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the Euler angles in roll-pitch-yaw (RPY) order [X, Y, Z] assuming extrinsic rotation as default.</span>
+
+<span class="sd">        :param extrinsic: If True, extrinsic rotation is assumed (with respect to the fixed frame)</span>
+<span class="sd">        :type extrinsic: bool</span>
+<span class="sd">        :param degrees: If True, angles are returned in degrees; otherwise in radians</span>
+<span class="sd">        :type degrees: bool</span>
+<span class="sd">        :return: Euler angles [roll, pitch, yaw]</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_xyz</span><span class="p">(</span><span class="n">extrinsic</span><span class="o">=</span><span class="n">extrinsic</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="n">degrees</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rotation.as_quat">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.as_quat">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_quat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the rotation matrix to a quaternion (np.quaternion) using</span>
+<span class="sd">        a pure numpy implementation.</span>
+
+<span class="sd">        :return: Quaternion representing the rotation with components (w, x, y, z),</span>
+<span class="sd">            with internal storage order (w, x, y, z) following numpy-quaternion convention.</span>
+<span class="sd">        :rtype: quaternion.quaternion</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            q = rot.as_quat()</span>
+<span class="sd">            # Access components:</span>
+<span class="sd">            w, x, y, z = q.w, q.x, q.y, q.z</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span>
+        <span class="n">tr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="c1"># Choose the most numerically stable branch based on trace or diagonal elements</span>
+        <span class="k">if</span> <span class="n">tr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">tr</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>  <span class="c1"># s = 4*w</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">s</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+
+        <span class="k">elif</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]):</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span>  <span class="c1"># s = 4*x</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">s</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+        <span class="k">elif</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span>  <span class="c1"># s = 4*y</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">s</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span>  <span class="c1"># s = 4*z</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">s</span>
+
+        <span class="k">return</span> <span class="n">quaternion</span><span class="o">.</span><span class="n">quaternion</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rotation.as_geometry_orientation">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.as_geometry_orientation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_geometry_orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts rotation to ROS geometry_msgs Quaternion.</span>
+
+<span class="sd">        Useful for publishing rotations in ROS topics or working with ROS messages.</span>
+
+<span class="sd">        :return: geometry_msgs.msg.Quaternion with x, y, z, w components</span>
+<span class="sd">        :rtype: Quaternion</span>
+<span class="sd">        :raises ModuleNotFoundError: If geometry_msgs is not available.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check if the ROS geometry messages are available (ROS1 or ROS2)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">use_geomsg</span><span class="p">:</span>
+            <span class="c1"># If unavailable, then raise an error</span>
+            <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span><span class="s2">&quot;geometry_msgs module not available&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Convert the internal rotation matrix to a quaternion object</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_quat</span><span class="p">()</span>
+
+        <span class="c1"># Construct and return a ROS-compatible Quaternion message</span>
+        <span class="c1"># The ROS Quaternion fields are ordered as x, y, z, w</span>
+        <span class="k">return</span> <span class="n">Quaternion</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">w</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rotation.as_axisangle">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.as_axisangle">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_axisangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns axis-angle representation of rotation.</span>
+
+<span class="sd">        The axis-angle representation defines a rotation as an axis vector</span>
+<span class="sd">        and an angle of rotation about that axis.</span>
+
+<span class="sd">        Special cases:</span>
+<span class="sd">        - Identity rotation: angle=0, axis arbitrary ([1,0,0] used)</span>
+<span class="sd">        - 180-degree rotation: handled separately to avoid division by zero</span>
+
+<span class="sd">        :param degrees: If True, angle is returned in degrees; otherwise in radians</span>
+<span class="sd">        :type degrees: bool</span>
+<span class="sd">        :return: Tuple containing:</span>
+<span class="sd">                - axis vector as a 3-element np.ndarray</span>
+<span class="sd">                - rotation angle as a float (in radians or degrees based on the degrees parameter)</span>
+<span class="sd">        :rtype: (np.ndarray, float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_identity</span><span class="p">():</span>
+            <span class="c1"># if the rotation is the identity</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="mi">0</span>
+
+        <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">tr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">TOLERANCE</span><span class="p">:</span>  <span class="c1"># tr == -1, 180 degree case</span>
+            <span class="c1"># Loop through diagonal elements to find a valid axis component</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]))</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">TOLERANCE</span><span class="p">:</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span>
+                <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">w</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]))</span>
+                <span class="k">return</span> <span class="n">w</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">degrees</span> <span class="k">else</span> <span class="mf">180.0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># General case</span>
+            <span class="c1"># Compute axis-angle from rotation matrix</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">((</span><span class="n">tr</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">skew_to_vector</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="n">w</span><span class="p">,</span> <span class="p">(</span><span class="n">theta</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">degrees</span> <span class="k">else</span> <span class="n">rad2deg</span><span class="p">(</span><span class="n">theta</span><span class="p">))</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">x_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the x-axis of the rotation matrix.</span>
+
+<span class="sd">        The x-axis corresponds to the first column of the 3x3 rotation matrix,</span>
+<span class="sd">        representing the direction of the rotated frame&#39;s x-axis in world coordinates.</span>
+
+<span class="sd">        :return: 3-element vector representing the x-axis</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">T</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># noqa: N802</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the transpose of the rotation matrix.</span>
+
+<span class="sd">        :return: Transposed rotation matrix</span>
+<span class="sd">        :rtype: se3kit.rotation.Rotation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Rotation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">y_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the y-axis of the rotation matrix.</span>
+
+<span class="sd">        The y-axis corresponds to the second column of the 3x3 rotation matrix,</span>
+<span class="sd">        representing the direction of the rotated frame&#39;s y-axis in world coordinates.</span>
+
+<span class="sd">        :return: 3-element vector representing the y-axis</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">z_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the z-axis of the rotation matrix.</span>
+
+<span class="sd">        The z-axis corresponds to the third column of the 3x3 rotation matrix,</span>
+<span class="sd">        representing the direction of the rotated frame&#39;s z-axis in world coordinates.</span>
+
+<span class="sd">        :return: 3-element vector representing the z-axis</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Rotation.angle_difference">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.angle_difference">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">angle_difference</span><span class="p">(</span><span class="n">rot_1</span><span class="p">,</span> <span class="n">rot_2</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the angle of difference between two rotation matrices (axis angle representation) using Rodrigues&#39; rotation formula.</span>
+
+<span class="sd">        :param rot_1: First rotation matrix</span>
+<span class="sd">        :type rot_1: se3kit.rotation.Rotation</span>
+<span class="sd">        :param rot_2: Second rotation matrix</span>
+<span class="sd">        :type rot_2: se3kit.rotation.Rotation</span>
+<span class="sd">        :param degrees: If True, angle is returned in degrees; otherwise in radians</span>
+<span class="sd">        :type degrees: bool</span>
+<span class="sd">        :return: angle difference in axis angle representation</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rot_rel</span> <span class="o">=</span> <span class="n">rot_1</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">rot_2</span>
+        <span class="n">trace_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rot_rel</span><span class="p">)</span>
+        <span class="c1"># Clip for numerical stability</span>
+        <span class="n">cos_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">trace_val</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rad2deg</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">cos_theta</span><span class="p">))</span> <span class="k">if</span> <span class="n">degrees</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">cos_theta</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rotation.are_close">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.are_close">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">are_close</span><span class="p">(</span><span class="n">rot_1</span><span class="p">,</span> <span class="n">rot_2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.0174533</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a bool specifying whether two rotation matrices are close to each other by checking the angle difference in axis angle representation.</span>
+
+<span class="sd">        :param rot_1: First rotation matrix</span>
+<span class="sd">        :type rot_1: se3kit.rotation.Rotation</span>
+<span class="sd">        :param rot_2: Second rotation matrix</span>
+<span class="sd">        :type rot_2: se3kit.rotation.Rotation</span>
+<span class="sd">        :param tol: Tolerance. Default value corresponding to 1 deg</span>
+<span class="sd">        :type tol: float</span>
+<span class="sd">        :param degrees: If True, tol angle should be inputted in degrees; otherwise in radians</span>
+<span class="sd">        :type degrees: bool</span>
+<span class="sd">        :return: True if the rotation matrices are close (within tolerance), False otherwise</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">angle_difference</span><span class="p">(</span><span class="n">rot_1</span><span class="p">,</span> <span class="n">rot_2</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="n">degrees</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span></div>
+
+
+<div class="viewcode-block" id="Rotation.is_valid">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.is_valid">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_valid</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the given matrix is a valid 3x3 rotation matrix.</span>
+
+<span class="sd">        A valid rotation matrix is a 3x3 orthogonal matrix with a determinant of 1.</span>
+<span class="sd">        This method verifies the following:</span>
+
+<span class="sd">        - The input is a numpy ndarray of shape (3, 3)</span>
+<span class="sd">        - The matrix is orthogonal (R.T @ R == I within tolerance)</span>
+<span class="sd">        - The determinant of the matrix is 1 (within tolerance)</span>
+
+<span class="sd">        :param mat: Matrix to check for validity as a rotation matrix.</span>
+<span class="sd">        :type mat: np.ndarray</span>
+<span class="sd">        :param verbose: If True, prints detailed error messages or success confirmation.</span>
+<span class="sd">        :type verbose: bool, optional</span>
+<span class="sd">        :param tol: Tolerance for orthogonality and determinant checks.</span>
+<span class="sd">        :type tol: float, optional</span>
+<span class="sd">        :return: True if the matrix is a valid rotation matrix, False otherwise.</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Type mismatch indicates incorrect usage of the API</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rotation matrix must be of type np.ndarray, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">mat</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rotation matrix must be 3x3, got </span><span class="si">{</span><span class="n">mat</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_near</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="n">mat</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">mat</span><span class="p">)</span><span class="o">.</span><span class="n">flat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">flat</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Matrix is not orthogonal (R.T @ R != I)&quot;</span><span class="p">)</span>
+
+            <span class="n">det_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">det_val</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">tol</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Determinant must be 1, got </span><span class="si">{</span><span class="n">det_val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Not a valid rotation: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Matrix is a valid rotation matrix.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Rotation.from_quat">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.from_quat">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_quat</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a ``Rotation`` object from a quaternion.</span>
+
+<span class="sd">        The input quaternion is expected in the format ``(x, y, z, w)``, where</span>
+<span class="sd">        ``w`` is the real component. Internally this is converted into an</span>
+<span class="sd">        ``np.quaternion`` object with ordering ``(w, x, y, z)`` before being passed</span>
+<span class="sd">        to the ``Rotation`` constructor.</span>
+
+<span class="sd">        :param q: Quaternion as a tuple or list in the order ``(x, y, z, w)``.</span>
+<span class="sd">        :type q: tuple[float, float, float, float]</span>
+<span class="sd">        :return: A ``Rotation`` instance representing the same rotation.</span>
+<span class="sd">        :rtype: Rotation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">q_np</span> <span class="o">=</span> <span class="n">quaternion</span><span class="o">.</span><span class="n">quaternion</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Rotation</span><span class="p">(</span><span class="n">q_np</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rotation.from_axisangle">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.from_axisangle">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_axisangle</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">angle_rad</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a ``Rotation`` object from an axis-angle representation using</span>
+<span class="sd">        Rodrigues&#39; rotation formula.</span>
+
+<span class="sd">        The axis must be a 3D vector and does not need to be normalized; it will be</span>
+<span class="sd">        normalized internally. The angle is given in radians. This method computes</span>
+<span class="sd">        the corresponding 3x3 rotation matrix:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            R = I \\cos\\theta + (1 - \\cos\\theta) \\, a a^T + [a]_\\times \\sin\\theta</span>
+
+<span class="sd">        where ``a`` is the unit rotation axis and ``[a]_x`` is the cross-product</span>
+<span class="sd">        (skew-symmetric) matrix of ``a``.</span>
+
+<span class="sd">        :param axis: 3D rotation axis. Does not need to be unit length.</span>
+<span class="sd">        :type axis: array-like of float with shape (3,)</span>
+<span class="sd">        :param angle_rad: Rotation angle in radians.</span>
+<span class="sd">        :type angle_rad: float</span>
+<span class="sd">        :return: A ``Rotation`` instance representing the given rotation.</span>
+<span class="sd">        :rtype: Rotation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_near</span><span class="p">(</span><span class="n">norm</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Rotation axis has near-zero length (</span><span class="si">{</span><span class="n">norm</span><span class="si">}</span><span class="s2">), cannot normalize axis </span><span class="si">{</span><span class="n">axis</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span> <span class="o">/</span> <span class="n">norm</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">axis</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle_rad</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle_rad</span><span class="p">)</span>
+        <span class="n">c_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">c</span>
+
+        <span class="n">r_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">[</span><span class="n">c</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">c_factor</span><span class="p">,</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span> <span class="o">*</span> <span class="n">c_factor</span> <span class="o">-</span> <span class="n">z</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="n">x</span> <span class="o">*</span> <span class="n">z</span> <span class="o">*</span> <span class="n">c_factor</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">s</span><span class="p">],</span>
+                <span class="p">[</span><span class="n">y</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">c_factor</span> <span class="o">+</span> <span class="n">z</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">y</span> <span class="o">*</span> <span class="n">c_factor</span><span class="p">,</span> <span class="n">y</span> <span class="o">*</span> <span class="n">z</span> <span class="o">*</span> <span class="n">c_factor</span> <span class="o">-</span> <span class="n">x</span> <span class="o">*</span> <span class="n">s</span><span class="p">],</span>
+                <span class="p">[</span><span class="n">z</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">c_factor</span> <span class="o">-</span> <span class="n">y</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="n">z</span> <span class="o">*</span> <span class="n">y</span> <span class="o">*</span> <span class="n">c_factor</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="n">z</span> <span class="o">*</span> <span class="n">z</span> <span class="o">*</span> <span class="n">c_factor</span><span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Rotation</span><span class="p">(</span><span class="n">r_mat</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniyal Maroufi, Omid Rezayof.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

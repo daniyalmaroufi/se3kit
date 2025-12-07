@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SE3kit documentation &mdash; SE3kit 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SE3kit package" href="se3kit.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            SE3kit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="se3kit.html">SE3kit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">SE3kit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">SE3kit documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="se3kit-documentation">
+<h1>SE3kit documentation<a class="headerlink" href="#se3kit-documentation" title="Link to this heading"></a></h1>
+<p>Lightweight Python library for 3D rigid-body transforms, rotations, and simple robot kinematics.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>SE3kit implements core SE(3) building blocks and a minimal robot FK example:</p>
+<ul class="simple">
+<li><p>Homogeneous transforms follow the standard block form <span class="math notranslate nohighlight">\(T = \begin{bmatrix} R &amp; t \\ 0 &amp; 1 \end{bmatrix}\)</span> where <span class="math notranslate nohighlight">\(R \in SO(3)\)</span> and <span class="math notranslate nohighlight">\(t \in \mathbb{R}^3\)</span>.</p></li>
+<li><p>Rotations are stored as 3x3 matrices in <code class="docutils literal notranslate"><span class="pre">se3kit.rotation.Rotation</span></code>.</p></li>
+<li><p>Translations are stored as 3-vectors in <code class="docutils literal notranslate"><span class="pre">se3kit.translation.Translation</span></code>.</p></li>
+</ul>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>This library is pure Python with a small NumPy/Scipy dependency for robot exponentials.</p>
+<p><strong>Recommended (editable):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+<p>If you use ROS message conversions, the package will detect ROS1 or ROS2 via <code class="docutils literal notranslate"><span class="pre">se3kit.ros_compat</span></code>. Geometry message types are wrapped in <code class="docutils literal notranslate"><span class="pre">get_ros_geometry_msgs</span></code>.</p>
+</section>
+<section id="quick-usage-examples">
+<h2>Quick usage examples<a class="headerlink" href="#quick-usage-examples" title="Link to this heading"></a></h2>
+<p><strong>Create transforms and compose them:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.transformation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.rotation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rotation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.translation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Translation</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">Translation</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="n">Rotation</span><span class="p">())</span>  <span class="c1"># 1 m up, identity rotation</span>
+</pre></div>
+</div>
+<p><strong>Transform a homogeneous point:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.hpoint</span><span class="w"> </span><span class="kn">import</span> <span class="n">HPoint</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">HPoint</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">transform_hpoint</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>  <span class="c1"># uses Transformation.transform_hpoint</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="se3kit.html">SE3kit package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="se3kit.html#module-se3kit.degrees">se3kit.degrees module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.degrees.Degrees"><code class="docutils literal notranslate"><span class="pre">Degrees</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.degrees.Degrees.deg"><code class="docutils literal notranslate"><span class="pre">Degrees.deg</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.degrees.Degrees.rad"><code class="docutils literal notranslate"><span class="pre">Degrees.rad</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="se3kit.html#module-se3kit.hpoint">se3kit.hpoint module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.hpoint.HPoint"><code class="docutils literal notranslate"><span class="pre">HPoint</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.hpoint.HPoint.as_array"><code class="docutils literal notranslate"><span class="pre">HPoint.as_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.hpoint.HPoint.x"><code class="docutils literal notranslate"><span class="pre">HPoint.x</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.hpoint.HPoint.xyz"><code class="docutils literal notranslate"><span class="pre">HPoint.xyz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.hpoint.HPoint.y"><code class="docutils literal notranslate"><span class="pre">HPoint.y</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.hpoint.HPoint.z"><code class="docutils literal notranslate"><span class="pre">HPoint.z</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="se3kit.html#module-se3kit.rotation">se3kit.rotation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation"><code class="docutils literal notranslate"><span class="pre">Rotation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.T"><code class="docutils literal notranslate"><span class="pre">Rotation.T</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.angle_difference"><code class="docutils literal notranslate"><span class="pre">Rotation.angle_difference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.are_close"><code class="docutils literal notranslate"><span class="pre">Rotation.are_close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.as_abc"><code class="docutils literal notranslate"><span class="pre">Rotation.as_abc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.as_axisangle"><code class="docutils literal notranslate"><span class="pre">Rotation.as_axisangle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.as_geometry_orientation"><code class="docutils literal notranslate"><span class="pre">Rotation.as_geometry_orientation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.as_quat"><code class="docutils literal notranslate"><span class="pre">Rotation.as_quat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.as_rpy"><code class="docutils literal notranslate"><span class="pre">Rotation.as_rpy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.as_xyz"><code class="docutils literal notranslate"><span class="pre">Rotation.as_xyz()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.as_zyx"><code class="docutils literal notranslate"><span class="pre">Rotation.as_zyx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.eye"><code class="docutils literal notranslate"><span class="pre">Rotation.eye()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.from_abc"><code class="docutils literal notranslate"><span class="pre">Rotation.from_abc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.from_axisangle"><code class="docutils literal notranslate"><span class="pre">Rotation.from_axisangle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.from_quat"><code class="docutils literal notranslate"><span class="pre">Rotation.from_quat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.from_rpy"><code class="docutils literal notranslate"><span class="pre">Rotation.from_rpy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.from_zyx"><code class="docutils literal notranslate"><span class="pre">Rotation.from_zyx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.is_identity"><code class="docutils literal notranslate"><span class="pre">Rotation.is_identity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.is_valid"><code class="docutils literal notranslate"><span class="pre">Rotation.is_valid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.rotate_x"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_x()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.rotate_y"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_y()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.rotate_z"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_z()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.x_axis"><code class="docutils literal notranslate"><span class="pre">Rotation.x_axis</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.y_axis"><code class="docutils literal notranslate"><span class="pre">Rotation.y_axis</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.z_axis"><code class="docutils literal notranslate"><span class="pre">Rotation.z_axis</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="se3kit.html#module-se3kit.transformation">se3kit.transformation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation"><code class="docutils literal notranslate"><span class="pre">Transformation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.are_close"><code class="docutils literal notranslate"><span class="pre">Transformation.are_close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.as_geometry_pose"><code class="docutils literal notranslate"><span class="pre">Transformation.as_geometry_pose()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.compose"><code class="docutils literal notranslate"><span class="pre">Transformation.compose()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.convert_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Transformation.convert_m_to_mm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.convert_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Transformation.convert_mm_to_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.from_xyz_mm_abc"><code class="docutils literal notranslate"><span class="pre">Transformation.from_xyz_mm_abc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.inv"><code class="docutils literal notranslate"><span class="pre">Transformation.inv</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.is_valid"><code class="docutils literal notranslate"><span class="pre">Transformation.is_valid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.m"><code class="docutils literal notranslate"><span class="pre">Transformation.m</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.rotation"><code class="docutils literal notranslate"><span class="pre">Transformation.rotation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.scaled"><code class="docutils literal notranslate"><span class="pre">Transformation.scaled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.scaled_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Transformation.scaled_m_to_mm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.scaled_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Transformation.scaled_mm_to_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.transform_hpoint"><code class="docutils literal notranslate"><span class="pre">Transformation.transform_hpoint()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.translation"><code class="docutils literal notranslate"><span class="pre">Transformation.translation</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="se3kit.html#module-se3kit.translation">se3kit.translation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation"><code class="docutils literal notranslate"><span class="pre">Translation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.are_close"><code class="docutils literal notranslate"><span class="pre">Translation.are_close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.as_geometry_point"><code class="docutils literal notranslate"><span class="pre">Translation.as_geometry_point()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.convert_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Translation.convert_m_to_mm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.convert_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Translation.convert_mm_to_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.is_valid"><code class="docutils literal notranslate"><span class="pre">Translation.is_valid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.norm"><code class="docutils literal notranslate"><span class="pre">Translation.norm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.scale_inplace"><code class="docutils literal notranslate"><span class="pre">Translation.scale_inplace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.scaled_copy"><code class="docutils literal notranslate"><span class="pre">Translation.scaled_copy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.scaled_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Translation.scaled_m_to_mm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.scaled_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Translation.scaled_mm_to_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.x"><code class="docutils literal notranslate"><span class="pre">Translation.x</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.xyz"><code class="docutils literal notranslate"><span class="pre">Translation.xyz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.y"><code class="docutils literal notranslate"><span class="pre">Translation.y</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.z"><code class="docutils literal notranslate"><span class="pre">Translation.z</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="se3kit.html#module-se3kit.utils">se3kit.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.utils.deg2rad"><code class="docutils literal notranslate"><span class="pre">deg2rad()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.utils.is_identity"><code class="docutils literal notranslate"><span class="pre">is_identity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.utils.is_near"><code class="docutils literal notranslate"><span class="pre">is_near()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.utils.rad2deg"><code class="docutils literal notranslate"><span class="pre">rad2deg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.utils.skew_to_vector"><code class="docutils literal notranslate"><span class="pre">skew_to_vector()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.utils.vector_to_skew"><code class="docutils literal notranslate"><span class="pre">vector_to_skew()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="se3kit.html#module-se3kit.calibration">se3kit.calibration module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.calibration.EyeInHandCalibration"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.EyeInHandCalibration.run_calibration"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.run_calibration()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration"><code class="docutils literal notranslate"><span class="pre">PivotCalibration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration.add_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.add_poses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration.find_similar_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.find_similar_poses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration.remove_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.remove_poses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration.reset_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.reset_poses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration.run_pivot_calibration"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.run_pivot_calibration()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="se3kit.html" class="btn btn-neutral float-right" title="SE3kit package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniyal Maroufi, Omid Rezayof.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

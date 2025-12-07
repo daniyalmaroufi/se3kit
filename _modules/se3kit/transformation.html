@@ -1,0 +1,465 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>se3kit.transformation &mdash; SE3kit 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SE3kit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../se3kit.html">SE3kit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SE3kit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">se3kit.transformation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for se3kit.transformation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.hpoint</span><span class="w"> </span><span class="kn">import</span> <span class="n">HPoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.ros_compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pose</span><span class="p">,</span> <span class="n">use_geomsg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.rotation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rotation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.translation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Translation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_near</span>
+
+<span class="c1"># Constants to avoid magic-numbers in argument checks</span>
+<span class="n">_TRANSLATION_ROTATION_ARG_COUNT</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Transformation">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.transformation.Transformation">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Transformation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a 4x4 homogeneous transformation matrix with rotation and translation.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the Transformation from various sources.</span>
+
+<span class="sd">        Can initialize from:</span>
+<span class="sd">        - A 4x4 numpy matrix</span>
+<span class="sd">        - A ROS geometry_msgs.msg.Pose message (ROS1 or ROS2)</span>
+<span class="sd">        - A se3kit.translation.Translation object</span>
+<span class="sd">        - se3kit.translation.Translation + se3kit.rotation.Rotation</span>
+
+<span class="sd">        :param args: variable length arguments</span>
+<span class="sd">        :raises AssertionError: if matrix is not 4x4</span>
+<span class="sd">        :raises TypeError: if argument types are invalid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">init</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="c1"># Direct 4x4 numpy array treated as a full transformation matrix</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">Transformation</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">init</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Transformation matrix is invalid.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">init</span>
+
+            <span class="k">elif</span> <span class="n">use_geomsg</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">Pose</span><span class="p">):</span>
+                <span class="c1"># Single argument is a ROS Pose message and rotation and translation are extracted</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span> <span class="o">=</span> <span class="n">Rotation</span><span class="p">(</span><span class="n">init</span><span class="o">.</span><span class="n">orientation</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">translation</span> <span class="o">=</span> <span class="n">Translation</span><span class="p">(</span><span class="n">init</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">Translation</span><span class="p">):</span>
+                <span class="c1"># Single argument is a Translation object</span>
+                <span class="c1"># Only the translation is set; rotation defaults to identity</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">translation</span> <span class="o">=</span> <span class="n">init</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="n">_TRANSLATION_ROTATION_ARG_COUNT</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Translation</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Rotation</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="c1"># Two arguments: first is Translation, second is Rotation</span>
+            <span class="c1"># Directly set translation and rotation components</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">translation</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Any other combination of arguments is invalid</span>
+            <span class="c1"># Raise a TypeError to indicate incorrect usage</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid arguments for Transformation: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Multiplies this transformation with another Transformation (matrix composition).</span>
+
+<span class="sd">        :param other: Transformation to multiply with</span>
+<span class="sd">        :type other: se3kit.transformation.Transformation</span>
+<span class="sd">        :return: Resulting Transformation</span>
+<span class="sd">        :rtype: se3kit.transformation.Transformation</span>
+<span class="sd">        :raises TypeError: if other is not a Transformation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Transformation</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Transformation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">@</span> <span class="n">other</span><span class="o">.</span><span class="n">_matrix</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid multiplication type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the rotation component of the transformation as a Rotation object.</span>
+
+<span class="sd">        The rotation is extracted from the upper-left 3x3 submatrix of the 4x4</span>
+<span class="sd">        homogeneous transformation matrix.</span>
+
+<span class="sd">        :return: se3kit.rotation.Rotation object representing the rotation part</span>
+<span class="sd">        :rtype: se3kit.rotation.Rotation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Rotation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+
+    <span class="nd">@rotation</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets rotation component from a Rotation object or 3x3 ndarray.</span>
+
+<span class="sd">        :param val: Rotation object or 3x3 rotation matrix</span>
+<span class="sd">        :type val: se3kit.rotation.Rotation | np.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Let Rotation class handle all type checking and conversion</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rotation</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">m</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">translation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the translation component of the transformation as a Translation object.</span>
+
+<span class="sd">        The translation is extracted from the top-right 3x1 part of the 4x4</span>
+<span class="sd">        homogeneous transformation matrix.</span>
+
+<span class="sd">        :return: se3kit.translation.Translation object representing the translation part</span>
+<span class="sd">        :rtype: se3kit.translation.Translation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Translation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+
+    <span class="nd">@translation</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">translation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets translation component from a Translation object or 3-element ndarray.</span>
+
+<span class="sd">        :param val: Translation or 3-element array</span>
+<span class="sd">        :type val: se3kit.translation.Translation | np.ndarray</span>
+<span class="sd">        :raises TypeError: if input type is invalid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">Translation</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">m</span>
+
+    <span class="c1"># ---------------- Matrix / Inverse ----------------</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">m</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the full 4x4 homogeneous transformation matrix.</span>
+
+<span class="sd">        :return: 4x4 transformation matrix</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the inverse of this transformation.</span>
+
+<span class="sd">        The inverse is computed by inverting the 4x4 transformation matrix.</span>
+
+<span class="sd">        :return: Inverse transformation</span>
+<span class="sd">        :rtype: se3kit.transformation.Transformation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">))</span>
+
+    <span class="c1"># ---------------- Scaling ----------------</span>
+<div class="viewcode-block" id="Transformation.convert_m_to_mm">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.transformation.Transformation.convert_m_to_mm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_m_to_mm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the translation component from meters to millimeters in-place.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">1000.0</span></div>
+
+
+<div class="viewcode-block" id="Transformation.convert_mm_to_m">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.transformation.Transformation.convert_mm_to_m">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_mm_to_m</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the translation component from millimeters to meters in-place.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">0.001</span></div>
+
+
+<div class="viewcode-block" id="Transformation.scaled">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.transformation.Transformation.scaled">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scaled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a copy of the transformation with translation scaled by a factor.</span>
+
+<span class="sd">        Rotation remains unchanged.</span>
+
+<span class="sd">        :param factor: Scaling factor</span>
+<span class="sd">        :type factor: float</span>
+<span class="sd">        :return: Scaled transformation</span>
+<span class="sd">        :rtype: se3kit.transformation.Transformation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Transformation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">translation</span><span class="o">.</span><span class="n">scaled</span><span class="p">(</span><span class="n">factor</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Transformation.scaled_m_to_mm">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.transformation.Transformation.scaled_m_to_mm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scaled_m_to_mm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a copy of the transformation with translation converted from meters to millimeters.</span>
+
+<span class="sd">        :return: Scaled transformation</span>
+<span class="sd">        :rtype: se3kit.transformation.Transformation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Transformation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">translation</span><span class="o">.</span><span class="n">scaled_m_to_mm</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Transformation.scaled_mm_to_m">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.transformation.Transformation.scaled_mm_to_m">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scaled_mm_to_m</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a copy with translation scaled from millimeters to meters.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Transformation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">translation</span><span class="o">.</span><span class="n">scaled_mm_to_m</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Transformation.transform_hpoint">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.transformation.Transformation.transform_hpoint">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform_hpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms a homogeneous point by this Transformation.</span>
+
+<span class="sd">        :param p: HPoint to transform</span>
+<span class="sd">        :type p: se3kit.hpoint.HPoint</span>
+<span class="sd">        :return: Transformed HPoint</span>
+<span class="sd">        :rtype: se3kit.hpoint.HPoint</span>
+<span class="sd">        :raises AssertionError: if p is not an HPoint</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">HPoint</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;transform_hpoint expects HPoint, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">HPoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">@</span> <span class="n">p</span><span class="o">.</span><span class="n">m</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Transformation.as_geometry_pose">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.transformation.Transformation.as_geometry_pose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_geometry_pose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts this Transformation to a ROS Pose message.</span>
+
+<span class="sd">        Works for ROS1 or ROS2 depending on the environment.</span>
+
+<span class="sd">        :return: ROS Pose message</span>
+<span class="sd">        :rtype: geometry_msgs.msg.Pose</span>
+<span class="sd">        :raises ModuleNotFoundError: if geometry_msgs module not available</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">use_geomsg</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span><span class="s2">&quot;geometry_msgs module not available&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Pose</span><span class="p">(</span>
+            <span class="n">position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">translation</span><span class="o">.</span><span class="n">as_geometry_point</span><span class="p">(),</span>
+            <span class="n">orientation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rotation</span><span class="o">.</span><span class="n">as_geometry_orientation</span><span class="p">(),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Transformation.from_xyz_mm_abc">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.transformation.Transformation.from_xyz_mm_abc">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_xyz_mm_abc</span><span class="p">(</span><span class="n">xyz_abc</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a Transformation from a 6-element array: XYZ translation in meters</span>
+<span class="sd">        and ABC Euler angles.</span>
+
+<span class="sd">        :param xyzABC: Array-like [x, y, z, A, B, C]</span>
+<span class="sd">        :type xyzABC: np.ndarray | list</span>
+<span class="sd">        :return: Transformation object</span>
+<span class="sd">        :rtype: se3kit.transformation.Transformation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Transformation</span><span class="p">(</span>
+            <span class="n">Translation</span><span class="p">(</span><span class="n">xyz_abc</span><span class="p">[:</span><span class="mi">3</span><span class="p">]),</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">from_abc</span><span class="p">(</span><span class="n">xyz_abc</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="n">degrees</span><span class="o">=</span><span class="n">degrees</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Transformation.compose">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.transformation.Transformation.compose">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compose</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Composes two Transformations (matrix multiplication).</span>
+
+<span class="sd">        :param A: First Transformation</span>
+<span class="sd">        :param B: Second Transformation</span>
+<span class="sd">        :type A: se3kit.transformation.Transformation</span>
+<span class="sd">        :type B: se3kit.transformation.Transformation</span>
+<span class="sd">        :return: Resulting Transformation</span>
+<span class="sd">        :rtype: se3kit.transformation.Transformation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">matrix</span> <span class="o">@</span> <span class="n">b</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Transformation.are_close">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.transformation.Transformation.are_close">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">are_close</span><span class="p">(</span><span class="n">transform_1</span><span class="p">,</span> <span class="n">transform_2</span><span class="p">,</span> <span class="n">rot_tol</span><span class="o">=</span><span class="mf">0.0174533</span><span class="p">,</span> <span class="n">trans_tol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a bool specifying whether two transformation matrices are close to each other by checking their</span>
+<span class="sd">        rotational and translational parts.</span>
+
+
+<span class="sd">        :param transform_1: First transformation matrix</span>
+<span class="sd">        :type transform_1: se3kit.transformation.Transformation</span>
+<span class="sd">        :param transform_2: Second transformation matrix</span>
+<span class="sd">        :type transform_2: se3kit.transformation.Transformation</span>
+<span class="sd">        :param rot_tol: Rotational tolerance. Default value corresponding to 1 deg</span>
+<span class="sd">        :type rot_tol: float</span>
+<span class="sd">        :param trans_tol: Translation tolerance. Default value corresponding to 1 mm</span>
+<span class="sd">        :type trans_tol: float</span>
+<span class="sd">        :param degrees: If True, rot_tol angle should be inputted in degrees; otherwise in radians</span>
+<span class="sd">        :type degrees: bool</span>
+<span class="sd">        :return: True if the transformation matrices are close, False otherwise</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">are_close</span><span class="p">(</span>
+            <span class="n">transform_1</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span> <span class="n">transform_2</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">rot_tol</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="n">degrees</span>
+        <span class="p">)</span> <span class="ow">and</span> <span class="n">Translation</span><span class="o">.</span><span class="n">are_close</span><span class="p">(</span><span class="n">transform_1</span><span class="o">.</span><span class="n">translation</span><span class="p">,</span> <span class="n">transform_2</span><span class="o">.</span><span class="n">translation</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">trans_tol</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Transformation.is_valid">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.transformation.Transformation.is_valid">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_valid</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the input is a valid 4x4 homogeneous transformation matrix.</span>
+
+<span class="sd">        A valid transformation matrix must:</span>
+<span class="sd">        - Be a numpy ndarray of shape (4, 4)</span>
+<span class="sd">        - Have a valid rotation part (upper-left 3x3 submatrix)</span>
+<span class="sd">        - Have a valid translation part (first three elements of the last column)</span>
+<span class="sd">        - Have the last row equal to [0, 0, 0, 1] (homogeneous row)</span>
+
+<span class="sd">        :param mat: Matrix to validate</span>
+<span class="sd">        :type mat: np.ndarray</span>
+<span class="sd">        :param verbose: If True, prints detailed validation messages</span>
+<span class="sd">        :type verbose: bool</span>
+<span class="sd">        :return: True if valid transformation matrix, False otherwise</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Transformation matrix must be of type np.ndarray, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">mat</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transformation matrix must be 4x4, got </span><span class="si">{</span><span class="n">mat</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+            <span class="n">rot</span> <span class="o">=</span> <span class="n">mat</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">rot</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Transformation matrix has invalid rotation part.&quot;</span><span class="p">)</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">mat</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">Translation</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">vec</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Transformation matrix has invalid translation part.&quot;</span><span class="p">)</span>
+
+            <span class="n">homog_vec</span> <span class="o">=</span> <span class="n">mat</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_near</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">homog_vec</span><span class="p">,</span> <span class="n">expected</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Transformation matrix is not affine. Last row must be [0, 0, 0, 1], got </span><span class="si">{</span><span class="n">homog_vec</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Not a valid transformation. </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Matrix is a valid transformation matrix.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniyal Maroufi, Omid Rezayof.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

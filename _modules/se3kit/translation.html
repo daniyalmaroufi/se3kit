@@ -1,0 +1,438 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>se3kit.translation &mdash; SE3kit 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SE3kit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../se3kit.html">SE3kit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SE3kit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">se3kit.translation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for se3kit.translation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">translation.py</span>
+
+<span class="sd">Represents a 3D translation vector and provides utilities for arithmetic,</span>
+<span class="sd">scaling, unit conversion, and ROS message conversion.</span>
+
+<span class="sd">Compatible with ROS1 and ROS2 using ros_compat.py.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.hpoint</span><span class="w"> </span><span class="kn">import</span> <span class="n">HPoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.ros_compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">Vector3</span><span class="p">,</span> <span class="n">use_geomsg</span>
+
+<span class="c1"># module logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Constants</span>
+<span class="n">_CARTESIAN_SIZE</span> <span class="o">=</span> <span class="mi">3</span>
+
+
+<div class="viewcode-block" id="Translation">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Translation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a 3D translation vector.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_xyz</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes translation from various sources.</span>
+
+<span class="sd">        :param init_xyz: Can be one of:</span>
+<span class="sd">            - None (defaults to zero vector)</span>
+<span class="sd">            - numpy array or list-like with 3 elements</span>
+<span class="sd">            - HPoint instance</span>
+<span class="sd">            - ROS Point or Vector3 message</span>
+<span class="sd">            - Another Translation instance</span>
+<span class="sd">        :type init_xyz: np.ndarray | list | HPoint | Translation | Point | Vector3 | None</span>
+<span class="sd">        :raises ValueError: If a numpy array or list is provided that does not have exactly 3 elements</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">init_xyz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Default zero vector</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">use_geomsg</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_xyz</span><span class="p">,</span> <span class="n">Point</span> <span class="o">|</span> <span class="n">Vector3</span><span class="p">):</span>
+            <span class="c1"># ROS Point/Vector3 message</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">init_xyz</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">init_xyz</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">init_xyz</span><span class="o">.</span><span class="n">z</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_xyz</span><span class="p">,</span> <span class="n">HPoint</span><span class="p">):</span>
+            <span class="c1"># Homogeneous point</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">init_xyz</span><span class="o">.</span><span class="n">xyz</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_xyz</span><span class="p">,</span> <span class="n">Translation</span><span class="p">):</span>
+            <span class="c1"># Copy constructor</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">init_xyz</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Array or list-like input</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">Translation</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">init_xyz</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Translation vector is invalid.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">init_xyz</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">unit</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds two Translation vectors element-wise.</span>
+
+<span class="sd">        :param other: Another Translation instance</span>
+<span class="sd">        :type other: se3kit.translation.Translation</span>
+<span class="sd">        :return: New Translation representing the sum</span>
+<span class="sd">        :rtype: se3kit.translation.Translation</span>
+<span class="sd">        :raises TypeError: If `other` is not a Translation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Translation</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Translation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot add Translation with </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Subtracts another Translation vector element-wise.</span>
+
+<span class="sd">        :param other: Another Translation instance</span>
+<span class="sd">        :type other: se3kit.translation.Translation</span>
+<span class="sd">        :return: New Translation representing the difference</span>
+<span class="sd">        :rtype: se3kit.translation.Translation</span>
+<span class="sd">        :raises TypeError: If `other` is not a Translation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Translation</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Translation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot subtract Translation with </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scales the Translation by a scalar.</span>
+
+<span class="sd">        :param other: Scalar factor</span>
+<span class="sd">        :type other: int | float</span>
+<span class="sd">        :return: New scaled Translation</span>
+<span class="sd">        :rtype: se3kit.translation.Translation</span>
+<span class="sd">        :raises TypeError: If `other` is not a numeric scalar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Translation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">*</span> <span class="n">other</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot multiply Translation with </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Divides the Translation by a scalar.</span>
+
+<span class="sd">        :param other: Scalar divisor</span>
+<span class="sd">        :type other: int | float</span>
+<span class="sd">        :return: New scaled Translation</span>
+<span class="sd">        :rtype: se3kit.translation.Translation</span>
+<span class="sd">        :raises TypeError: If `other` is not a numeric scalar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Translation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">other</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot divide Translation with </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns x-component.</span>
+
+<span class="sd">        :return: x-component</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the x-component of the translation.</span>
+
+<span class="sd">        :param val: New x value</span>
+<span class="sd">        :type val: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the y-component of the translation.</span>
+
+<span class="sd">        :return: y-component</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@y</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the y-component of the translation.</span>
+
+<span class="sd">        :param val: New y value</span>
+<span class="sd">        :type val: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the z-component of the translation.</span>
+
+<span class="sd">        :return: z-component</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@z</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the z-component of the translation.</span>
+
+<span class="sd">        :param val: New z value</span>
+<span class="sd">        :type val: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the full translation vector as a numpy array.</span>
+
+<span class="sd">        :return: 3-element vector [x, y, z]</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span>
+
+<div class="viewcode-block" id="Translation.norm">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation.norm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">norm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the Euclidean norm (magnitude) of the translation vector.</span>
+
+<span class="sd">        :return: Euclidean norm</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Translation.scale_inplace">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation.scale_inplace">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scale_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scales the translation in-place by a factor.</span>
+
+<span class="sd">        :param factor: Scaling factor</span>
+<span class="sd">        :type factor: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">*=</span> <span class="n">factor</span></div>
+
+
+<div class="viewcode-block" id="Translation.scaled_copy">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation.scaled_copy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scaled_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a new Translation scaled by a factor.</span>
+
+<span class="sd">        :param factor: Scaling factor</span>
+<span class="sd">        :type factor: float</span>
+<span class="sd">        :return: Scaled Translation</span>
+<span class="sd">        :rtype: se3kit.translation.Translation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Translation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">*</span> <span class="n">factor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Translation.convert_m_to_mm">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation.convert_m_to_mm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_m_to_mm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the translation in-place from meters to millimeters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_inplace</span><span class="p">(</span><span class="mf">1000.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Translation.convert_mm_to_m">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation.convert_mm_to_m">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_mm_to_m</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the translation in-place from millimeters to meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_inplace</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Translation.scaled_m_to_mm">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation.scaled_m_to_mm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scaled_m_to_mm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a new Translation scaled from meters to millimeters.</span>
+
+<span class="sd">        :return: Scaled Translation in millimeters</span>
+<span class="sd">        :rtype: se3kit.translation.Translation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaled_copy</span><span class="p">(</span><span class="mf">1000.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Translation.scaled_mm_to_m">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation.scaled_mm_to_m">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scaled_mm_to_m</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a new Translation scaled from millimeters to meters.</span>
+
+<span class="sd">        :return: Scaled Translation in meters</span>
+<span class="sd">        :rtype: se3kit.translation.Translation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaled_copy</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Translation.as_geometry_point">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation.as_geometry_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_geometry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the translation to a ROS geometry_msgs Point message.</span>
+
+<span class="sd">        Works for ROS1 or ROS2 depending on the environment.</span>
+
+<span class="sd">        :return: ROS geometry_msgs.msg.Point message</span>
+<span class="sd">        :rtype: geometry_msgs.msg.Point</span>
+<span class="sd">        :raises ModuleNotFoundError: If geometry_msgs is not available</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">use_geomsg</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span><span class="s2">&quot;geometry_msgs module not available&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Translation.are_close">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation.are_close">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">are_close</span><span class="p">(</span><span class="n">trans_1</span><span class="p">,</span> <span class="n">trans_2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a bool specifying whether two translation vectors are close to each other within a given tolerance.</span>
+<span class="sd">        The comparison is based on the Euclidean distance between the two translation vectors.</span>
+<span class="sd">        :param trans_1: First translation</span>
+<span class="sd">        :type trans_1: se3kit.translation.Translation</span>
+<span class="sd">        :param trans_2: Second translation</span>
+<span class="sd">        :type trans_2: se3kit.translation.Translation</span>
+<span class="sd">        :param tol: Tolerance. Default value corresponding to 1 mm</span>
+<span class="sd">        :type tol: float</span>
+<span class="sd">        :return: True if the translation vectors are close, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">trans_1</span> <span class="o">-</span> <span class="n">trans_2</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">tol</span></div>
+
+
+<div class="viewcode-block" id="Translation.is_valid">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation.is_valid">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_valid</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the input is a valid translation vector.</span>
+
+<span class="sd">        A valid translation vector is a NumPy ndarray of length 3.</span>
+
+<span class="sd">        :param vec: The vector to validate.</span>
+<span class="sd">        :type vec: np.ndarray</span>
+<span class="sd">        :param verbose: If True, prints validation messages.</span>
+<span class="sd">        :type verbose: bool</span>
+<span class="sd">        :return: True if valid, False otherwise.</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Translation vector must be np.ndarray, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">vec</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">_CARTESIAN_SIZE</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Translation vector must be of length </span><span class="si">{</span><span class="n">_CARTESIAN_SIZE</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">vec</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Not a valid translation. </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Vector is a valid translation vector.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniyal Maroufi, Omid Rezayof.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

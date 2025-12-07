@@ -1,0 +1,1491 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SE3kit package &mdash; SE3kit 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="SE3kit documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SE3kit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">SE3kit package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-se3kit.degrees">se3kit.degrees module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.degrees.Degrees"><code class="docutils literal notranslate"><span class="pre">Degrees</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.degrees.Degrees.deg"><code class="docutils literal notranslate"><span class="pre">Degrees.deg</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.degrees.Degrees.rad"><code class="docutils literal notranslate"><span class="pre">Degrees.rad</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-se3kit.hpoint">se3kit.hpoint module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.hpoint.HPoint"><code class="docutils literal notranslate"><span class="pre">HPoint</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.hpoint.HPoint.as_array"><code class="docutils literal notranslate"><span class="pre">HPoint.as_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.hpoint.HPoint.x"><code class="docutils literal notranslate"><span class="pre">HPoint.x</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.hpoint.HPoint.xyz"><code class="docutils literal notranslate"><span class="pre">HPoint.xyz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.hpoint.HPoint.y"><code class="docutils literal notranslate"><span class="pre">HPoint.y</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.hpoint.HPoint.z"><code class="docutils literal notranslate"><span class="pre">HPoint.z</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-se3kit.rotation">se3kit.rotation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.rotation.Rotation"><code class="docutils literal notranslate"><span class="pre">Rotation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.T"><code class="docutils literal notranslate"><span class="pre">Rotation.T</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.angle_difference"><code class="docutils literal notranslate"><span class="pre">Rotation.angle_difference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.are_close"><code class="docutils literal notranslate"><span class="pre">Rotation.are_close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.as_abc"><code class="docutils literal notranslate"><span class="pre">Rotation.as_abc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.as_axisangle"><code class="docutils literal notranslate"><span class="pre">Rotation.as_axisangle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.as_geometry_orientation"><code class="docutils literal notranslate"><span class="pre">Rotation.as_geometry_orientation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.as_quat"><code class="docutils literal notranslate"><span class="pre">Rotation.as_quat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.as_rpy"><code class="docutils literal notranslate"><span class="pre">Rotation.as_rpy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.as_xyz"><code class="docutils literal notranslate"><span class="pre">Rotation.as_xyz()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.as_zyx"><code class="docutils literal notranslate"><span class="pre">Rotation.as_zyx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.eye"><code class="docutils literal notranslate"><span class="pre">Rotation.eye()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.from_abc"><code class="docutils literal notranslate"><span class="pre">Rotation.from_abc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.from_axisangle"><code class="docutils literal notranslate"><span class="pre">Rotation.from_axisangle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.from_quat"><code class="docutils literal notranslate"><span class="pre">Rotation.from_quat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.from_rpy"><code class="docutils literal notranslate"><span class="pre">Rotation.from_rpy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.from_zyx"><code class="docutils literal notranslate"><span class="pre">Rotation.from_zyx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.is_identity"><code class="docutils literal notranslate"><span class="pre">Rotation.is_identity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.is_valid"><code class="docutils literal notranslate"><span class="pre">Rotation.is_valid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.rotate_x"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_x()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.rotate_y"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_y()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.rotate_z"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_z()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.x_axis"><code class="docutils literal notranslate"><span class="pre">Rotation.x_axis</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.y_axis"><code class="docutils literal notranslate"><span class="pre">Rotation.y_axis</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.z_axis"><code class="docutils literal notranslate"><span class="pre">Rotation.z_axis</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-se3kit.transformation">se3kit.transformation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.transformation.Transformation"><code class="docutils literal notranslate"><span class="pre">Transformation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.are_close"><code class="docutils literal notranslate"><span class="pre">Transformation.are_close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.as_geometry_pose"><code class="docutils literal notranslate"><span class="pre">Transformation.as_geometry_pose()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.compose"><code class="docutils literal notranslate"><span class="pre">Transformation.compose()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.convert_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Transformation.convert_m_to_mm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.convert_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Transformation.convert_mm_to_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.from_xyz_mm_abc"><code class="docutils literal notranslate"><span class="pre">Transformation.from_xyz_mm_abc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.inv"><code class="docutils literal notranslate"><span class="pre">Transformation.inv</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.is_valid"><code class="docutils literal notranslate"><span class="pre">Transformation.is_valid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.m"><code class="docutils literal notranslate"><span class="pre">Transformation.m</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.rotation"><code class="docutils literal notranslate"><span class="pre">Transformation.rotation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.scaled"><code class="docutils literal notranslate"><span class="pre">Transformation.scaled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.scaled_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Transformation.scaled_m_to_mm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.scaled_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Transformation.scaled_mm_to_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.transform_hpoint"><code class="docutils literal notranslate"><span class="pre">Transformation.transform_hpoint()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.translation"><code class="docutils literal notranslate"><span class="pre">Transformation.translation</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-se3kit.translation">se3kit.translation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.translation.Translation"><code class="docutils literal notranslate"><span class="pre">Translation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.are_close"><code class="docutils literal notranslate"><span class="pre">Translation.are_close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.as_geometry_point"><code class="docutils literal notranslate"><span class="pre">Translation.as_geometry_point()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.convert_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Translation.convert_m_to_mm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.convert_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Translation.convert_mm_to_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.is_valid"><code class="docutils literal notranslate"><span class="pre">Translation.is_valid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.norm"><code class="docutils literal notranslate"><span class="pre">Translation.norm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.scale_inplace"><code class="docutils literal notranslate"><span class="pre">Translation.scale_inplace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.scaled_copy"><code class="docutils literal notranslate"><span class="pre">Translation.scaled_copy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.scaled_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Translation.scaled_m_to_mm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.scaled_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Translation.scaled_mm_to_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.x"><code class="docutils literal notranslate"><span class="pre">Translation.x</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.xyz"><code class="docutils literal notranslate"><span class="pre">Translation.xyz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.y"><code class="docutils literal notranslate"><span class="pre">Translation.y</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.z"><code class="docutils literal notranslate"><span class="pre">Translation.z</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-se3kit.utils">se3kit.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.utils.deg2rad"><code class="docutils literal notranslate"><span class="pre">deg2rad()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.utils.is_identity"><code class="docutils literal notranslate"><span class="pre">is_identity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.utils.is_near"><code class="docutils literal notranslate"><span class="pre">is_near()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.utils.rad2deg"><code class="docutils literal notranslate"><span class="pre">rad2deg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.utils.skew_to_vector"><code class="docutils literal notranslate"><span class="pre">skew_to_vector()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.utils.vector_to_skew"><code class="docutils literal notranslate"><span class="pre">vector_to_skew()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-se3kit.calibration">se3kit.calibration module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.calibration.EyeInHandCalibration"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.EyeInHandCalibration.run_calibration"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.run_calibration()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#se3kit.calibration.PivotCalibration"><code class="docutils literal notranslate"><span class="pre">PivotCalibration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.PivotCalibration.add_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.add_poses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.PivotCalibration.find_similar_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.find_similar_poses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.PivotCalibration.remove_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.remove_poses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.PivotCalibration.reset_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.reset_poses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.PivotCalibration.run_pivot_calibration"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.run_pivot_calibration()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SE3kit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">SE3kit package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/se3kit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="se3kit-package">
+<h1>SE3kit package<a class="headerlink" href="#se3kit-package" title="Link to this heading"></a></h1>
+<section id="module-se3kit.degrees">
+<span id="se3kit-degrees-module"></span><h2>se3kit.degrees module<a class="headerlink" href="#module-se3kit.degrees" title="Link to this heading"></a></h2>
+<p>degrees.py
+A helper module providing a Degrees class for convenient conversion
+between degrees and radians.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="se3kit.degrees.Degrees">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">se3kit.degrees.</span></span><span class="sig-name descname"><span class="pre">Degrees</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/degrees.html#Degrees"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.degrees.Degrees" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents an angle in degrees with convenient conversion to/from radians.</p>
+<p>Provides .deg and .rad properties for getting/setting the value
+in degrees or radians, respectively.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.degrees.Degrees.deg">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deg</span></span><a class="headerlink" href="#se3kit.degrees.Degrees.deg" title="Link to this definition"></a></dt>
+<dd><p>Gets the stored angle in degrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Angle in degrees.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.degrees.Degrees.rad">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rad</span></span><a class="headerlink" href="#se3kit.degrees.Degrees.rad" title="Link to this definition"></a></dt>
+<dd><p>Gets the stored angle converted to radians.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Angle in radians.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-se3kit.hpoint">
+<span id="se3kit-hpoint-module"></span><h2>se3kit.hpoint module<a class="headerlink" href="#module-se3kit.hpoint" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="se3kit.hpoint.HPoint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">se3kit.hpoint.</span></span><span class="sig-name descname"><span class="pre">HPoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/hpoint.html#HPoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.hpoint.HPoint" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a homogeneous point in 3D space (4x1 vector).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.hpoint.HPoint.as_array">
+<span class="sig-name descname"><span class="pre">as_array</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/hpoint.html#HPoint.as_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.hpoint.HPoint.as_array" title="Link to this definition"></a></dt>
+<dd><p>Get the full 4x1 homogeneous vector representation of the point.</p>
+<p>This includes the x, y, z, and homogeneous coordinate (typically 1).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A 4x1 NumPy array representing [x, y, z, 1]^T.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.hpoint.HPoint.x">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#se3kit.hpoint.HPoint.x" title="Link to this definition"></a></dt>
+<dd><p>Get the x-coordinate of the homogeneous point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The x-coordinate value.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.hpoint.HPoint.xyz">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xyz</span></span><a class="headerlink" href="#se3kit.hpoint.HPoint.xyz" title="Link to this definition"></a></dt>
+<dd><p>Get the 3D Cartesian coordinates of the point as a NumPy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A 1D NumPy array containing [x, y, z].</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.hpoint.HPoint.y">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#se3kit.hpoint.HPoint.y" title="Link to this definition"></a></dt>
+<dd><p>Get the y-coordinate of the homogeneous point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The y-coordinate value.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.hpoint.HPoint.z">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">z</span></span><a class="headerlink" href="#se3kit.hpoint.HPoint.z" title="Link to this definition"></a></dt>
+<dd><p>Get the z-coordinate of the homogeneous point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The z-coordinate value.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-se3kit.rotation">
+<span id="se3kit-rotation-module"></span><h2>se3kit.rotation module<a class="headerlink" href="#module-se3kit.rotation" title="Link to this heading"></a></h2>
+<p>rotation.py</p>
+<p>Defines a Rotation class representing a 3x3 rotation matrix
+with constructors from quaternions, Euler angles, and utility
+methods for axis-angle, ZYX Euler angles, and ROS geometry types.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">se3kit.rotation.</span></span><span class="sig-name descname"><span class="pre">Rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a 3x3 rotation matrix used for rotating vectors in 3D space.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.T">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">T</span></span><a class="headerlink" href="#se3kit.rotation.Rotation.T" title="Link to this definition"></a></dt>
+<dd><p>Returns the transpose of the rotation matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transposed rotation matrix</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation">se3kit.rotation.Rotation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.angle_difference">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">angle_difference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rot_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.angle_difference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.angle_difference" title="Link to this definition"></a></dt>
+<dd><p>Returns the angle of difference between two rotation matrices (axis angle representation) using Rodrigues’ rotation formula.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rot_1</strong> (<a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation"><em>se3kit.rotation.Rotation</em></a>) – First rotation matrix</p></li>
+<li><p><strong>rot_2</strong> (<a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation"><em>se3kit.rotation.Rotation</em></a>) – Second rotation matrix</p></li>
+<li><p><strong>degrees</strong> (<em>bool</em>) – If True, angle is returned in degrees; otherwise in radians</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>angle difference in axis angle representation</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.are_close">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">are_close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rot_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0174533</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.are_close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.are_close" title="Link to this definition"></a></dt>
+<dd><p>Returns a bool specifying whether two rotation matrices are close to each other by checking the angle difference in axis angle representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rot_1</strong> (<a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation"><em>se3kit.rotation.Rotation</em></a>) – First rotation matrix</p></li>
+<li><p><strong>rot_2</strong> (<a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation"><em>se3kit.rotation.Rotation</em></a>) – Second rotation matrix</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance. Default value corresponding to 1 deg</p></li>
+<li><p><strong>degrees</strong> (<em>bool</em>) – If True, tol angle should be inputted in degrees; otherwise in radians</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the rotation matrices are close (within tolerance), False otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.as_abc">
+<span class="sig-name descname"><span class="pre">as_abc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.as_abc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.as_abc" title="Link to this definition"></a></dt>
+<dd><p>Returns the Euler angles in ABC order (ZY’X”), optionally in degrees.
+Assumed intrinsic rotation similar to KUKA notation.</p>
+<p>This is an alias for <cite>as_zyx</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>degrees</strong> (<em>bool</em>) – If True, angles are returned in degrees; otherwise in radians</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Euler angles [A, B, C] (same as ZY’X” order)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.as_axisangle">
+<span class="sig-name descname"><span class="pre">as_axisangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.as_axisangle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.as_axisangle" title="Link to this definition"></a></dt>
+<dd><p>Returns axis-angle representation of rotation.</p>
+<p>The axis-angle representation defines a rotation as an axis vector
+and an angle of rotation about that axis.</p>
+<p>Special cases:
+- Identity rotation: angle=0, axis arbitrary ([1,0,0] used)
+- 180-degree rotation: handled separately to avoid division by zero</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>degrees</strong> (<em>bool</em>) – If True, angle is returned in degrees; otherwise in radians</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple containing:
+- axis vector as a 3-element np.ndarray
+- rotation angle as a float (in radians or degrees based on the degrees parameter)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(np.ndarray, float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.as_geometry_orientation">
+<span class="sig-name descname"><span class="pre">as_geometry_orientation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.as_geometry_orientation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.as_geometry_orientation" title="Link to this definition"></a></dt>
+<dd><p>Converts rotation to ROS geometry_msgs Quaternion.</p>
+<p>Useful for publishing rotations in ROS topics or working with ROS messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>geometry_msgs.msg.Quaternion with x, y, z, w components</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Quaternion</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ModuleNotFoundError</strong> – If geometry_msgs is not available.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.as_quat">
+<span class="sig-name descname"><span class="pre">as_quat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.as_quat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.as_quat" title="Link to this definition"></a></dt>
+<dd><p>Convert the rotation matrix to a quaternion (np.quaternion) using
+a pure numpy implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quaternion representing the rotation with components (w, x, y, z),
+with internal storage order (w, x, y, z) following numpy-quaternion convention.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>quaternion.quaternion</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>q = rot.as_quat()
+# Access components:
+w, x, y, z = q.w, q.x, q.y, q.z</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.as_rpy">
+<span class="sig-name descname"><span class="pre">as_rpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extrinsic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.as_rpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.as_rpy" title="Link to this definition"></a></dt>
+<dd><p>Returns the Euler angles in roll-pitch-yaw (RPY) order [X, Y, Z] assuming extrinsic rotation as default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extrinsic</strong> (<em>bool</em>) – If True, extrinsic rotation is assumed (with respect to the fixed frame)</p></li>
+<li><p><strong>degrees</strong> (<em>bool</em>) – If True, angles are returned in degrees; otherwise in radians</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Euler angles [roll, pitch, yaw]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.as_xyz">
+<span class="sig-name descname"><span class="pre">as_xyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extrinsic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.as_xyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.as_xyz" title="Link to this definition"></a></dt>
+<dd><p>Converts the rotation matrix to XY’Z” Euler angles, using intrinsic rotation as default.</p>
+<p>Handles the singularity cases when the rotation is identity or near 180 degrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degrees</strong> (<em>bool</em><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – If True, returns angles in degrees; otherwise in radians.</p></li>
+<li><p><strong>extrinsic</strong> (<em>bool</em>) – If True, extrinsic rotation is assumed (with respect to the fixed frame)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Euler angles as a 3-element array [x, y’, z”].</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.as_zyx">
+<span class="sig-name descname"><span class="pre">as_zyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extrinsic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.as_zyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.as_zyx" title="Link to this definition"></a></dt>
+<dd><p>Converts the rotation matrix to ZY’X” Euler angles, using intrinsic rotation as default.</p>
+<p>Handles the singularity cases when the rotation is identity or near 180 degrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degrees</strong> (<em>bool</em><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – If True, returns angles in degrees; otherwise in radians.</p></li>
+<li><p><strong>extrinsic</strong> (<em>bool</em>) – If True, extrinsic rotation is assumed (with respect to the fixed frame)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Euler angles as a 3-element array [z, y’, x”].</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.eye">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eye</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.eye"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.eye" title="Link to this definition"></a></dt>
+<dd><p>Returns identity rotation matrix.</p>
+<p>This is a 3x3 identity rotation matrix, representing no rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Identity rotation as a se3kit.rotation.Rotation object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation">se3kit.rotation.Rotation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.from_abc">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_abc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.from_abc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.from_abc" title="Link to this definition"></a></dt>
+<dd><p>Lowercase alias for creating a Rotation from ABC angles (ZY’X” order).
+This method assumes intrinsic rotation, as KUKA notation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.from_axisangle">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_axisangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_rad</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.from_axisangle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.from_axisangle" title="Link to this definition"></a></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">Rotation</span></code> object from an axis-angle representation using
+Rodrigues’ rotation formula.</p>
+<p>The axis must be a 3D vector and does not need to be normalized; it will be
+normalized internally. The angle is given in radians. This method computes
+the corresponding 3x3 rotation matrix:</p>
+<div class="math notranslate nohighlight">
+\[R = I \cos\theta + (1 - \cos\theta) \, a a^T + [a]_\times \sin\theta\]</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">a</span></code> is the unit rotation axis and <code class="docutils literal notranslate"><span class="pre">[a]_x</span></code> is the cross-product
+(skew-symmetric) matrix of <code class="docutils literal notranslate"><span class="pre">a</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axis</strong> (<em>array-like</em><em> of </em><em>float with shape</em><em> (</em><em>3</em><em>,</em><em>)</em>) – 3D rotation axis. Does not need to be unit length.</p></li>
+<li><p><strong>angle_rad</strong> (<em>float</em>) – Rotation angle in radians.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">Rotation</span></code> instance representing the given rotation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation">Rotation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.from_quat">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_quat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.from_quat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.from_quat" title="Link to this definition"></a></dt>
+<dd><p>Create a <code class="docutils literal notranslate"><span class="pre">Rotation</span></code> object from a quaternion.</p>
+<p>The input quaternion is expected in the format <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">z,</span> <span class="pre">w)</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">w</span></code> is the real component. Internally this is converted into an
+<code class="docutils literal notranslate"><span class="pre">np.quaternion</span></code> object with ordering <code class="docutils literal notranslate"><span class="pre">(w,</span> <span class="pre">x,</span> <span class="pre">y,</span> <span class="pre">z)</span></code> before being passed
+to the <code class="docutils literal notranslate"><span class="pre">Rotation</span></code> constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>q</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>]</em>) – Quaternion as a tuple or list in the order <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">z,</span> <span class="pre">w)</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">Rotation</span></code> instance representing the same rotation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation">Rotation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.from_rpy">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_rpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rpy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extrinsic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.from_rpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.from_rpy" title="Link to this definition"></a></dt>
+<dd><p>Creates a Rotation object from roll(around X)-pitch(around Y)-yaw(around Z) angles.
+As in aviation roll-pitch-yaw are usually considered among fixed axes, this method assumes extrinsic rotation as default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rpy</strong> (<em>list</em><em>, </em><em>tuple</em><em>, or </em><em>np.ndarray</em>) – Roll-Pitch-Yaw angles [X, Y, Z]</p></li>
+<li><p><strong>extrinsic</strong> (<em>bool</em>) – If True, extrinsic rotation is applied (with respect to the fixed frame)</p></li>
+<li><p><strong>degrees</strong> (<em>bool</em>) – If True, angles are in degrees; otherwise radians</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rotation object representing the rotation</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation">se3kit.rotation.Rotation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.from_zyx">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_zyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">euler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extrinsic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.from_zyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.from_zyx" title="Link to this definition"></a></dt>
+<dd><p>Creates a Rotation from ZYX (default intrinsic) Euler angles.
+More on intrinsic and extrinsic 3D rotations:
+<a class="reference external" href="https://dominicplein.medium.com/extrinsic-intrinsic-rotation-do-i-multiply-from-right-or-left-357c38c1abfd">https://dominicplein.medium.com/extrinsic-intrinsic-rotation-do-i-multiply-from-right-or-left-357c38c1abfd</a></p>
+<p>The input angles are applied in Z, Y, X order using intrinsic or extrinsic rotation to generate
+the corresponding 3x3 rotation matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>euler</strong> (<em>array-like</em><em> of </em><em>3 floats</em>) – Euler angles as [z, y, x]</p></li>
+<li><p><strong>extrinsic</strong> (<em>bool</em>) – If True, extrinsic rotation is applied (with respect to the fixed frame)</p></li>
+<li><p><strong>degrees</strong> (<em>bool</em>) – If True, input is in degrees. Defaults to False (radians)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rotation object representing the specified rotation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation">se3kit.rotation.Rotation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.is_identity">
+<span class="sig-name descname"><span class="pre">is_identity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.is_identity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.is_identity" title="Link to this definition"></a></dt>
+<dd><p>Checks whether the rotation matrix represents the identity rotation.</p>
+<p>This means the rotation matrix is effectively the 3x3 identity matrix,
+with no rotation applied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if rotation is identity, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.is_valid">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_valid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.is_valid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.is_valid" title="Link to this definition"></a></dt>
+<dd><p>Checks if the given matrix is a valid 3x3 rotation matrix.</p>
+<p>A valid rotation matrix is a 3x3 orthogonal matrix with a determinant of 1.
+This method verifies the following:</p>
+<ul class="simple">
+<li><p>The input is a numpy ndarray of shape (3, 3)</p></li>
+<li><p>The matrix is orthogonal (R.T &#64; R == I within tolerance)</p></li>
+<li><p>The determinant of the matrix is 1 (within tolerance)</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mat</strong> (<em>np.ndarray</em>) – Matrix to check for validity as a rotation matrix.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, prints detailed error messages or success confirmation.</p></li>
+<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em>) – Tolerance for orthogonality and determinant checks.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the matrix is a valid rotation matrix, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.rotate_x">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rotate_x</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.rotate_x"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.rotate_x" title="Link to this definition"></a></dt>
+<dd><p>Produces a rotation matrix for rotation of ‘theta’ angle around x axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>float</em>) – Rotation angle</p></li>
+<li><p><strong>degrees</strong> (<em>bool</em>) – If True, theta is in degrees; otherwise in radians (default: False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rotation matrix around x axis</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation">se3kit.rotation.Rotation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.rotate_y">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rotate_y</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.rotate_y"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.rotate_y" title="Link to this definition"></a></dt>
+<dd><p>Produces a rotation matrix for rotation of ‘theta’ angle around y axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>float</em>) – Rotation angle</p></li>
+<li><p><strong>degrees</strong> (<em>bool</em>) – If True, theta is in degrees; otherwise in radians (default: False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rotation matrix around y axis</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation">se3kit.rotation.Rotation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.rotate_z">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rotate_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.rotate_z"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.rotate_z" title="Link to this definition"></a></dt>
+<dd><p>Produces a rotation matrix for rotation of ‘theta’ angle around z axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>float</em>) – Rotation angle</p></li>
+<li><p><strong>degrees</strong> (<em>bool</em>) – If True, theta is in degrees; otherwise in radians (default: False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rotation matrix around z axis</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation">se3kit.rotation.Rotation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.x_axis">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x_axis</span></span><a class="headerlink" href="#se3kit.rotation.Rotation.x_axis" title="Link to this definition"></a></dt>
+<dd><p>Returns the x-axis of the rotation matrix.</p>
+<p>The x-axis corresponds to the first column of the 3x3 rotation matrix,
+representing the direction of the rotated frame’s x-axis in world coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>3-element vector representing the x-axis</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.y_axis">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y_axis</span></span><a class="headerlink" href="#se3kit.rotation.Rotation.y_axis" title="Link to this definition"></a></dt>
+<dd><p>Returns the y-axis of the rotation matrix.</p>
+<p>The y-axis corresponds to the second column of the 3x3 rotation matrix,
+representing the direction of the rotated frame’s y-axis in world coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>3-element vector representing the y-axis</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.z_axis">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">z_axis</span></span><a class="headerlink" href="#se3kit.rotation.Rotation.z_axis" title="Link to this definition"></a></dt>
+<dd><p>Returns the z-axis of the rotation matrix.</p>
+<p>The z-axis corresponds to the third column of the 3x3 rotation matrix,
+representing the direction of the rotated frame’s z-axis in world coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>3-element vector representing the z-axis</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-se3kit.transformation">
+<span id="se3kit-transformation-module"></span><h2>se3kit.transformation module<a class="headerlink" href="#module-se3kit.transformation" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">se3kit.transformation.</span></span><span class="sig-name descname"><span class="pre">Transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a 4x4 homogeneous transformation matrix with rotation and translation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.are_close">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">are_close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transform_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0174533</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.are_close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.are_close" title="Link to this definition"></a></dt>
+<dd><p>Returns a bool specifying whether two transformation matrices are close to each other by checking their
+rotational and translational parts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transform_1</strong> (<a class="reference internal" href="#se3kit.transformation.Transformation" title="se3kit.transformation.Transformation"><em>se3kit.transformation.Transformation</em></a>) – First transformation matrix</p></li>
+<li><p><strong>transform_2</strong> (<a class="reference internal" href="#se3kit.transformation.Transformation" title="se3kit.transformation.Transformation"><em>se3kit.transformation.Transformation</em></a>) – Second transformation matrix</p></li>
+<li><p><strong>rot_tol</strong> (<em>float</em>) – Rotational tolerance. Default value corresponding to 1 deg</p></li>
+<li><p><strong>trans_tol</strong> (<em>float</em>) – Translation tolerance. Default value corresponding to 1 mm</p></li>
+<li><p><strong>degrees</strong> (<em>bool</em>) – If True, rot_tol angle should be inputted in degrees; otherwise in radians</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the transformation matrices are close, False otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.as_geometry_pose">
+<span class="sig-name descname"><span class="pre">as_geometry_pose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.as_geometry_pose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.as_geometry_pose" title="Link to this definition"></a></dt>
+<dd><p>Converts this Transformation to a ROS Pose message.</p>
+<p>Works for ROS1 or ROS2 depending on the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ROS Pose message</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>geometry_msgs.msg.Pose</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ModuleNotFoundError</strong> – if geometry_msgs module not available</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.compose">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.compose" title="Link to this definition"></a></dt>
+<dd><p>Composes two Transformations (matrix multiplication).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<a class="reference internal" href="#se3kit.transformation.Transformation" title="se3kit.transformation.Transformation"><em>se3kit.transformation.Transformation</em></a>) – First Transformation</p></li>
+<li><p><strong>B</strong> (<a class="reference internal" href="#se3kit.transformation.Transformation" title="se3kit.transformation.Transformation"><em>se3kit.transformation.Transformation</em></a>) – Second Transformation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resulting Transformation</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.transformation.Transformation" title="se3kit.transformation.Transformation">se3kit.transformation.Transformation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.convert_m_to_mm">
+<span class="sig-name descname"><span class="pre">convert_m_to_mm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.convert_m_to_mm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.convert_m_to_mm" title="Link to this definition"></a></dt>
+<dd><p>Converts the translation component from meters to millimeters in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.convert_mm_to_m">
+<span class="sig-name descname"><span class="pre">convert_mm_to_m</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.convert_mm_to_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.convert_mm_to_m" title="Link to this definition"></a></dt>
+<dd><p>Converts the translation component from millimeters to meters in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.from_xyz_mm_abc">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_xyz_mm_abc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyz_abc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.from_xyz_mm_abc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.from_xyz_mm_abc" title="Link to this definition"></a></dt>
+<dd><p>Creates a Transformation from a 6-element array: XYZ translation in meters
+and ABC Euler angles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xyzABC</strong> (<em>np.ndarray</em><em> | </em><em>list</em>) – Array-like [x, y, z, A, B, C]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Transformation object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.transformation.Transformation" title="se3kit.transformation.Transformation">se3kit.transformation.Transformation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.inv">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inv</span></span><a class="headerlink" href="#se3kit.transformation.Transformation.inv" title="Link to this definition"></a></dt>
+<dd><p>Returns the inverse of this transformation.</p>
+<p>The inverse is computed by inverting the 4x4 transformation matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Inverse transformation</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#se3kit.transformation.Transformation" title="se3kit.transformation.Transformation">se3kit.transformation.Transformation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.is_valid">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_valid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.is_valid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.is_valid" title="Link to this definition"></a></dt>
+<dd><p>Checks if the input is a valid 4x4 homogeneous transformation matrix.</p>
+<p>A valid transformation matrix must:
+- Be a numpy ndarray of shape (4, 4)
+- Have a valid rotation part (upper-left 3x3 submatrix)
+- Have a valid translation part (first three elements of the last column)
+- Have the last row equal to [0, 0, 0, 1] (homogeneous row)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mat</strong> (<em>np.ndarray</em>) – Matrix to validate</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, prints detailed validation messages</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if valid transformation matrix, False otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.m">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">m</span></span><a class="headerlink" href="#se3kit.transformation.Transformation.m" title="Link to this definition"></a></dt>
+<dd><p>Returns the full 4x4 homogeneous transformation matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>4x4 transformation matrix</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.rotation">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rotation</span></span><a class="headerlink" href="#se3kit.transformation.Transformation.rotation" title="Link to this definition"></a></dt>
+<dd><p>Returns the rotation component of the transformation as a Rotation object.</p>
+<p>The rotation is extracted from the upper-left 3x3 submatrix of the 4x4
+homogeneous transformation matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>se3kit.rotation.Rotation object representing the rotation part</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#se3kit.rotation.Rotation" title="se3kit.rotation.Rotation">se3kit.rotation.Rotation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.scaled">
+<span class="sig-name descname"><span class="pre">scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.scaled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.scaled" title="Link to this definition"></a></dt>
+<dd><p>Returns a copy of the transformation with translation scaled by a factor.</p>
+<p>Rotation remains unchanged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>factor</strong> (<em>float</em>) – Scaling factor</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Scaled transformation</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.transformation.Transformation" title="se3kit.transformation.Transformation">se3kit.transformation.Transformation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.scaled_m_to_mm">
+<span class="sig-name descname"><span class="pre">scaled_m_to_mm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.scaled_m_to_mm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.scaled_m_to_mm" title="Link to this definition"></a></dt>
+<dd><p>Returns a copy of the transformation with translation converted from meters to millimeters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Scaled transformation</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#se3kit.transformation.Transformation" title="se3kit.transformation.Transformation">se3kit.transformation.Transformation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.scaled_mm_to_m">
+<span class="sig-name descname"><span class="pre">scaled_mm_to_m</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.scaled_mm_to_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.scaled_mm_to_m" title="Link to this definition"></a></dt>
+<dd><p>Returns a copy with translation scaled from millimeters to meters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.transform_hpoint">
+<span class="sig-name descname"><span class="pre">transform_hpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.transform_hpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.transform_hpoint" title="Link to this definition"></a></dt>
+<dd><p>Transforms a homogeneous point by this Transformation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>p</strong> (<a class="reference internal" href="#se3kit.hpoint.HPoint" title="se3kit.hpoint.HPoint"><em>se3kit.hpoint.HPoint</em></a>) – HPoint to transform</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Transformed HPoint</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.hpoint.HPoint" title="se3kit.hpoint.HPoint">se3kit.hpoint.HPoint</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – if p is not an HPoint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.translation">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">translation</span></span><a class="headerlink" href="#se3kit.transformation.Transformation.translation" title="Link to this definition"></a></dt>
+<dd><p>Returns the translation component of the transformation as a Translation object.</p>
+<p>The translation is extracted from the top-right 3x1 part of the 4x4
+homogeneous transformation matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>se3kit.translation.Translation object representing the translation part</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#se3kit.translation.Translation" title="se3kit.translation.Translation">se3kit.translation.Translation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-se3kit.translation">
+<span id="se3kit-translation-module"></span><h2>se3kit.translation module<a class="headerlink" href="#module-se3kit.translation" title="Link to this heading"></a></h2>
+<p>translation.py</p>
+<p>Represents a 3D translation vector and provides utilities for arithmetic,
+scaling, unit conversion, and ROS message conversion.</p>
+<p>Compatible with ROS1 and ROS2 using ros_compat.py.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="se3kit.translation.Translation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">se3kit.translation.</span></span><span class="sig-name descname"><span class="pre">Translation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_xyz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'m'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a 3D translation vector.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.are_close">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">are_close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.are_close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.are_close" title="Link to this definition"></a></dt>
+<dd><p>Returns a bool specifying whether two translation vectors are close to each other within a given tolerance.
+The comparison is based on the Euclidean distance between the two translation vectors.
+:param trans_1: First translation
+:type trans_1: se3kit.translation.Translation
+:param trans_2: Second translation
+:type trans_2: se3kit.translation.Translation
+:param tol: Tolerance. Default value corresponding to 1 mm
+:type tol: float
+:return: True if the translation vectors are close, False otherwise</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.as_geometry_point">
+<span class="sig-name descname"><span class="pre">as_geometry_point</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.as_geometry_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.as_geometry_point" title="Link to this definition"></a></dt>
+<dd><p>Converts the translation to a ROS geometry_msgs Point message.</p>
+<p>Works for ROS1 or ROS2 depending on the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ROS geometry_msgs.msg.Point message</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>geometry_msgs.msg.Point</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ModuleNotFoundError</strong> – If geometry_msgs is not available</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.convert_m_to_mm">
+<span class="sig-name descname"><span class="pre">convert_m_to_mm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.convert_m_to_mm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.convert_m_to_mm" title="Link to this definition"></a></dt>
+<dd><p>Converts the translation in-place from meters to millimeters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.convert_mm_to_m">
+<span class="sig-name descname"><span class="pre">convert_mm_to_m</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.convert_mm_to_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.convert_mm_to_m" title="Link to this definition"></a></dt>
+<dd><p>Converts the translation in-place from millimeters to meters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.is_valid">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_valid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.is_valid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.is_valid" title="Link to this definition"></a></dt>
+<dd><p>Checks if the input is a valid translation vector.</p>
+<p>A valid translation vector is a NumPy ndarray of length 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<em>np.ndarray</em>) – The vector to validate.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, prints validation messages.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if valid, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.norm">
+<span class="sig-name descname"><span class="pre">norm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.norm" title="Link to this definition"></a></dt>
+<dd><p>Computes the Euclidean norm (magnitude) of the translation vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Euclidean norm</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.scale_inplace">
+<span class="sig-name descname"><span class="pre">scale_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.scale_inplace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.scale_inplace" title="Link to this definition"></a></dt>
+<dd><p>Scales the translation in-place by a factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>factor</strong> (<em>float</em>) – Scaling factor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.scaled_copy">
+<span class="sig-name descname"><span class="pre">scaled_copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.scaled_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.scaled_copy" title="Link to this definition"></a></dt>
+<dd><p>Returns a new Translation scaled by a factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>factor</strong> (<em>float</em>) – Scaling factor</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Scaled Translation</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.translation.Translation" title="se3kit.translation.Translation">se3kit.translation.Translation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.scaled_m_to_mm">
+<span class="sig-name descname"><span class="pre">scaled_m_to_mm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.scaled_m_to_mm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.scaled_m_to_mm" title="Link to this definition"></a></dt>
+<dd><p>Returns a new Translation scaled from meters to millimeters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Scaled Translation in millimeters</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#se3kit.translation.Translation" title="se3kit.translation.Translation">se3kit.translation.Translation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.scaled_mm_to_m">
+<span class="sig-name descname"><span class="pre">scaled_mm_to_m</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.scaled_mm_to_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.scaled_mm_to_m" title="Link to this definition"></a></dt>
+<dd><p>Returns a new Translation scaled from millimeters to meters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Scaled Translation in meters</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#se3kit.translation.Translation" title="se3kit.translation.Translation">se3kit.translation.Translation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.x">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#se3kit.translation.Translation.x" title="Link to this definition"></a></dt>
+<dd><p>Returns x-component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>x-component</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.xyz">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xyz</span></span><a class="headerlink" href="#se3kit.translation.Translation.xyz" title="Link to this definition"></a></dt>
+<dd><p>Returns the full translation vector as a numpy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>3-element vector [x, y, z]</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.y">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#se3kit.translation.Translation.y" title="Link to this definition"></a></dt>
+<dd><p>Returns the y-component of the translation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>y-component</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.z">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">z</span></span><a class="headerlink" href="#se3kit.translation.Translation.z" title="Link to this definition"></a></dt>
+<dd><p>Returns the z-component of the translation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>z-component</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-se3kit.utils">
+<span id="se3kit-utils-module"></span><h2>se3kit.utils module<a class="headerlink" href="#module-se3kit.utils" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="se3kit.utils.deg2rad">
+<span class="sig-prename descclassname"><span class="pre">se3kit.utils.</span></span><span class="sig-name descname"><span class="pre">deg2rad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/utils.html#deg2rad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.utils.deg2rad" title="Link to this definition"></a></dt>
+<dd><p>Converts degrees to radians</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>d</strong> – Angle value in degrees</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The angle in radians</p>
+</dd>
+<dt class="field-odd">Return_type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float | np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="se3kit.utils.is_identity">
+<span class="sig-prename descclassname"><span class="pre">se3kit.utils.</span></span><span class="sig-name descname"><span class="pre">is_identity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-14</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/utils.html#is_identity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.utils.is_identity" title="Link to this definition"></a></dt>
+<dd><p>Checks if a square matrix is approximately the identity matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>np.ndarray</em>) – Square matrix to check.</p></li>
+<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>default=1e-14</em><em>)</em>) – Tolerance for element-wise comparison to identity.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if a ≈ I, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="se3kit.utils.is_near">
+<span class="sig-prename descclassname"><span class="pre">se3kit.utils.</span></span><span class="sig-name descname"><span class="pre">is_near</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-14</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/utils.html#is_near"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.utils.is_near" title="Link to this definition"></a></dt>
+<dd><p>Checks if two scalar values are approximately equal within a tolerance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – First scalar value.</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – Second scalar value.</p></li>
+<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>default=1e-14</em><em>)</em>) – Tolerance within which the values are considered equal.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if <code class="docutils literal notranslate"><span class="pre">|a</span> <span class="pre">-</span> <span class="pre">b|</span></code> &lt; tol, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="se3kit.utils.rad2deg">
+<span class="sig-prename descclassname"><span class="pre">se3kit.utils.</span></span><span class="sig-name descname"><span class="pre">rad2deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/utils.html#rad2deg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.utils.rad2deg" title="Link to this definition"></a></dt>
+<dd><p>Converts radians to degrees
+:param r: Angle value in radians
+:return: The angle in degrees
+:return_type: float | np.ndarray</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="se3kit.utils.skew_to_vector">
+<span class="sig-prename descclassname"><span class="pre">se3kit.utils.</span></span><span class="sig-name descname"><span class="pre">skew_to_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-14</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/utils.html#skew_to_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.utils.skew_to_vector" title="Link to this definition"></a></dt>
+<dd><p>Converts a 3x3 skew-symmetric matrix back into a 3D vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sk</strong> (<em>np.ndarray</em>) – 3x3 skew-symmetric matrix.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Corresponding 3D vector [x, y, z].</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If input matrix is not 3x3 or not skew-symmetric.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="se3kit.utils.vector_to_skew">
+<span class="sig-prename descclassname"><span class="pre">se3kit.utils.</span></span><span class="sig-name descname"><span class="pre">vector_to_skew</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/utils.html#vector_to_skew"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.utils.vector_to_skew" title="Link to this definition"></a></dt>
+<dd><p>Converts a vector into a skew-symmetric matrix for cross product or screw computations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>np.ndarray</em>) – Input vector of size 3 (3D vector) or 6 (screw vector).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Skew-symmetric matrix representing the vector.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the input vector is not size 3 or 6.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-se3kit.calibration">
+<span id="se3kit-calibration-module"></span><h2>se3kit.calibration module<a class="headerlink" href="#module-se3kit.calibration" title="Link to this heading"></a></h2>
+<p>Calibration module for se3kit.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="se3kit.calibration.EyeInHandCalibration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">se3kit.calibration.</span></span><span class="sig-name descname"><span class="pre">EyeInHandCalibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_transforms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_transforms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/eye_in_hand_calibration.html#EyeInHandCalibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.EyeInHandCalibration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Hand-eye calibration class: solves T_X in  A_i * T_X = T_X * B_i
+where A_i are robot poses and B_i are calibration board in camera poses.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.calibration.EyeInHandCalibration.run_calibration">
+<span class="sig-name descname"><span class="pre">run_calibration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/eye_in_hand_calibration.html#EyeInHandCalibration.run_calibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.EyeInHandCalibration.run_calibration" title="Link to this definition"></a></dt>
+<dd><p>Solves rotation r_x (rotation component) using quaternion SVD
+then solves translation p_x with least-squares.
+:return: camera in EE transformation
+:rtype: se3kit.transformation.Transformation</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="se3kit.calibration.PivotCalibration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">se3kit.calibration.</span></span><span class="sig-name descname"><span class="pre">PivotCalibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/pivot_calibration.html#PivotCalibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.PivotCalibration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a pivot calibration method.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.calibration.PivotCalibration.add_poses">
+<span class="sig-name descname"><span class="pre">add_poses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/pivot_calibration.html#PivotCalibration.add_poses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.PivotCalibration.add_poses" title="Link to this definition"></a></dt>
+<dd><p>Adds new poses to calib_poses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>poses</strong> (<em>list</em>) – a list of Transformation poses or ROS poses</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.calibration.PivotCalibration.find_similar_poses">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_similar_poses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/pivot_calibration.html#PivotCalibration.find_similar_poses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.PivotCalibration.find_similar_poses" title="Link to this definition"></a></dt>
+<dd><p>Finds similar poses in ‘poses’ by comparing their rotation part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>poses</strong> (<em>list</em>) – a list of se3kit.transformation.Transformation objects</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of repeated poses indices</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.calibration.PivotCalibration.remove_poses">
+<span class="sig-name descname"><span class="pre">remove_poses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx_poses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/pivot_calibration.html#PivotCalibration.remove_poses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.PivotCalibration.remove_poses" title="Link to this definition"></a></dt>
+<dd><p>Removes poses with specific indices from the poses list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>idx_poses</strong> (<em>list</em>) – a list of indices to be removed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.calibration.PivotCalibration.reset_poses">
+<span class="sig-name descname"><span class="pre">reset_poses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/pivot_calibration.html#PivotCalibration.reset_poses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.PivotCalibration.reset_poses" title="Link to this definition"></a></dt>
+<dd><p>Resets the current list of calib_poses.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.calibration.PivotCalibration.run_pivot_calibration">
+<span class="sig-name descname"><span class="pre">run_pivot_calibration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/pivot_calibration.html#PivotCalibration.run_pivot_calibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.PivotCalibration.run_pivot_calibration" title="Link to this definition"></a></dt>
+<dd><p>Runs the pivot calibration optimization and returns the tip location with respect to (wrt) the body frame,
+the divot location wrt the world frame, and the calibration residual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple of tip wrt body frame (tuple of 3 floats), divot wrt world frame (tuple of 3 floats), calibration residual (ndarray of floats)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(tuple, tuple, np.ndarray)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="SE3kit documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniyal Maroufi, Omid Rezayof.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
