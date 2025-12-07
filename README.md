@@ -1,222 +1,107 @@
 # SE3kit
 
-Lightweight Python library for 3D rigid-body transforms, rotations, and simple robot kinematics.
+[![Documentation Status](https://github.com/daniyalmaroufi/se3kit/actions/workflows/deploy_docs.yml/badge.svg)](https://daniyalmaroufi.github.io/se3kit/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
-Key components:
-- `transformation.Transformation` — 4×4 homogeneous transforms (`src/transformation.py`)
-- `rotation.Rotation` — 3×3 rotation matrices and Euler/quaternion helpers (`src/rotation.py`)
-- `translation.Translation` — 3D translation vectors and unit helpers (`src/translation.py`)
-- `hpoint.HPoint` — homogeneous point (4×1) wrapper (`src/hpoint.py`)
-- `robot.Robot` — simple serial manipulator models and forward kinematics (`src/robot.py`)
-- Utility helpers in `src/utils.py` and angle convenience class `degrees.Degrees` (`src/degrees.py`)
+**SE3kit** is a lightweight Python library designed for 3D rigid-body transformations, rotations, and robot kinematics. It provides intuitive wrappers for homogeneous transformations, rotation representations (matrices, Euler angles, quaternions), and geometric primitives, along with a flexible forward kinematics solver for serial manipulators.
 
-
-# Contributing to SE3kit
-
-- Install development dependencies
-    - Install or update editable dev environment (installs test and lint tools such as pre-commit, black, isort, flake8, mypy, pytest):
-        ```sh
-        pip install -U '.[dev]'
-        ```
-    - This will ensure local tooling matches CI and the repository's pre-commit hooks.
-
-- Pre-commit hooks (required before committing)
-    - Install the git hooks into your repository (run once per clone):
-        ```sh
-        pre-commit install
-        ```
-    - Run hooks locally against all files (recommended before pushing):
-        ```sh
-        pre-commit run --all-files
-        ```
-    - Typical hooks included:
-        - black (auto-format)
-        - isort (imports)
-        - flake8 (lint)
-        - mypy (static types)
-        - pytest or test-runner checks (optional)
-    - If a hook modifies files (e.g., black/isort), re-stage the changes and re-run the hooks before committing:
-        ```sh
-        git add .
-        pre-commit run --all-files
-        git commit
-        ```
-
-- CI and enforcement
-    - The CI pipeline runs the same checks; commits or PRs that fail lint/tests will be blocked until fixed.
-    - Keep changes small and run pre-commit + tests locally to avoid friction in code review.
-
-- Troubleshooting
-    - If you update dev dependencies, reinstall hooks:
-        ```sh
-        pip install -U '.[dev]'
-        pre-commit install --overwrite
-        ```
-    - To run a single hook locally:
-        ```sh
-        pre-commit run <hook-id> --all-files
-        ```
-
-- Guidelines
-    - Run formatting and tests before opening a PR.
-    - Commit only after pre-commit hooks and tests pass locally.
-    - Add tests for behavioral changes and keep commits focused and well-scoped.
-
-
-Overview
---------
-se3kit implements core SE(3) building blocks and a minimal robot FK example:
-- Homogeneous transforms follow the standard block form T = [R t; 0 1] where $R\in SO(3)$ and $t\in\mathbb{R}^3$.
-- Rotations are stored as 3×3 matrices in `rotation.Rotation`.
-- Translations are stored as 3-vectors in `translation.Translation`.
-- `Robot` provides factory methods for common robot models and a space-frame forward kinematics method: `robot.Robot.FK_space`.
-
-Installation
-------------
-This library is pure Python with a small NumPy/Scipy dependency for robot exponentials.
-
-- Recommended (editable):
-```sh
-pip install .
-```
-
-If you use ROS message conversions, the package will detect ROS1 or ROS2 via `ros_compat.ROS_VERSION` (`src/ros_compat.py`). Geometry message types are wrapped in `ros_compat.get_ros_geometry_msgs`.
-
-Quick usage examples
---------------------
-Create transforms and compose them:
-
-```python
-from transformation import Transformation
-from rotation import Rotation
-from translation import Translation
-
-t = Transformation(Translation([0, 0, 1]), Rotation())  # 1 m up, identity rotation
-```
-
-Transform a homogeneous point:
-
-```python
-from hpoint import HPoint
-p = HPoint(0.1, 0.0, 0.0)
-pt = t.transform_hpoint(p)  # uses Transformation.transform_hpoint in `src/transformation.py`
-```
-
-Robot forward kinematics (KUKA iiwa example):
-
-```python
-from robot import Robot
-r = Robot.create_iiwa()
-ja_deg = [-0.01, -35.10, 47.58, 24.17, 0.00, 0.00, 0.00]
-import numpy as np
-tf = r.FK_space(np.deg2rad(ja_deg))  # returns a Transformation (`src/robot.py`)
-```
-
-API documentation
------------------
-See the bundled API reference: `docs/API.md`.
-
-Testing
--------
-Run the unit tests with Python's unittest:
-
-```sh
-python -m unittest discover -v
-```
-
-If using ROS2, `src/tests.py` will initialize `rclpy` when run as `__main__`.
-
-Contributing
-------------
-- Keep changes small and well tested.
-- Follow NumPy-style docstrings as in existing files.
-- Add unit tests in `src/tests.py`.
-
-License
--------
-MIT — see `LICENSE`
-
-Contact
--------
-Repository authored by Daniyal Maroufi.
+> [!NOTE]
+> This library includes optional ROS compatibility, automatically detecting and converting to/from ROS 1 or ROS 2 geometry messages if available.
 
 ---
 
-## se3kit API Reference
+## 🚀 Features
 
-This document summarizes the main public classes and utilities in the library and points to their implementations.
+- **Rigid Body Transformations**: Easy-to-use 4x4 homogenous transformation matrices (`Transformation`).
+- **Rotations**: Comprehensive 3x3 rotation matrix support with conversions to/from Euler angles, Quaternions, and Axis-Angles (`Rotation`).
+- **Translations**: Vector arithmetic and unit management (`Translation`).
+- **Homogeneous Points**: 4D point representation for SE(3) operations (`HPoint`).
+- **ROS Integration**: Seamless conversion between SE3kit objects and ROS `geometry_msgs`.
 
-Core classes
-------------
+## 📦 Installation
 
-- `transformation.Transformation` (`src/transformation.py`)
-	- Represents a 4×4 homogeneous transform.
-	- Constructors:
-		- `Transformation(np.ndarray(4x4))` — full matrix
-		- `Transformation(Pose)` — from ROS Pose if available (see `ros_compat.get_ros_geometry_msgs`)
-		- `Transformation(Translation)` — translation only (rotation = identity)
-		- `Transformation(Translation, Rotation)` — explicit parts
-	- Key methods and properties:
-		- `matrix` — returns 4×4 matrix
-		- `rotation`, `rotation = ...` — Rotation part (uses `rotation.Rotation`)
-		- `translation`, `translation = ...` — Translation part (uses `translation.Translation`)
-		- `inv` — inverse transform
-		- `transform_hpoint(HPoint)` — transform a homogeneous point (`src/hpoint.py`)
-		- `as_geometry_pose()` — returns ROS `Pose` if geometry messages available
+This library is pure Python with minimal dependencies (`numpy`, `numpy-quaternion`).
 
-- `rotation.Rotation` (`src/rotation.py`)
-	- Stores a 3×3 rotation matrix.
-	- Constructors accept:
-		- None (identity)
-		- `np.quaternion` (numpy-quaternion) or ROS `Quaternion` (via `ros_compat`)
-		- 3×3 `np.ndarray`
-		- another `Rotation`
-	- Converters and helpers:
-		- `from_zyx(euler, degrees=False)` — create from ZYX Euler angles
-		- `from_rpy(rpy, degrees=False)` — RPY alias
-		- `as_zyx(degrees=False)` / `as_rpy(degrees=False)` — extract Euler angles
-		- `as_quat()` — returns `np.quaternion`
-		- `as_geometry_orientation()` — ROS `Quaternion`
-		- `as_axisangle()` — axis-angle decomposition
-		- `x_axis, y_axis, z_axis` — column axes of rotation matrix
+### From Source (Recommended)
 
-- `translation.Translation` (`src/translation.py`)
-	- Simple 3-vector wrapper with convenience:
-		- init from list/np.ndarray, `HPoint`, ROS `Point`/`Vector3`, or another `Translation`
-		- arithmetic ops `+`, `-`, scalar `*`, `/`
-		- `norm()` — Euclidean norm
-		- `convert_m_to_mm()`, `convert_mm_to_m()` and their non-destructive variants
-		- `as_geometry_point()` — ROS `Point` if available
+To install the library in editable mode:
 
-- `hpoint.HPoint` (`src/hpoint.py`)
-	- Homogeneous 4×1 point container.
-	- Construct with `HPoint(x,y,z)` or `HPoint(np.array([x,y,z]))` or `HPoint(np.array([x,y,z,w]))`
-	- `x,y,z` properties and `xyz` accessor for Cartesian vector
+```bash
+git clone https://github.com/daniyalmaroufi/se3kit.git
+cd se3kit
+pip install -e .
+```
 
-- `robot.Robot` (`src/robot.py`)
-	- Factory methods:
-		- `Robot.create_iiwa()` — KUKA iiwa R14 model (millimeters)
-		- `Robot.create_franka_fp3()` — Franka Panda approximation (meters)
-	- Kinematics:
-		- `FK_space(joint_angles)` — computes space-frame forward kinematics by exponentiating screws. Uses `scipy.linalg.expm` and `utils.vector_to_skew`.
+### Development Setup
 
-Utilities
----------
-- `src/utils.py`
-	- `deg2rad`, `rad2deg`
-	- `is_near`, `is_identity`
-	- `vector_to_skew(v)` and `skew_to_vector(sk)`
+For contributors, install the development dependencies (testing, linting, docs):
 
-ROS compatibility
------------------
-- `src/ros_compat.py`
-	- Detects ROS1/ROS2 availability and exposes:
-		- `ROS_VERSION` — `0` (none), `1` (ROS1), `2` (ROS2)
-		- `get_ros_geometry_msgs()` — returns `(Point, Quaternion, Pose, Vector3)` or `(None, None, None, None)`
+```bash
+pip install -e '.[dev]'
+pre-commit install
+```
 
-Examples
---------
-See the README for short examples or inspect:
-- Forward kinematics usage: `src/robot.py`
-- Transform/rotation examples: `src/transformation.py`, `src/rotation.py`
+## 🛠 Usage
 
+### Rigid Body Transformations
+
+Create and compose transformations intuitively:
+
+```python
+from se3kit.transformation import Transformation
+from se3kit.rotation import Rotation
+from se3kit.translation import Translation
+
+# Create a transformation: 1 meter up in Z, with identity rotation
+t1 = Transformation(Translation([0, 0, 1]), Rotation())
+
+# Compose transformations
+t2 = Transformation(Translation([0.5, 0, 0]), Rotation.from_rpy([0, 0, 1.57])) # Rotate 90 deg around Z
+t_combined = t1 * t2
+```
+
+### Point Transformation
+
+Transform homogeneous points efficiently:
+
+```python
+from se3kit.hpoint import HPoint
+
+p = HPoint(0.1, 0.5, 0.0)
+p_transformed = t_combined.transform_hpoint(p)
+
+print(p_transformed.xyz) # Access as standard 3D vector
+```
+
+## 📚 Documentation
+
+Full API documentation is available at:
+👉 **[https://daniyalmaroufi.github.io/se3kit/](https://daniyalmaroufi.github.io/se3kit/)**
+
+### Building Docs Locally
+
+You can build the Sphinx documentation locally to preview changes:
+
+```bash
+cd docs
+make html
+open _build/html/index.html
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps to ensure a smooth workflow:
+
+1.  **Install Hooks**: Run `pre-commit install` to set up linting hooks.
+2.  **Test Locally**: Run `python -m unittest discover -v` to ensure all tests pass.
+3.  **Lint**: Code is automatically formatted with `black` and `ruff` on commit.
+
+## 📄 License
+
+Distributed under the **Apache 2.0 License**. See `LICENSE` for more information.
+
+## ✍️ Authors
+
+- **Daniyal Maroufi**
+- **Omid Rezayof**
