@@ -6,14 +6,13 @@ permissions:
   security-events: write
 
 on:
-  # push:
-  #   branches: [main]
-  # pull_request:
-  #   types: [opened, synchronize, reopened]
-  #   paths-ignore:
-  #     - "*.md"
-  #     - ".gitignore"
-  workflow_dispatch: {}
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - "*.md"
+      - ".gitignore"
 
 jobs:
   analyze:
