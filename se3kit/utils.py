@@ -45,7 +45,7 @@ def is_near(a, b, tol=NUMERICAL_TOLERANCE):
     :type b: float
     :param tol: Tolerance within which the values are considered equal.
     :type tol: float, optional (default=1e-14)
-    :return: True if |a - b| < tol, False otherwise.
+    :return: True if ``|a - b|`` < tol, False otherwise.
     :rtype: bool
     """
     return abs(a - b) < tol

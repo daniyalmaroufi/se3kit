@@ -528,9 +528,10 @@ class Rotation:
 
         A valid rotation matrix is a 3x3 orthogonal matrix with a determinant of 1.
         This method verifies the following:
-          - The input is a numpy ndarray of shape (3, 3)
-          - The matrix is orthogonal (R.T @ R == I within tolerance)
-          - The determinant of the matrix is 1 (within tolerance)
+
+        - The input is a numpy ndarray of shape (3, 3)
+        - The matrix is orthogonal (R.T @ R == I within tolerance)
+        - The determinant of the matrix is 1 (within tolerance)
 
         :param mat: Matrix to check for validity as a rotation matrix.
         :type mat: np.ndarray
@@ -596,7 +597,7 @@ class Rotation:
         .. math::
             R = I \\cos\\theta + (1 - \\cos\\theta) \\, a a^T + [a]_\\times \\sin\\theta
 
-        where ``a`` is the unit rotation axis and ``[a]_\times`` is the cross-product
+        where ``a`` is the unit rotation axis and ``[a]_x`` is the cross-product
         (skew-symmetric) matrix of ``a``.
 
         :param axis: 3D rotation axis. Does not need to be unit length.
