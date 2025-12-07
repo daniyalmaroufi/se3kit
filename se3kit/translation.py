@@ -62,9 +62,9 @@ class Translation:
         Adds two Translation vectors element-wise.
 
         :param other: Another Translation instance
-        :type other: Translation
+        :type other: se3kit.translation.Translation
         :return: New Translation representing the sum
-        :rtype: Translation
+        :rtype: se3kit.translation.Translation
         :raises TypeError: If `other` is not a Translation
         """
         if isinstance(other, Translation):
@@ -76,9 +76,9 @@ class Translation:
         Subtracts another Translation vector element-wise.
 
         :param other: Another Translation instance
-        :type other: Translation
+        :type other: se3kit.translation.Translation
         :return: New Translation representing the difference
-        :rtype: Translation
+        :rtype: se3kit.translation.Translation
         :raises TypeError: If `other` is not a Translation
         """
         if isinstance(other, Translation):
@@ -92,7 +92,7 @@ class Translation:
         :param other: Scalar factor
         :type other: int | float
         :return: New scaled Translation
-        :rtype: Translation
+        :rtype: se3kit.translation.Translation
         :raises TypeError: If `other` is not a numeric scalar
         """
         if isinstance(other, int | float):
@@ -106,7 +106,7 @@ class Translation:
         :param other: Scalar divisor
         :type other: int | float
         :return: New scaled Translation
-        :rtype: Translation
+        :rtype: se3kit.translation.Translation
         :raises TypeError: If `other` is not a numeric scalar
         """
         if isinstance(other, int | float):
@@ -179,7 +179,7 @@ class Translation:
         Returns the full translation vector as a numpy array.
 
         :return: 3-element vector [x, y, z]
-        :rtype: np.ndarray
+        :rtype: numpy.ndarray
         """
         return self.m
 
@@ -208,7 +208,7 @@ class Translation:
         :param factor: Scaling factor
         :type factor: float
         :return: Scaled Translation
-        :rtype: Translation
+        :rtype: se3kit.translation.Translation
         """
         return Translation(self.m * factor)
 
@@ -229,7 +229,7 @@ class Translation:
         Returns a new Translation scaled from meters to millimeters.
 
         :return: Scaled Translation in millimeters
-        :rtype: Translation
+        :rtype: se3kit.translation.Translation
         """
         return self.scaled_copy(1000.0)
 
@@ -238,7 +238,7 @@ class Translation:
         Returns a new Translation scaled from millimeters to meters.
 
         :return: Scaled Translation in meters
-        :rtype: Translation
+        :rtype: se3kit.translation.Translation
         """
         return self.scaled_copy(0.001)
 
@@ -248,8 +248,8 @@ class Translation:
 
         Works for ROS1 or ROS2 depending on the environment.
 
-        :return: ROS Point message
-        :rtype: Point
+        :return: ROS geometry_msgs.msg.Point message
+        :rtype: geometry_msgs.msg.Point
         :raises ModuleNotFoundError: If geometry_msgs is not available
         """
         if not use_geomsg:

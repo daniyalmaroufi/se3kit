@@ -87,8 +87,8 @@ class Rotation:
 
         This is a 3x3 identity rotation matrix, representing no rotation.
 
-        :return: Identity rotation as a Rotation object.
-        :rtype: Rotation
+        :return: Identity rotation as a se3kit.rotation.Rotation object.
+        :rtype: se3kit.rotation.Rotation
         """
         return Rotation()
 
@@ -114,7 +114,7 @@ class Rotation:
         :param degrees: If True, theta is in degrees; otherwise in radians (default: False)
         :type degrees: bool
         :return: Rotation matrix around x axis
-        :rtype: Rotation
+        :rtype: se3kit.rotation.Rotation
         """
         theta = deg2rad(theta) if degrees else theta
         return Rotation(
@@ -133,7 +133,7 @@ class Rotation:
         :param degrees: If True, theta is in degrees; otherwise in radians (default: False)
         :type degrees: bool
         :return: Rotation matrix around y axis
-        :rtype: Rotation
+        :rtype: se3kit.rotation.Rotation
         """
         theta = deg2rad(theta) if degrees else theta
         return Rotation(
@@ -152,7 +152,7 @@ class Rotation:
         :param degrees: If True, theta is in degrees; otherwise in radians (default: False)
         :type degrees: bool
         :return: Rotation matrix around z axis
-        :rtype: Rotation
+        :rtype: se3kit.rotation.Rotation
         """
         theta = deg2rad(theta) if degrees else theta
         return Rotation(
@@ -178,7 +178,7 @@ class Rotation:
         :param degrees: If True, input is in degrees. Defaults to False (radians)
         :type degrees: bool
         :return: Rotation object representing the specified rotation.
-        :rtype: Rotation
+        :rtype: se3kit.rotation.Rotation
         """
 
         # Convert input Euler angles to radians if they are in degrees, else just convert to NumPy array
@@ -204,9 +204,6 @@ class Rotation:
         """
         return Rotation.from_zyx(abc, degrees=degrees)
 
-    # Backwards-compatible aliases (legacy mixed-case names)
-    from_ABC = from_abc  # noqa: N815
-
     @staticmethod
     def from_rpy(rpy, extrinsic=True, degrees=False):
         """
@@ -220,7 +217,7 @@ class Rotation:
         :param degrees: If True, angles are in degrees; otherwise radians
         :type degrees: bool
         :return: Rotation object representing the rotation
-        :rtype: Rotation
+        :rtype: se3kit.rotation.Rotation
         """
         rpy = np.asarray(rpy)
         return Rotation.from_zyx(np.flip(rpy), extrinsic=not extrinsic, degrees=degrees)
@@ -236,7 +233,7 @@ class Rotation:
         :param extrinsic: If True, extrinsic rotation is assumed (with respect to the fixed frame)
         :type extrinsic: bool
         :return: Euler angles as a 3-element array [z, y', x"].
-        :rtype: np.ndarray
+        :rtype: numpy.ndarray
         """
 
         if self.is_identity():
@@ -273,7 +270,7 @@ class Rotation:
         :param extrinsic: If True, extrinsic rotation is assumed (with respect to the fixed frame)
         :type extrinsic: bool
         :return: Euler angles as a 3-element array [x, y', z"].
-        :rtype: np.ndarray
+        :rtype: numpy.ndarray
         """
         if self.is_identity():
             # If the rotation is the identity matrix (no rotation), return zero angles
@@ -308,7 +305,7 @@ class Rotation:
         :param degrees: If True, angles are returned in degrees; otherwise in radians
         :type degrees: bool
         :return: Euler angles [A, B, C] (same as ZY'X" order)
-        :rtype: np.ndarray
+        :rtype: numpy.ndarray
         """
         return self.as_zyx(degrees=degrees)
 
@@ -324,7 +321,7 @@ class Rotation:
         :param degrees: If True, angles are returned in degrees; otherwise in radians
         :type degrees: bool
         :return: Euler angles [roll, pitch, yaw]
-        :rtype: np.ndarray
+        :rtype: numpy.ndarray
         """
         return self.as_xyz(extrinsic=extrinsic, degrees=degrees)
 
@@ -443,7 +440,7 @@ class Rotation:
         representing the direction of the rotated frame's x-axis in world coordinates.
 
         :return: 3-element vector representing the x-axis
-        :rtype: np.ndarray
+        :rtype: numpy.ndarray
         """
         return self.m[:, 0]
 
@@ -466,7 +463,7 @@ class Rotation:
         representing the direction of the rotated frame's y-axis in world coordinates.
 
         :return: 3-element vector representing the y-axis
-        :rtype: np.ndarray
+        :rtype: numpy.ndarray
         """
         return self.m[:, 1]
 
@@ -479,7 +476,7 @@ class Rotation:
         representing the direction of the rotated frame's z-axis in world coordinates.
 
         :return: 3-element vector representing the z-axis
-        :rtype: np.ndarray
+        :rtype: numpy.ndarray
         """
         return self.m[:, 2]
 

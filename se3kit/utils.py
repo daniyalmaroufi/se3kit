@@ -76,7 +76,7 @@ def vector_to_skew(v):
     :param v: Input vector of size 3 (3D vector) or 6 (screw vector).
     :type v: np.ndarray
     :return: Skew-symmetric matrix representing the vector.
-    :rtype: np.ndarray
+    :rtype: numpy.ndarray
 
     :raises ValueError: If the input vector is not size 3 or 6.
     """
@@ -98,7 +98,7 @@ def skew_to_vector(sk, tol=NUMERICAL_TOLERANCE):
     :param sk: 3x3 skew-symmetric matrix.
     :type sk: np.ndarray
     :return: Corresponding 3D vector [x, y, z].
-    :rtype: np.ndarray
+    :rtype: numpy.ndarray
 
     :raises ValueError: If input matrix is not 3x3 or not skew-symmetric.
     """

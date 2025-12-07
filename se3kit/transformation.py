@@ -23,9 +23,9 @@ class Transformation:
 
         Can initialize from:
         - A 4x4 numpy matrix
-        - A ROS Pose message (ROS1 or ROS2)
-        - A Translation object
-        - Translation + Rotation
+        - A ROS geometry_msgs.msg.Pose message (ROS1 or ROS2)
+        - A se3kit.translation.Translation object
+        - se3kit.translation.Translation + se3kit.rotation.Rotation
 
         :param args: variable length arguments
         :raises AssertionError: if matrix is not 4x4
@@ -69,9 +69,9 @@ class Transformation:
         Multiplies this transformation with another Transformation (matrix composition).
 
         :param other: Transformation to multiply with
-        :type other: Transformation
+        :type other: se3kit.transformation.Transformation
         :return: Resulting Transformation
-        :rtype: Transformation
+        :rtype: se3kit.transformation.Transformation
         :raises TypeError: if other is not a Transformation
         """
         if isinstance(other, Transformation):
@@ -86,8 +86,8 @@ class Transformation:
         The rotation is extracted from the upper-left 3x3 submatrix of the 4x4
         homogeneous transformation matrix.
 
-        :return: Rotation object representing the rotation part
-        :rtype: Rotation
+        :return: se3kit.rotation.Rotation object representing the rotation part
+        :rtype: se3kit.rotation.Rotation
         """
         return Rotation(self._matrix[0:3, 0:3])
 
@@ -97,7 +97,7 @@ class Transformation:
         Sets rotation component from a Rotation object or 3x3 ndarray.
 
         :param val: Rotation object or 3x3 rotation matrix
-        :type val: Rotation | np.ndarray
+        :type val: se3kit.rotation.Rotation | np.ndarray
         """
         # Let Rotation class handle all type checking and conversion
         self._matrix[0:3, 0:3] = Rotation(val).m
@@ -110,8 +110,8 @@ class Transformation:
         The translation is extracted from the top-right 3x1 part of the 4x4
         homogeneous transformation matrix.
 
-        :return: Translation object representing the translation part
-        :rtype: Translation
+        :return: se3kit.translation.Translation object representing the translation part
+        :rtype: se3kit.translation.Translation
         """
         return Translation(self._matrix[0:3, 3])
 
@@ -121,7 +121,7 @@ class Transformation:
         Sets translation component from a Translation object or 3-element ndarray.
 
         :param val: Translation or 3-element array
-        :type val: Translation | np.ndarray
+        :type val: se3kit.translation.Translation | np.ndarray
         :raises TypeError: if input type is invalid
         """
         self._matrix[0:3, 3] = Translation(val).m
@@ -133,7 +133,7 @@ class Transformation:
         Returns the full 4x4 homogeneous transformation matrix.
 
         :return: 4x4 transformation matrix
-        :rtype: np.ndarray
+        :rtype: numpy.ndarray
         """
         return self._matrix
 
@@ -145,7 +145,7 @@ class Transformation:
         The inverse is computed by inverting the 4x4 transformation matrix.
 
         :return: Inverse transformation
-        :rtype: Transformation
+        :rtype: se3kit.transformation.Transformation
         """
         return Transformation(np.linalg.inv(self._matrix))
 
@@ -175,7 +175,7 @@ class Transformation:
         :param factor: Scaling factor
         :type factor: float
         :return: Scaled transformation
-        :rtype: Transformation
+        :rtype: se3kit.transformation.Transformation
         """
         return Transformation(self.translation.scaled(factor), self.rotation)
 
@@ -184,7 +184,7 @@ class Transformation:
         Returns a copy of the transformation with translation converted from meters to millimeters.
 
         :return: Scaled transformation
-        :rtype: Transformation
+        :rtype: se3kit.transformation.Transformation
         """
         return Transformation(self.translation.scaled_m_to_mm(), self.rotation)
 
@@ -197,9 +197,9 @@ class Transformation:
         Transforms a homogeneous point by this Transformation.
 
         :param p: HPoint to transform
-        :type p: HPoint
+        :type p: se3kit.hpoint.HPoint
         :return: Transformed HPoint
-        :rtype: HPoint
+        :rtype: se3kit.hpoint.HPoint
         :raises AssertionError: if p is not an HPoint
         """
         if not isinstance(p, HPoint):
@@ -213,7 +213,7 @@ class Transformation:
         Works for ROS1 or ROS2 depending on the environment.
 
         :return: ROS Pose message
-        :rtype: Pose
+        :rtype: geometry_msgs.msg.Pose
         :raises ModuleNotFoundError: if geometry_msgs module not available
         """
         if not use_geomsg:
@@ -232,12 +232,9 @@ class Transformation:
         :param xyzABC: Array-like [x, y, z, A, B, C]
         :type xyzABC: np.ndarray | list
         :return: Transformation object
-        :rtype: Transformation
+        :rtype: se3kit.transformation.Transformation
         """
         return Transformation(Translation(xyz_abc[:3]), Rotation.from_ABC_degrees(xyz_abc[3:6]))
-
-    # Backwards-compatible alias for older API
-    from_xyz_mm_ABC_degrees = from_xyz_mm_abc_degrees  # noqa: N815
 
     @staticmethod
     def compose(a, b):
@@ -246,10 +243,10 @@ class Transformation:
 
         :param A: First Transformation
         :param B: Second Transformation
-        :type A: Transformation
-        :type B: Transformation
+        :type A: se3kit.transformation.Transformation
+        :type B: se3kit.transformation.Transformation
         :return: Resulting Transformation
-        :rtype: Transformation
+        :rtype: se3kit.transformation.Transformation
         """
         return Transformation(a.matrix @ b.matrix)
 

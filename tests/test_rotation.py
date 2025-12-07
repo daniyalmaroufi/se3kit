@@ -246,8 +246,8 @@ class TestRotation(unittest.TestCase):
         )
 
         # Round-trip via ABC Euler angles
-        abc = r.as_ABC()
-        r3 = rotation.Rotation.from_ABC(abc)
+        abc = r.as_abc()
+        r3 = rotation.Rotation.from_abc(abc)
         self.assertTrue(
             all(is_near(a, b, tol=1e-6) for a, b in zip(r.m.flat, r3.m.flat)),
             f"Round-trip ABC Euler → matrix mismatch:\n"
