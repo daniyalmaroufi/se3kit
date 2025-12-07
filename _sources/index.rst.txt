@@ -1,7 +1,7 @@
 SE3kit documentation
 ====================
 
-Lightweight Python library for 3D rigid-body transforms, rotations, and simple robot kinematics.
+Lightweight Python library for 3D rigid-body transformations and rotations.
 
 Overview
 --------
