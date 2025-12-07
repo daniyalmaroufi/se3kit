@@ -224,17 +224,19 @@ class Transformation:
         )
 
     @staticmethod
-    def from_xyz_mm_abc_degrees(xyz_abc):
+    def from_xyz_mm_abc(xyz_abc, degrees=False):
         """
         Creates a Transformation from a 6-element array: XYZ translation in meters
-        and ABC Euler angles in degrees.
+        and ABC Euler angles.
 
         :param xyzABC: Array-like [x, y, z, A, B, C]
         :type xyzABC: np.ndarray | list
         :return: Transformation object
         :rtype: se3kit.transformation.Transformation
         """
-        return Transformation(Translation(xyz_abc[:3]), Rotation.from_ABC_degrees(xyz_abc[3:6]))
+        return Transformation(
+            Translation(xyz_abc[:3]), Rotation.from_abc(xyz_abc[3:6], degrees=degrees)
+        )
 
     @staticmethod
     def compose(a, b):

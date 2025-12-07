@@ -309,9 +309,6 @@ class Rotation:
         """
         return self.as_zyx(degrees=degrees)
 
-    # Legacy alias
-    as_ABC = as_abc  # noqa: N815
-
     def as_rpy(self, extrinsic=True, degrees=False):
         """
         Returns the Euler angles in roll-pitch-yaw (RPY) order [X, Y, Z] assuming extrinsic rotation as default.
