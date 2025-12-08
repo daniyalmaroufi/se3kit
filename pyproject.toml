@@ -1,10 +1,10 @@
 [project]
 name = "se3kit"
-description = "SE3 utilities and robot kinematics"
+description = "3D rigid-body transformations and rotations"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "Apache-2.0" }
-keywords = ["se3", "robotics", "kinematics", "se3kit"]
+keywords = ["se3", "robotics", "rigid-body transformations", "se3kit"]
 authors = [ 
     {name = "Daniyal Maroufi", email = "daniyalmaroufi8@gmail.com"},
     {name = "Omid Rezayof", email = "omid.rezayof@utexas.edu"}
@@ -20,20 +20,20 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: Apache Software License",
     "Topic :: Scientific/Engineering",
-    "Topic :: Scientific/Engineering :: Robotics",
 ]
 
 # Runtime dependencies
 dependencies = [
     "numpy",
-    "scipy",
     "numpy-quaternion",
 ]
 
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://github.com/daniyalmaroufi/se3kit"
+Homepage = "https://pypi.org/project/se3kit/"
+Documentation = "https://daniyalmaroufi.github.io/se3kit/"
+Repository = "https://github.com/daniyalmaroufi/se3kit"
 
 [build-system]
 requires = ["setuptools", "setuptools-scm[toml]", "wheel"]
@@ -59,6 +59,11 @@ dev = [
     "sphinx_rtd_theme",
 ]
 
+setup = [
+    "build",
+    "setuptools",
+    "twine",
+]
 
 [tool.black]
 line-length = 100

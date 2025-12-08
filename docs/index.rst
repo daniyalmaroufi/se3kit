@@ -1,7 +1,7 @@
 SE3kit documentation
 ====================
 
-Lightweight Python library for 3D rigid-body transforms, rotations, and simple robot kinematics.
+Lightweight Python library for 3D rigid-body transformations and rotations.
 
 Overview
 --------
@@ -15,15 +15,11 @@ SE3kit implements core SE(3) building blocks and a minimal robot FK example:
 Installation
 ------------
 
-This library is pure Python with a small NumPy/Scipy dependency for robot exponentials.
-
-**Recommended (editable):**
+Install using pip:
 
 .. code-block:: bash
 
-    pip install .
-
-If you use ROS message conversions, the package will detect ROS1 or ROS2 via ``se3kit.ros_compat``. Geometry message types are wrapped in ``get_ros_geometry_msgs``.
+    pip install se3kit
 
 Quick usage examples
 --------------------

@@ -1,0 +1,35 @@
+name: PyPI Publish
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  publish:
+    name: Build and Deploy to PyPi
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # build/push in lowest support python version
+        python-version: [ "3.9" ]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Setup and Build
+      run: |
+        pip install -U pip .[setup]
+        python -m build
+        python -m twine check dist/*
+
+    - name: Build and publish
+      uses: pypa/gh-action-pypi-publish@v1.13.0
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_TOKEN }}
+        skip_existing: true

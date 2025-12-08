@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
-**SE3kit** is a lightweight Python library designed for 3D rigid-body transformations, rotations, and robot kinematics. It provides intuitive wrappers for homogeneous transformations, rotation representations (matrices, Euler angles, quaternions), and geometric primitives, along with a flexible forward kinematics solver for serial manipulators.
+**SE3kit** is a lightweight Python library designed for 3D rigid-body transformations and rotations. It provides intuitive wrappers for homogeneous transformations, rotation representations (matrices, Euler angles, quaternions), and geometric primitives.
 
 > [!NOTE]
 > This library includes optional ROS compatibility, automatically detecting and converting to/from ROS 1 or ROS 2 geometry messages if available.
@@ -23,9 +23,17 @@
 
 This library is pure Python with minimal dependencies (`numpy`, `numpy-quaternion`).
 
-### From Source (Recommended)
+### PyPI (Recommended)
 
-To install the library in editable mode:
+To install the latest stable version from PyPI:
+
+```bash
+pip install se3kit
+```
+
+### From Source (Development)
+
+To install the library in editable mode from source:
 
 ```bash
 git clone https://github.com/daniyalmaroufi/se3kit.git
