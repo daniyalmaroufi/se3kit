@@ -124,6 +124,8 @@ print(p2.as_array())  # Full 4×1 homogeneous vector
 
 ### Robot's End-Effector Point Transformation
 
+Transform points attached to a robot’s tool through the end-effector pose.
+
 ```python
 from se3kit.transformation import Transformation
 from se3kit.rotation import Rotation
@@ -146,6 +148,8 @@ print(p_world.xyz)
 
 ### 3D Point Cloud Data to Homogeneous Coordinate Conversion
 
+Convert large sets of 3D points to homogeneous coordinates for batch processing.
+
 ```python
 import numpy as np
 from se3kit.hpoint import HPoint
@@ -157,6 +161,8 @@ hpoints = [HPoint(p) for p in point_cloud]
 
 
 ### Full Kinematic Chain Representation for Robot Arms
+
+Compose multiple transformations to represent an entire robot arm’s kinematic chain.
 
 ```python
 from se3kit.transformation import Transformation
@@ -174,6 +180,8 @@ print(T_end_effector.as_geometry_pose())
 
 
 ### Scaling and Unit Conversions
+
+Seamlessly convert between millimeters and meters for transformations.
 
 ```python
 from se3kit.transformation import Transformation
