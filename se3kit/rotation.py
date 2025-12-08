@@ -324,11 +324,10 @@ class Rotation:
 
     def as_quat(self):
         """
-        Convert the rotation matrix to a quaternion (np.quaternion) using
-        a pure numpy implementation.
+        Convert the rotation matrix to a quaternion.
 
         :return: Quaternion representing the rotation with components (w, x, y, z),
-            with internal storage order (w, x, y, z) following numpy-quaternion convention.
+            with internal storage order (w, x, y, z) following quaternion-quaternion convention.
         :rtype: quaternion.quaternion
 
         Example:
@@ -336,36 +335,8 @@ class Rotation:
             # Access components:
             w, x, y, z = q.w, q.x, q.y, q.z
         """
-        r = self.m
-        tr = np.trace(r)
-        # Choose the most numerically stable branch based on trace or diagonal elements
-        if tr > 0:
-            s = np.sqrt(tr + 1.0) * 2  # s = 4*w
-            w = 0.25 * s
-            x = (r[2, 1] - r[1, 2]) / s
-            y = (r[0, 2] - r[2, 0]) / s
-            z = (r[1, 0] - r[0, 1]) / s
 
-        elif (r[0, 0] > r[1, 1]) and (r[0, 0] > r[2, 2]):
-            s = np.sqrt(1.0 + r[0, 0] - r[1, 1] - r[2, 2]) * 2  # s = 4*x
-            w = (r[2, 1] - r[1, 2]) / s
-            x = 0.25 * s
-            y = (r[0, 1] + r[1, 0]) / s
-            z = (r[0, 2] + r[2, 0]) / s
-        elif r[1, 1] > r[2, 2]:
-            s = np.sqrt(1.0 + r[1, 1] - r[0, 0] - r[2, 2]) * 2  # s = 4*y
-            w = (r[0, 2] - r[2, 0]) / s
-            x = (r[0, 1] + r[1, 0]) / s
-            y = 0.25 * s
-            z = (r[1, 2] + r[2, 1]) / s
-        else:
-            s = np.sqrt(1.0 + r[2, 2] - r[0, 0] - r[1, 1]) * 2  # s = 4*z
-            w = (r[1, 0] - r[0, 1]) / s
-            x = (r[0, 2] + r[2, 0]) / s
-            y = (r[1, 2] + r[2, 1]) / s
-            z = 0.25 * s
-
-        return quaternion.quaternion(w, x, y, z)
+        return quaternion.from_rotation_matrix(self.m)
 
     def as_geometry_orientation(self):
         """
