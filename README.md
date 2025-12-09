@@ -102,7 +102,7 @@ print(theta.deg)     # ≈ 180.0
 
 ### Homogeneous Point (HPoint) Representation
 
-Store and manipulate 3D points in either Cartesian or Full Homogeneous Form
+Store and manipulate 3D points in either Cartesian or Full Homogeneous Form.
 
 ```python
 from se3kit.hpoint import HPoint
