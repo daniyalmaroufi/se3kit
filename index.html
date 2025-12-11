@@ -93,17 +93,82 @@
 <section id="quick-usage-examples">
 <h2>Quick usage examples<a class="headerlink" href="#quick-usage-examples" title="Link to this heading"></a></h2>
 <p><strong>Create transforms and compose them:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.transformation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformation</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.rotation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rotation</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.translation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Translation</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">se3kit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">se3</span>
 
-<span class="n">t</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">Translation</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="n">Rotation</span><span class="p">())</span>  <span class="c1"># 1 m up, identity rotation</span>
+<span class="c1"># Create a transformation: 1 meter up in Z, identity rotation</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">Transformation</span><span class="p">(</span><span class="n">se3</span><span class="o">.</span><span class="n">Translation</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="n">se3</span><span class="o">.</span><span class="n">Rotation</span><span class="p">())</span>
+
+<span class="c1"># Compose transformations</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">Transformation</span><span class="p">(</span>
+    <span class="n">se3</span><span class="o">.</span><span class="n">Translation</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span>
+    <span class="n">se3</span><span class="o">.</span><span class="n">Rotation</span><span class="o">.</span><span class="n">from_rpy</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.57</span><span class="p">])</span>  <span class="c1"># Rotate 90° around Z</span>
+<span class="p">)</span>
+
+<span class="n">t_combined</span> <span class="o">=</span> <span class="n">t1</span> <span class="o">*</span> <span class="n">t2</span>
 </pre></div>
 </div>
 <p><strong>Transform a homogeneous point:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.hpoint</span><span class="w"> </span><span class="kn">import</span> <span class="n">HPoint</span>
-<span class="n">p</span> <span class="o">=</span> <span class="n">HPoint</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-<span class="n">pt</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">transform_hpoint</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>  <span class="c1"># uses Transformation.transform_hpoint</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">se3kit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">se3</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">HPoint</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">p_transformed</span> <span class="o">=</span> <span class="n">t_combined</span><span class="o">.</span><span class="n">transform_hpoint</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">p_transformed</span><span class="o">.</span><span class="n">xyz</span><span class="p">)</span>   <span class="c1"># Access as standard 3D vector</span>
+</pre></div>
+</div>
+<p><strong>Store and manipulate 3D points in either Cartesian or Full Homogeneous Form:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">se3kit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">se3</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># Cartesian coordinates</span>
+<span class="n">p1</span> <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">HPoint</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># From NumPy array</span>
+<span class="n">p2</span> <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">HPoint</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">]))</span>
+
+<span class="c1"># From full homogeneous vector</span>
+<span class="n">p3</span> <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">HPoint</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">p1</span><span class="o">.</span><span class="n">xyz</span><span class="p">)</span>          <span class="c1"># [0.2, 0.4, 0.1]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p2</span><span class="o">.</span><span class="n">as_array</span><span class="p">())</span>   <span class="c1"># Full 4×1 homogeneous vector</span>
+</pre></div>
+</div>
+<p><strong>Transform points attached to a robot’s tool through the end-effector pose:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">se3kit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">se3</span>
+
+<span class="c1"># A tool point on the robot’s end effector</span>
+<span class="n">tool_point</span> <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">HPoint</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+<span class="c1"># End-effector pose in world frame</span>
+<span class="n">T_world_ee</span> <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">Transformation</span><span class="p">(</span>
+    <span class="n">se3</span><span class="o">.</span><span class="n">Translation</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]),</span>
+    <span class="n">se3</span><span class="o">.</span><span class="n">Rotation</span><span class="o">.</span><span class="n">from_rpy</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.57</span><span class="p">])</span>
+<span class="p">)</span>
+
+<span class="n">p_world</span> <span class="o">=</span> <span class="n">T_world_ee</span><span class="o">.</span><span class="n">transform_hpoint</span><span class="p">(</span><span class="n">tool_point</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p_world</span><span class="o">.</span><span class="n">xyz</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Compose multiple transformations to represent an full kinematic chain.</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">se3kit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">se3</span>
+
+<span class="c1"># Example arm links</span>
+<span class="n">T1</span> <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">Transformation</span><span class="p">(</span><span class="n">se3</span><span class="o">.</span><span class="n">Translation</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]),</span> <span class="n">se3</span><span class="o">.</span><span class="n">Rotation</span><span class="o">.</span><span class="n">from_rpy</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]))</span>
+<span class="n">T2</span> <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">Transformation</span><span class="p">(</span><span class="n">se3</span><span class="o">.</span><span class="n">Translation</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]),</span> <span class="n">se3</span><span class="o">.</span><span class="n">Rotation</span><span class="o">.</span><span class="n">from_rpy</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+<span class="n">T3</span> <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">Transformation</span><span class="p">(</span><span class="n">se3</span><span class="o">.</span><span class="n">Translation</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">se3</span><span class="o">.</span><span class="n">Rotation</span><span class="o">.</span><span class="n">from_rpy</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+
+<span class="n">T_end_effector</span> <span class="o">=</span> <span class="n">T1</span> <span class="o">*</span> <span class="n">T2</span> <span class="o">*</span> <span class="n">T3</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">T_end_effector</span><span class="o">.</span><span class="n">as_geometry_pose</span><span class="p">())</span>
+</pre></div>
+</div>
+<p><strong>Seamlessly convert between millimeters and meters for transformations.</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">se3kit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">se3</span>
+
+<span class="n">T_mm</span> <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">Transformation</span><span class="o">.</span><span class="n">convert_m_to_mm</span><span class="p">(</span><span class="n">T_end_effector</span><span class="p">)</span>
+<span class="n">T_m</span>  <span class="o">=</span> <span class="n">se3</span><span class="o">.</span><span class="n">Transformation</span><span class="o">.</span><span class="n">convert_mm_to_m</span><span class="p">(</span><span class="n">T_mm</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">T_mm</span><span class="o">.</span><span class="n">translation</span><span class="o">.</span><span class="n">xyz</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="toctree-wrapper compound">
