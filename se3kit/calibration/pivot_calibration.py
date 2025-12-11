@@ -41,13 +41,13 @@ class PivotCalibration:
             # Case 1: No input provided
             raise TypeError("Cannot initialize calibration without input data.")
 
-        elif len(init_value) == 0:
-            # Case 2: Input is an empty list
-            raise TypeError("Cannot initialize calibration from empty list.")
-
         elif not isinstance(init_value, list):
-            # Case 3: Input is not a list
+            # Case 2: Input is not a list
             raise TypeError("Input is not a list.")
+
+        elif len(init_value) == 0:
+            # Case 3: Input is an empty list
+            raise TypeError("Cannot initialize calibration from empty list.")
 
         elif all(isinstance(pose_i, Transformation) for pose_i in init_value):
             # Case 4: Input is a list of se3kit.transformation.Transformations
