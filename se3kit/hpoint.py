@@ -26,7 +26,9 @@ class HPoint:
         elif len(args) == 1:
             # A single argument provided — could be a NumPy array or similar
             arr = args[0]
-            if isinstance(arr, np.ndarray):
+            if isinstance(arr, (list, np.ndarray)):
+                if isinstance(arr, list):
+                    arr = np.array(arr)
                 if arr.size == _CARTESIAN_SIZE:
                     # If it's a 3-element vector [x, y, z]
                     # → Convert to homogeneous coordinates by appending 1

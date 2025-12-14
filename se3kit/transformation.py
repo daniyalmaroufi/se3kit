@@ -76,6 +76,8 @@ class Transformation:
         """
         if isinstance(other, Transformation):
             return Transformation(self._matrix @ other._matrix)
+        elif isinstance(other, HPoint):
+            return HPoint(self._matrix @ other.m)
         raise TypeError(f"Invalid multiplication type {type(other)}")
 
     @property
