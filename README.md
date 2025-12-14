@@ -50,6 +50,11 @@ pip install -e '.[dev]'
 pre-commit install
 ```
 
+## 📚 Documentation
+
+Full API documentation is available at:
+👉 **[https://daniyalmaroufi.github.io/se3kit/](https://daniyalmaroufi.github.io/se3kit/)**
+
 ## 🛠 Usage
 
 ### Rigid Body Transformations
@@ -57,44 +62,108 @@ pre-commit install
 Create and compose transformations intuitively:
 
 ```python
-from se3kit.transformation import Transformation
-from se3kit.rotation import Rotation
-from se3kit.translation import Translation
+import se3kit as se3
 
-# Create a transformation: 1 meter up in Z, with identity rotation
-t1 = Transformation(Translation([0, 0, 1]), Rotation())
+# Create a transformation: 1 meter up in Z, identity rotation
+t1 = se3.Transformation(se3.Translation([0, 0, 1]), se3.Rotation())
 
 # Compose transformations
-t2 = Transformation(Translation([0.5, 0, 0]), Rotation.from_rpy([0, 0, 1.57])) # Rotate 90 deg around Z
+t2 = se3.Transformation(
+    se3.Translation([0.5, 0, 0]),
+    se3.Rotation.from_rpy([0, 0, 1.57])  # Rotate 90° around Z
+)
+
 t_combined = t1 * t2
 ```
 
-### Point Transformation
+### 3D Point Transformation
 
 Transform homogeneous points efficiently:
 
 ```python
-from se3kit.hpoint import HPoint
+import se3kit as se3
 
-p = HPoint(0.1, 0.5, 0.0)
+p = se3.HPoint(0.1, 0.5, 0.0)
 p_transformed = t_combined.transform_hpoint(p)
 
-print(p_transformed.xyz) # Access as standard 3D vector
+print(p_transformed.xyz)   # Access as standard 3D vector
 ```
 
-## 📚 Documentation
+### Homogeneous Point (HPoint) Representation
 
-Full API documentation is available at:
-👉 **[https://daniyalmaroufi.github.io/se3kit/](https://daniyalmaroufi.github.io/se3kit/)**
+Store and manipulate 3D points in either Cartesian or Full Homogeneous Form
 
-### Building Docs Locally
+```python
+import se3kit as se3
+import numpy as np
 
-You can build the Sphinx documentation locally to preview changes:
+# Cartesian coordinates
+p1 = se3.HPoint(0.2, 0.4, 0.1)
 
-```bash
-cd docs
-make html
-open _build/html/index.html
+# From NumPy array
+p2 = se3.HPoint(np.array([1.0, 2.0, 3.0]))
+
+# From full homogeneous vector
+p3 = se3.HPoint(np.array([0.5, 0.0, 1.0, 1.0]))
+
+print(p1.xyz)          # [0.2, 0.4, 0.1]
+print(p2.as_array())   # Full 4×1 homogeneous vector
+```
+
+
+### Transform a Homogeneous Point (HPoint)
+
+Transform points attached to a robot’s tool through the end-effector pose.
+
+```python
+import se3kit as se3
+
+# A tool point on the robot’s end effector
+tool_point = se3.HPoint(0.1, 0.0, 0.0)
+
+# End-effector pose in world frame
+T_world_ee = se3.Transformation(
+    se3.Translation([0.5, 0.2, 1.0]),
+    se3.Rotation.from_rpy([0, 0, 1.57])
+)
+
+p_world = T_world_ee.transform_hpoint(tool_point)
+print(p_world.xyz)
+
+```
+
+
+
+### Kinematic Chain Representation
+
+Compose multiple transformations to represent an entire robot arm’s kinematic chain.
+
+```python
+import se3kit as se3
+
+# Example arm links
+T1 = se3.Transformation(se3.Translation([0, 0, 0.4]), se3.Rotation.from_rpy([0, 0, 0.5]))
+T2 = se3.Transformation(se3.Translation([0, 0, 0.3]), se3.Rotation.from_rpy([0, 0.2, 0]))
+T3 = se3.Transformation(se3.Translation([0.1, 0, 0]), se3.Rotation.from_rpy([0.1, 0, 0]))
+
+T_end_effector = T1 * T2 * T3
+
+print(T_end_effector.as_geometry_pose())
+
+```
+
+
+### Scaling and Unit Conversions
+
+Seamlessly convert between millimeters and meters for transformations.
+
+```python
+import se3kit as se3
+
+T_mm = se3.Transformation.convert_m_to_mm(T_end_effector)
+T_m  = se3.Transformation.convert_mm_to_m(T_mm)
+
+print(T_mm.translation.xyz)
 ```
 
 ## 🤝 Contributing
@@ -113,3 +182,4 @@ Distributed under the **Apache 2.0 License**. See `LICENSE` for more information
 
 - **Daniyal Maroufi**
 - **Omid Rezayof**
+- **Sai Peram**
