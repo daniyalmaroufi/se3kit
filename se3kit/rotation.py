@@ -35,7 +35,7 @@ class Rotation:
         Initializes rotation from quaternion, matrix, ROS Quaternion, or another Rotation.
 
         :param init_value: Quaternion, 3x3 ndarray, ROS Quaternion, or another Rotation
-        :type init_value: np.ndarray | np.quaternion | Rotation | Quaternion | None
+        :type init_value: np.ndarray | quaternion.quaternion | Rotation | Quaternion | None
         """
         if init_value is None:
             # Case 1: No input provided
@@ -50,8 +50,8 @@ class Rotation:
         elif use_geomsg and isinstance(init_value, Quaternion):
             # Case 3: Input is a ROS geometry_msgs Quaternion (ROS1 or ROS2)
             # Convert ROS Quaternion to numpy quaternion first, then to rotation matrix
-            q = np.quaternion(init_value.w, init_value.x, init_value.y, init_value.z)
-            self.m = np.quaternion.as_rotation_matrix(q)
+            q = quaternion.quaternion(init_value.w, init_value.x, init_value.y, init_value.z)
+            self.m = quaternion.as_rotation_matrix(q)
 
         elif isinstance(init_value, np.ndarray):
             # Case 4: Input is a numpy array
@@ -538,7 +538,7 @@ class Rotation:
 
         The input quaternion is expected in the format ``(x, y, z, w)``, where
         ``w`` is the real component. Internally this is converted into an
-        ``np.quaternion`` object with ordering ``(w, x, y, z)`` before being passed
+        ``quaternion.quaternion`` object with ordering ``(w, x, y, z)`` before being passed
         to the ``Rotation`` constructor.
 
         :param q: Quaternion as a tuple or list in the order ``(x, y, z, w)``.
