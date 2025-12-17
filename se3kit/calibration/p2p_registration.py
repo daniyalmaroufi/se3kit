@@ -1,7 +1,7 @@
 """
 p2p_registration.py
 
-Defines a class for correspondence-based point cloud point cloud registration.
+Defines a class for correspondence-based point cloud registration.
 
 """
 
@@ -21,11 +21,12 @@ logger = logging.getLogger(__name__)
 
 MIN_NUMBER_OF_POINTS = 3
 PCD_ARRAY_DIMENSIONS = 2
+PCD_2D_NUM_COLUMNS = 2
 
 
 class P2PRegistration:
     """
-    Represents a correspondence-based point cloud point cloud registration.
+    Represents a correspondence-based point cloud registration.
     """
 
     def __init__(self, pcd_1, pcd_2):
@@ -91,7 +92,7 @@ class P2PRegistration:
         mat[:3, :3] = rotation
         mat[:3, 3] = translation
 
-        return Transformation(matrix=mat)
+        return Transformation(mat)
 
     def run_registration(self):
         """
@@ -107,6 +108,10 @@ class P2PRegistration:
             raise ValueError(
                 f"Cannot run point-to-point registration with less than {MIN_NUMBER_OF_POINTS} points. Number of points provided: {num_of_points}"
             )
+
+        if self.pcd_1.shape[1] == PCD_2D_NUM_COLUMNS:
+            self.pcd_1 = np.hstack([self.pcd_1, np.zeros((num_of_points, 1))])
+            self.pcd_2 = np.hstack([self.pcd_2, np.zeros((num_of_points, 1))])
 
         transformation = P2PRegistration.estimate_rigid_transform(self.pcd_1, self.pcd_2)
 
