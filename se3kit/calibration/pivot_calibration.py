@@ -34,33 +34,13 @@ class PivotCalibration:
         """
         Initializes calibration from a list of ROS poses or list of se3kit.transformation.Transformation poses.
 
-        :param init_value: list of ROS poses or se3kit.transformation.Transformation poses
-        :type init_value: list
+        :param init_value: optional list of ROS poses or se3kit.transformation.Transformation poses
+        :type init_value: list or None
         """
-        if init_value is None:
-            # Case 1: No input provided
-            raise TypeError("Cannot initialize calibration without input data.")
+        self.calib_poses = []
 
-        elif not isinstance(init_value, list):
-            # Case 2: Input is not a list
-            raise TypeError("Input is not a list.")
-
-        elif len(init_value) == 0:
-            # Case 3: Input is an empty list
-            raise TypeError("Cannot initialize calibration from empty list.")
-
-        elif all(isinstance(pose_i, Transformation) for pose_i in init_value):
-            # Case 4: Input is a list of se3kit.transformation.Transformations
-            self.calib_poses = init_value
-
-        elif all(isinstance(pose_i, Pose) for pose_i in init_value):
-            # Case 5: Input is a list of ROS poses
-            # Convert poses to type Transformation first
-            self.calib_poses = [Transformation(pose_i) for pose_i in init_value]
-
-        else:
-            # Case 6: Input type is not supported
-            raise TypeError(f"Cannot initialize calibration from {type(init_value)}")
+        if init_value is not None:
+            self.add_poses(init_value)
 
     def run_pivot_calibration(self):
         """
@@ -157,3 +137,13 @@ class PivotCalibration:
         Resets the current list of calib_poses.
         """
         self.calib_poses = []
+
+    @property
+    def num_poses(self):
+        """
+        Returns the number of poses.
+
+        :return: number of poses
+        :rtype: int
+        """
+        return len(self.calib_poses)

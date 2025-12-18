@@ -19,31 +19,84 @@ class EyeInHandCalibration:
     where A_i are robot poses and B_i are calibration board in camera poses.
     """
 
-    def __init__(self, robot_transforms, camera_transforms):
+    def __init__(self, robot_transforms=None, camera_transforms=None):
         """
         :param robot_transforms: list of se3kit Transformation objects (robot EE poses)
         :param camera_transforms: list of se3kit Transformation objects (camera poses)
         """
 
-        if not isinstance(robot_transforms, list) or not isinstance(camera_transforms, list):
-            raise TypeError("Inputs must be lists.")
+        self.robot_transforms = []
+        self.camera_transforms = []
 
-        elif len(robot_transforms) != len(camera_transforms):
+        if robot_transforms is not None and camera_transforms is not None:
+            self.add_pairs(robot_transforms, camera_transforms)
+        elif robot_transforms is not None or camera_transforms is not None:
+            raise ValueError(
+                "Both robot_transforms and camera_transforms must be provided together."
+            )
+
+    def add_pairs(self, robot_transforms, camera_transforms):
+        """
+        Adds pairs of robot and camera transforms.
+
+        :param robot_transforms: single Transformation or list of Transformations (robot EE poses)
+        :param camera_transforms: single Transformation or list of Transformations (camera poses)
+        """
+        if isinstance(robot_transforms, Transformation) and isinstance(
+            camera_transforms, Transformation
+        ):
+            robot_transforms = [robot_transforms]
+            camera_transforms = [camera_transforms]
+        elif not isinstance(robot_transforms, list) or not isinstance(camera_transforms, list):
+            raise TypeError("Inputs must be Transformations or lists of Transformations.")
+
+        if len(robot_transforms) != len(camera_transforms):
             raise ValueError("Robot and camera lists must be same length.")
 
-        elif len(robot_transforms) == 0:
-            raise ValueError("Cannot initialize calibration with empty transform lists.")
+        if len(robot_transforms) == 0:
+            raise ValueError("Cannot add empty transform lists.")
 
-        elif all(isinstance(pose_i, Transformation) for pose_i in robot_transforms) and all(
-            isinstance(pose_i, Transformation) for pose_i in camera_transforms
+        if not all(isinstance(pose, Transformation) for pose in robot_transforms) or not all(
+            isinstance(pose, Transformation) for pose in camera_transforms
         ):
-            self.robot_transforms = robot_transforms
-            self.camera_transforms = camera_transforms
+            raise TypeError("All inputs must be Transformation objects.")
 
-        else:
-            raise TypeError(
-                f"Cannot initialize calibration from {type(robot_transforms)} and {type(camera_transforms)}"
-            )
+        self.robot_transforms.extend(robot_transforms)
+        self.camera_transforms.extend(camera_transforms)
+
+    def remove_pairs(self, indices):
+        """
+        Removes pairs at the specified indices.
+
+        :param indices: list of indices to remove
+        :type indices: list
+        """
+        if not isinstance(indices, list):
+            raise TypeError("Indices must be a list.")
+
+        self.robot_transforms = [
+            pose for i, pose in enumerate(self.robot_transforms) if i not in indices
+        ]
+        self.camera_transforms = [
+            pose for i, pose in enumerate(self.camera_transforms) if i not in indices
+        ]
+
+    def reset_pairs(self):
+        """
+        Resets the lists of robot and camera transforms.
+        """
+        self.robot_transforms = []
+        self.camera_transforms = []
+
+    @property
+    def num_pairs(self):
+        """
+        Returns the number of transform pairs.
+
+        :return: number of pairs
+        :rtype: int
+        """
+        return len(self.robot_transforms)
 
     def run_calibration(self):
         """

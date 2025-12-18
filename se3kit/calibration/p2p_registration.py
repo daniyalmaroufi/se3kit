@@ -29,40 +29,72 @@ class P2PRegistration:
     Represents a correspondence-based point cloud registration.
     """
 
-    def __init__(self, pcd_1, pcd_2):
+    def __init__(self, pcd_1=None, pcd_2=None):
         """
         Initializes registration from two numpy arrays with 2 or 3 columns.
+
+        :param pcd_1: first point cloud (Nx3 or Nx2 numpy array)
+        :type pcd_1: numpy.ndarray or None
+        :param pcd_2: second point cloud (Nx3 or Nx2 numpy array)
+        :type pcd_2: numpy.ndarray or None
+        """
+
+        self.pcd_1 = None
+        self.pcd_2 = None
+
+        if pcd_1 is not None and pcd_2 is not None:
+            self.add_point_clouds(pcd_1, pcd_2)
+        elif pcd_1 is not None or pcd_2 is not None:
+            raise ValueError("Both pcd_1 and pcd_2 must be provided together.")
+
+    def add_point_clouds(self, pcd_1, pcd_2):
+        """
+        Adds point clouds for registration.
 
         :param pcd_1: first point cloud (Nx3 or Nx2 numpy array)
         :type pcd_1: numpy.ndarray
         :param pcd_2: second point cloud (Nx3 or Nx2 numpy array)
         :type pcd_2: numpy.ndarray
         """
-
-        if pcd_1 is None:
-            # Case 1: No input provided
-            raise TypeError("Cannot initialize registration without input data.")
-
-        elif not isinstance(pcd_1, np.ndarray) or not isinstance(pcd_2, np.ndarray):
-            # Case 2: Input is not a np.ndarray
+        if not isinstance(pcd_1, np.ndarray) or not isinstance(pcd_2, np.ndarray):
             raise TypeError("Input is not a numpy array.")
 
-        elif pcd_1.ndim != PCD_ARRAY_DIMENSIONS or pcd_2.ndim != PCD_ARRAY_DIMENSIONS:
-            # Case 3: Input is not 2D
+        if pcd_1.ndim != PCD_ARRAY_DIMENSIONS or pcd_2.ndim != PCD_ARRAY_DIMENSIONS:
             raise TypeError("Input point clouds must be 2D numpy arrays.")
 
-        elif pcd_1.shape != pcd_2.shape:
-            # Case 4: Input shapes do not match
+        if pcd_1.shape != pcd_2.shape:
             raise ValueError("Input point clouds must have the same shape.")
 
-        elif np.isfinite(pcd_1).all() and np.isfinite(pcd_2).all():
-            # Case 5: Input does not contain any NaN values
+        if not (np.isfinite(pcd_1).all() and np.isfinite(pcd_2).all()):
+            raise ValueError("Input point clouds must not contain NaN or infinite values.")
+
+        if self.pcd_1 is None:
             self.pcd_1 = pcd_1
             self.pcd_2 = pcd_2
-
         else:
-            # Case 6: Input type is not supported
-            raise ValueError("Input point clouds must not contain NaN values.")
+            if pcd_1.shape[1] != self.pcd_1.shape[1]:
+                raise ValueError(
+                    "New point clouds must have the same number of columns as existing ones."
+                )
+            self.pcd_1 = np.concatenate((self.pcd_1, pcd_1), axis=0)
+            self.pcd_2 = np.concatenate((self.pcd_2, pcd_2), axis=0)
+
+    def reset_point_clouds(self):
+        """
+        Resets the point clouds (same as remove).
+        """
+        self.pcd_1 = None
+        self.pcd_2 = None
+
+    @property
+    def num_points(self):
+        """
+        Returns the number of points in the point cloud pairs.
+
+        :return: number of points
+        :rtype: int
+        """
+        return self.pcd_1.shape[0] if self.pcd_1 is not None else 0
 
     @staticmethod
     def estimate_rigid_transform(pcd_1, pcd_2):
@@ -101,6 +133,8 @@ class P2PRegistration:
         :return: Estimated transformation aligning pcd_1 to pcd_2
         :rtype: se3kit.transformation.Transformation
         """
+        if self.pcd_1 is None or self.pcd_2 is None:
+            raise ValueError("Point clouds must be added before running registration.")
 
         num_of_points = self.pcd_1.shape[0]
 
