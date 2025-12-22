@@ -538,7 +538,7 @@ class Rotation:
 
         The input quaternion is expected in the format ``(x, y, z, w)``, where
         ``w`` is the real component. Internally this is converted into an
-        ``np.quaternion`` object with ordering ``(w, x, y, z)`` before being passed
+        ``quaternion.quaternion`` object with ordering ``(w, x, y, z)`` before being passed
         to the ``Rotation`` constructor.
 
         :param q: Quaternion as a tuple or list in the order ``(x, y, z, w)``.

@@ -9,7 +9,7 @@ import unittest
 
 import numpy as np
 
-from se3kit import transformation
+from se3kit import hpoint, transformation, utils
 
 
 class TestTransformation(unittest.TestCase):
@@ -57,6 +57,30 @@ class TestTransformation(unittest.TestCase):
             transformation.Transformation.is_valid(mat4, verbose=False),
             "4x4 matrix should be a valid transformation",
         )
+
+    def test_transformation_multiplication(self):
+        """Test multiplication of transformations."""
+        t1 = transformation.Transformation(
+            transformation.Translation([1, 2, 3]),
+            transformation.Rotation.from_rpy([0, 0, np.pi / 2]),
+        )
+        t2 = transformation.Transformation(
+            transformation.Translation([0.5, 0, 0]),
+            transformation.Rotation.from_rpy([0, 0, np.pi / 2]),
+        )
+        t_combined = t1 * t2
+        self.assertTrue(np.all(utils.is_near(t_combined.translation.xyz, [1, 2.5, 3])))
+        self.assertTrue(np.all(utils.is_near(t_combined.rotation.as_rpy(), [0, 0, np.pi])))
+
+    def test_transformation_multiplication_with_hpoint(self):
+        """Test multiplication of transformations with HPoint."""
+        t = transformation.Transformation(
+            transformation.Translation([1, 2, 3]),
+            transformation.Rotation.from_rpy([0, 0, np.pi / 2]),
+        )
+        p = hpoint.HPoint([1, 2, 3])
+        p_transformed = t * p
+        self.assertTrue(np.all(utils.is_near(p_transformed.xyz, [-1, 3, 6])))
 
 
 if __name__ == "__main__":
