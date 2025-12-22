@@ -23,7 +23,7 @@
 
 This library is pure Python with minimal dependencies (`numpy`, `numpy-quaternion`).
 
-### PyPI (Recommended)
+### From PyPI (Recommended)
 
 To install the latest stable version from PyPI:
 
@@ -31,7 +31,7 @@ To install the latest stable version from PyPI:
 pip install se3kit
 ```
 
-### From Source (Development)
+### From Source
 
 To install the library in editable mode from source:
 
@@ -41,7 +41,7 @@ cd se3kit
 pip install -e .
 ```
 
-### Development Setup
+### For Development
 
 For contributors, install the development dependencies (testing, linting, docs):
 
@@ -178,8 +178,3 @@ We welcome contributions! Please follow these steps to ensure a smooth workflow:
 
 Distributed under the **Apache 2.0 License**. See `LICENSE` for more information.
 
-## ✍️ Authors
-
-- **Daniyal Maroufi**
-- **Omid Rezayof**
-- **Sai Peram**
