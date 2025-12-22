@@ -35,6 +35,23 @@ class EyeInHandCalibration:
                 "Both robot_transforms and camera_transforms must be provided together."
             )
 
+    def add_pair(self, robot_transform, camera_transform):
+        """
+        Adds a single pair of robot and camera transforms.
+
+        :param robot_transform: Transformation object (robot EE pose)
+        :param camera_transform: Transformation object (camera pose)
+        """
+        if not isinstance(robot_transform, Transformation) or not isinstance(
+            camera_transform, Transformation
+        ):
+            return False
+
+        self.robot_transforms.append(robot_transform)
+        self.camera_transforms.append(camera_transform)
+
+        return True
+
     def add_pairs(self, robot_transforms, camera_transforms):
         """
         Adds pairs of robot and camera transforms.
@@ -45,24 +62,22 @@ class EyeInHandCalibration:
         if isinstance(robot_transforms, Transformation) and isinstance(
             camera_transforms, Transformation
         ):
-            robot_transforms = [robot_transforms]
-            camera_transforms = [camera_transforms]
-        elif not isinstance(robot_transforms, list) or not isinstance(camera_transforms, list):
+            self.add_pair(robot_transforms, camera_transforms)
+        elif isinstance(robot_transforms, list) and isinstance(camera_transforms, list):
+            if len(robot_transforms) != len(camera_transforms):
+                raise ValueError("Robot and camera lists must be same length.")
+
+            if len(robot_transforms) == 0:
+                raise ValueError("Cannot add empty transform lists.")
+
+            for i, (rt, ct) in enumerate(zip(robot_transforms, camera_transforms)):
+                success = self.add_pair(rt, ct)
+                if not success:
+                    raise TypeError(
+                        f"Both inputs must be Transformation objects. Got {type(rt)} and {type(ct)} at index {i}."
+                    )
+        else:
             raise TypeError("Inputs must be Transformations or lists of Transformations.")
-
-        if len(robot_transforms) != len(camera_transforms):
-            raise ValueError("Robot and camera lists must be same length.")
-
-        if len(robot_transforms) == 0:
-            raise ValueError("Cannot add empty transform lists.")
-
-        if not all(isinstance(pose, Transformation) for pose in robot_transforms) or not all(
-            isinstance(pose, Transformation) for pose in camera_transforms
-        ):
-            raise TypeError("All inputs must be Transformation objects.")
-
-        self.robot_transforms.extend(robot_transforms)
-        self.camera_transforms.extend(camera_transforms)
 
     def remove_pairs(self, indices):
         """
@@ -73,6 +88,12 @@ class EyeInHandCalibration:
         """
         if not isinstance(indices, list):
             raise TypeError("Indices must be a list.")
+
+        for index in indices:
+            if not isinstance(index, int) or not (0 <= index < self.num_pairs):
+                raise ValueError(
+                    f"Index {index} is out of range. Valid indices are 0 to {self.num_pairs - 1}."
+                )
 
         self.robot_transforms = [
             pose for i, pose in enumerate(self.robot_transforms) if i not in indices

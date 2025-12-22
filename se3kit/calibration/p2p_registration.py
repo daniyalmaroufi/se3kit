@@ -10,7 +10,9 @@ import logging
 import numpy as np
 
 from se3kit.ros_compat import get_ros_geometry_msgs
+from se3kit.rotation import Rotation
 from se3kit.transformation import Transformation
+from se3kit.translation import Translation
 
 # Retrieve the ROS geometry message types (Point, Quaternion, Pose, Vector3)
 Point, Quaternion, Pose, Vector3 = get_ros_geometry_msgs()
@@ -100,8 +102,8 @@ class P2PRegistration:
     def estimate_rigid_transform(pcd_1, pcd_2):
         """
         Estimate the rigid transformation (rotation + translation)
-        that aligns points A to points B using SVD.
-        Assumes A and B are Nx3 and correspond one-to-one.
+        that aligns points pcd_1 to points pcd_2 using SVD.
+        Assumes pcd_1 and pcd_2 are Nx3 and correspond one-to-one.
         """
 
         centroid_1 = np.mean(pcd_1, axis=0)
@@ -120,11 +122,7 @@ class P2PRegistration:
 
         translation = centroid_2 - rotation @ centroid_1
 
-        mat = np.eye(4)
-        mat[:3, :3] = rotation
-        mat[:3, 3] = translation
-
-        return Transformation(mat)
+        return Transformation(Translation(translation), Rotation(rotation))
 
     def run_registration(self):
         """
