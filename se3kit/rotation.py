@@ -463,7 +463,7 @@ class Rotation:
         :rtype: float
         """
         rot_rel = rot_1.T * rot_2
-        trace_val = np.trace(rot_rel)
+        trace_val = np.trace(rot_rel.m)
         # Clip for numerical stability
         cos_theta = np.clip((trace_val - 1) / 2, -1.0, 1.0)
         return rad2deg(np.arccos(cos_theta)) if degrees else np.arccos(cos_theta)

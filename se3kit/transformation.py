@@ -25,7 +25,7 @@ class Transformation:
         - A 4x4 numpy matrix
         - A ROS geometry_msgs.msg.Pose message (ROS1 or ROS2)
         - A se3kit.translation.Translation object
-        - se3kit.translation.Translation + se3kit.rotation.Rotation
+        - se3kit.translation.Translation + se3kit.rotation.Rotation (in any order)
 
         :param args: variable length arguments
         :raises AssertionError: if matrix is not 4x4
@@ -50,19 +50,30 @@ class Transformation:
                 # Single argument is a Translation object
                 # Only the translation is set; rotation defaults to identity
                 self.translation = init
-        elif (
-            len(args) == _TRANSLATION_ROTATION_ARG_COUNT
-            and isinstance(args[0], Translation)
-            and isinstance(args[1], Rotation)
-        ):
-            # Two arguments: first is Translation, second is Rotation
-            # Directly set translation and rotation components
-            self.translation = args[0]
-            self.rotation = args[1]
-        elif len(args) > 0:
-            # Any other combination of arguments is invalid
-            # Raise a TypeError to indicate incorrect usage
-            raise TypeError(f"Invalid arguments for Transformation: {args}")
+
+            elif isinstance(init, Rotation):
+                # Single argument is a Rotation object
+                # Only the rotation is set; translation defaults to zero
+                self.rotation = init
+
+            else:
+                raise TypeError(f"Invalid argument type for Transformation: {type(init)}")
+
+        elif len(args) == _TRANSLATION_ROTATION_ARG_COUNT:
+            arg0, arg1 = args
+            if isinstance(arg0, Translation) and isinstance(arg1, Rotation):
+                # Translation, Rotation
+                self.translation = arg0
+                self.rotation = arg1
+            elif isinstance(arg0, Rotation) and isinstance(arg1, Translation):
+                # Rotation, Translation (Swapped order support)
+                self.translation = arg1
+                self.rotation = arg0
+            else:
+                raise TypeError(f"Invalid arguments for Transformation: {args}")
+
+        elif len(args) > _TRANSLATION_ROTATION_ARG_COUNT:
+            raise TypeError(f"Too many arguments for Transformation: {args}")
 
     def __mul__(self, other):
         """

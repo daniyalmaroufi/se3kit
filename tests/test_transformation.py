@@ -82,6 +82,24 @@ class TestTransformation(unittest.TestCase):
         p_transformed = t * p
         self.assertTrue(np.all(utils.is_near(p_transformed.xyz, [-1, 3, 6])))
 
+    def test_flexible_initialization(self):
+        """Test flexible initialization (swapped arguments and kwargs)."""
+        t = transformation.Translation([1, 2, 3])
+        r = transformation.Rotation.from_rpy([0, 0, np.pi / 2])
+
+        # Test standard order
+        t_1 = transformation.Transformation(t, r)
+
+        # Test swapped order
+        t_2 = transformation.Transformation(r, t)
+
+        # Test single rotation
+        t_3 = transformation.Transformation(r)
+
+        self.assertTrue(transformation.Transformation.are_close(t_1, t_2))
+        self.assertTrue(np.all(utils.is_near(t_3.translation.xyz, [0, 0, 0])))
+        self.assertTrue(transformation.Rotation.are_close(t_3.rotation, r))
+
 
 if __name__ == "__main__":
     unittest.main()
