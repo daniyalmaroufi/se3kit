@@ -173,7 +173,7 @@ class Transformation:
         if inplace:
             self._matrix[0:3, 3] *= factor
             return None
-        return Transformation(self.translation.scaled(factor), self.rotation)
+        return Transformation(self.translation.scale(factor, inplace=False), self.rotation)
 
     def convert_m_to_mm(self, inplace=True):
         """

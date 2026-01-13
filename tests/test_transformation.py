@@ -100,6 +100,39 @@ class TestTransformation(unittest.TestCase):
         self.assertTrue(np.all(utils.is_near(t_3.translation.xyz, [0, 0, 0])))
         self.assertTrue(transformation.Rotation.are_close(t_3.rotation, r))
 
+    def test_transformation_scaling(self):
+        """Test scaling of the translation part of a transformation."""
+        t = transformation.Translation([1, 2, 3])
+        r = transformation.Rotation.from_rpy([0, 0, np.pi / 2])
+        tf1 = transformation.Transformation(t, r)
+
+        # 1. Test out-of-place scaling
+        # This was buggy before user's fix
+        tf2 = tf1.scale(2.0, inplace=False)
+
+        self.assertTrue(
+            np.all(utils.is_near(tf1.translation.xyz, [1, 2, 3])),
+            "Original should keep translation",
+        )
+        self.assertTrue(
+            np.all(utils.is_near(tf2.translation.xyz, [2, 4, 6])),
+            "Result should have scaled translation",
+        )
+        self.assertTrue(
+            transformation.Rotation.are_close(tf2.rotation, r), "Rotation should be unchanged"
+        )
+        self.assertIsNot(tf1, tf2, "Should return new object")
+
+        # 2. Test in-place scaling
+        res = tf1.scale(3.0, inplace=True)
+        self.assertIsNone(res, "inplace=True should return None")
+        self.assertTrue(
+            np.all(utils.is_near(tf1.translation.xyz, [3, 6, 9])), "Original should be scaled"
+        )
+        self.assertTrue(
+            transformation.Rotation.are_close(tf1.rotation, r), "Rotation should be unchanged"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

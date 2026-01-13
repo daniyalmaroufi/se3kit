@@ -31,6 +31,25 @@ class TestTranslation(unittest.TestCase):
             "Expected vec_bad to be invalid (size != 3)",
         )
 
+    def test_translation_scaling(self):
+        """Test scaling of translation vectors."""
+        # 1. Test out-of-place scaling
+        t1 = translation.Translation([1, 2, 3])
+        t2 = t1.scale(2.0, inplace=False)
+
+        self.assertTrue(
+            np.all(np.isclose(t1.m, [1, 2, 3])), "Original should not change for inplace=False"
+        )
+        self.assertTrue(np.all(np.isclose(t2.m, [2, 4, 6])), "Result should be scaled")
+        self.assertIsNot(t1, t2, "Should return a new object")
+
+        # 2. Test in-place scaling
+        t3 = translation.Translation([1, 2, 3])
+        res = t3.scale(3.0, inplace=True)
+
+        self.assertIsNone(res, "inplace=True should return None")
+        self.assertTrue(np.all(np.isclose(t3.m, [3, 6, 9])), "Original should be scaled")
+
 
 if __name__ == "__main__":
     unittest.main()

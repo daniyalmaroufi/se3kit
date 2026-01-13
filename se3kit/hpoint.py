@@ -13,8 +13,8 @@ class HPoint:
         Initializes HPoint from:
 
         - Three separate coordinates x, y, z
-        - A 3-element numpy array
-        - A 4-element numpy array (homogeneous coordinates)
+        - A 3-element numpy array or list
+        - A 4-element numpy array or list (homogeneous coordinates)
 
         :param args: variable-length arguments
         :raises ValueError: if array size is not 3 or 4, or invalid number of arguments

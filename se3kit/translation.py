@@ -53,7 +53,7 @@ class Translation:
             # Array or list-like input
             if not Translation.is_valid(init_xyz):
                 raise ValueError("Translation vector is invalid.")
-            self.m = np.squeeze(np.array(init_xyz))
+            self.m = np.squeeze(np.array(init_xyz, dtype=float))
 
         self.unit = unit
 
