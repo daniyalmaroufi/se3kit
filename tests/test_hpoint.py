@@ -28,17 +28,22 @@ class TestHPoint(unittest.TestCase):
         self.assertTrue(np.array_equal(p.as_array(), np.array([[4.1], [5.2], [6.3], [1]])))
 
     def test_constructor_4_array(self):
-        arr = np.array([7, 8, 9, 2])
+        arr = np.array([7, 8, 9, 1.0])
         p = HPoint(arr)
-        self.assertTrue(np.array_equal(p.as_array(), np.array([[7], [8], [9], [2]])))
+        self.assertTrue(np.array_equal(p.as_array(), np.array([[7], [8], [9], [1.0]])))
 
     def test_constructor_4_array_decimal(self):
-        arr = np.array([7.7, 8.8, 9.9, 1.5])
+        arr = np.array([7.7, 8.8, 9.9, 1.0])
         p = HPoint(arr)
-        self.assertTrue(np.array_equal(p.as_array(), np.array([[7.7], [8.8], [9.9], [1.5]])))
+        self.assertTrue(np.array_equal(p.as_array(), np.array([[7.7], [8.8], [9.9], [1.0]])))
 
     def test_constructor_invalid_array_size(self):
         arr = np.array([1, 2])
+        with self.assertRaises(ValueError):
+            HPoint(arr)
+
+    def test_constructor_invalid_homogeneous_val(self):
+        arr = np.array([1, 2, 3, 0.9])
         with self.assertRaises(ValueError):
             HPoint(arr)
 

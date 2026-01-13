@@ -36,6 +36,9 @@ class HPoint:
                 elif arr.size == _HOMOGENEOUS_SIZE:
                     # If it's already a 4-element homogeneous vector [x, y, z, w]
                     # → Just reshape it into a 4x1 column vector
+                    if arr.flat[-1] != 1:
+                        raise ValueError("The last element of the homogeneous vector must be 1.0")
+
                     self.m = np.reshape(arr, (4, 1))
                 else:
                     # Invalid array size — must be either 3 (Cartesian) or 4 (homogeneous)
