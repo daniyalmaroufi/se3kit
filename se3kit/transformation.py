@@ -150,48 +150,37 @@ class Transformation:
         """
         return Transformation(np.linalg.inv(self._matrix))
 
-    # ---------------- Scaling ----------------
-    def convert_m_to_mm(self):
+    def scale(self, factor, inplace=True):
         """
-        Converts the translation component from meters to millimeters in-place.
-
-        :return: None
-        """
-        self._matrix[0:3, 3] *= 1000.0
-
-    def convert_mm_to_m(self):
-        """
-        Converts the translation component from millimeters to meters in-place.
-
-        :return: None
-        """
-        self._matrix[0:3, 3] *= 0.001
-
-    def scaled(self, factor):
-        """
-        Returns a copy of the transformation with translation scaled by a factor.
-
-        Rotation remains unchanged.
+        Scales the translation component by a factor.
 
         :param factor: Scaling factor
         :type factor: float
-        :return: Scaled transformation
-        :rtype: se3kit.transformation.Transformation
+        :param inplace: Whether to modify in-place or return a copy, defaults to True
+        :return: None if inplace, else a new Transformation
         """
+        if inplace:
+            self._matrix[0:3, 3] *= factor
+            return None
         return Transformation(self.translation.scaled(factor), self.rotation)
 
-    def scaled_m_to_mm(self):
+    def convert_m_to_mm(self, inplace=True):
         """
-        Returns a copy of the transformation with translation converted from meters to millimeters.
+        Converts the translation component from meters to millimeters.
 
-        :return: Scaled transformation
-        :rtype: se3kit.transformation.Transformation
+        :param inplace: Whether to modify in-place or return a copy, defaults to True
+        :return: None if inplace, else a new Transformation
         """
-        return Transformation(self.translation.scaled_m_to_mm(), self.rotation)
+        return self.scale(1000, inplace)
 
-    def scaled_mm_to_m(self):
-        """Returns a copy with translation scaled from millimeters to meters."""
-        return Transformation(self.translation.scaled_mm_to_m(), self.rotation)
+    def convert_mm_to_m(self, inplace=True):
+        """
+        Converts the translation component from millimeters to meters.
+
+        :param inplace: Whether to modify in-place or return a copy, defaults to True
+        :return: None if inplace, else a new Transformation
+        """
+        return self.scale(0.001, inplace)
 
     def transform_hpoint(self, p):
         """

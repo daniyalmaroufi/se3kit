@@ -192,55 +192,43 @@ class Translation:
         """
         return np.linalg.norm(self.m)
 
-    def scale_inplace(self, factor):
+    def scale(self, factor, inplace=True):
         """
-        Scales the translation in-place by a factor.
+        Scales the translation.
 
         :param factor: Scaling factor
         :type factor: float
+        :param inplace: Whether to modify the current object in-place or return a new one, defaults to True
+        :type inplace: bool
+        :return: Scaled Translation if not inplace, else None
+        :rtype: se3kit.translation.Translation | None
         """
-        self.m *= factor
-
-    def scaled_copy(self, factor):
-        """
-        Returns a new Translation scaled by a factor.
-
-        :param factor: Scaling factor
-        :type factor: float
-        :return: Scaled Translation
-        :rtype: se3kit.translation.Translation
-        """
+        if inplace:
+            self.m *= factor
+            return None
         return Translation(self.m * factor)
 
-    def convert_m_to_mm(self):
+    def convert_m_to_mm(self, inplace=True):
         """
-        Converts the translation in-place from meters to millimeters.
-        """
-        self.scale_inplace(1000.0)
+        Converts the translation from meters to millimeters.
 
-    def convert_mm_to_m(self):
+        :param inplace: Whether to modify the current object in-place or return a new one, defaults to True
+        :type inplace: bool
+        :return: Scaled Translation if not inplace, else None
+        :rtype: se3kit.translation.Translation | None
         """
-        Converts the translation in-place from millimeters to meters.
-        """
-        self.scale_inplace(0.001)
+        return self.scale(1000.0, inplace)
 
-    def scaled_m_to_mm(self):
+    def convert_mm_to_m(self, inplace=True):
         """
-        Returns a new Translation scaled from meters to millimeters.
+        Converts the translation from millimeters to meters.
 
-        :return: Scaled Translation in millimeters
-        :rtype: se3kit.translation.Translation
+        :param inplace: Whether to modify the current object in-place or return a new one, defaults to True
+        :type inplace: bool
+        :return: Scaled Translation if not inplace, else None
+        :rtype: se3kit.translation.Translation | None
         """
-        return self.scaled_copy(1000.0)
-
-    def scaled_mm_to_m(self):
-        """
-        Returns a new Translation scaled from millimeters to meters.
-
-        :return: Scaled Translation in meters
-        :rtype: se3kit.translation.Translation
-        """
-        return self.scaled_copy(0.001)
+        return self.scale(0.001, inplace)
 
     def as_geometry_point(self):
         """
