@@ -157,10 +157,10 @@ class EyeInHandCalibration:
             for i in range(len(robot_transforms) - 1):
                 for j in range(i + 1, len(robot_transforms)):
                     # Robot motions
-                    mat_a = robot_transforms[i].inv * robot_transforms[j]
+                    mat_a = robot_transforms[i].inv() * robot_transforms[j]
 
                     # Camera motions
-                    mat_b = camera_transforms[i] * camera_transforms[j].inv
+                    mat_b = camera_transforms[i] * camera_transforms[j].inv()
 
                     motion_pairs.append((mat_a, mat_b))
 

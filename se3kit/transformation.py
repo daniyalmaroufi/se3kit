@@ -139,7 +139,6 @@ class Transformation:
         """
         return self._matrix
 
-    @property
     def inv(self):
         """
         Returns the inverse of this transformation.
