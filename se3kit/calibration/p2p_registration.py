@@ -59,7 +59,9 @@ class P2PRegistration:
         :type pcd_2: numpy.ndarray
         """
         if not isinstance(pcd_1, np.ndarray) or not isinstance(pcd_2, np.ndarray):
-            raise TypeError("Input is not a numpy array.")
+            raise TypeError(
+                f"Both inputs must be numpy arrays. Got {type(pcd_1)} for pcd_1 and {type(pcd_2)} for pcd_2."
+            )
 
         if pcd_1.ndim != PCD_ARRAY_DIMENSIONS or pcd_2.ndim != PCD_ARRAY_DIMENSIONS:
             raise TypeError("Input point clouds must be 2D numpy arrays.")
