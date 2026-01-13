@@ -330,12 +330,50 @@ class TestRotation(unittest.TestCase):
         with self.assertRaises(TypeError):
             rotation.Rotation(r)
 
-    def test_invalid_almost_orthogonal_matrix(self):
-        """Matrix nearly orthogonal but violates tolerance should raise ValueError."""
         r = np.eye(3)
         r[0, 0] = 1 + 1e-3  # violates orthogonality within default tol
         with self.assertRaises(ValueError):
             rotation.Rotation(r)
+
+    def test_rotate_object(self):
+        """Test rotate_object method with various input types."""
+        from se3kit.hpoint import HPoint
+        from se3kit.translation import Translation
+
+        r = rotation.Rotation.from_rpy([0, 0, np.pi / 2])  # 90 deg around Z
+        # Rotating [1, 0, 0] around Z by 90 deg -> [0, 1, 0]
+
+        # 1. Translation
+        t = Translation([1, 0, 0])
+        t_rot = r.rotate_object(t)
+        self.assertIsInstance(t_rot, Translation)
+        self.assertTrue(np.all(is_near(t_rot.xyz, [0, 1, 0])))
+
+        # 2. HPoint
+        p = HPoint([1, 0, 0])
+        p_rot = r.rotate_object(p)
+        self.assertIsInstance(p_rot, HPoint)
+        self.assertTrue(np.all(is_near(p_rot.xyz, [0, 1, 0])))
+        self.assertEqual(p_rot.as_array()[3, 0], 1.0)  # Homogeneous part check
+
+        # 3. List
+        l_in = [1, 0, 0]
+        l_rot = r.rotate_object(l_in)
+        self.assertIsInstance(l_rot, list)
+        self.assertTrue(np.all(is_near(np.array(l_rot), [0, 1, 0])))
+
+        # 4. Numpy Array
+        arr_in = np.array([1, 0, 0])
+        arr_rot = r.rotate_object(arr_in)
+        self.assertIsInstance(arr_rot, np.ndarray)
+        self.assertTrue(np.all(is_near(arr_rot, [0, 1, 0])))
+
+        # 5. Invalid input
+        with self.assertRaises(TypeError):
+            r.rotate_object("invalid")
+
+        with self.assertRaises(ValueError):
+            r.rotate_object(np.array([1, 2]))  # Wrong shape
 
 
 if __name__ == "__main__":

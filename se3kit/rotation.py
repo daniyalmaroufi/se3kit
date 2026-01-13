@@ -80,6 +80,48 @@ class Rotation:
         """
         return Rotation(np.matmul(self.m, other.m))
 
+    def rotate_object(self, obj):
+        """
+        Rotates a vector-like object by this rotation matrix.
+
+        Supported types:
+        - se3kit.translation.Translation
+        - se3kit.hpoint.HPoint
+        - numpy.ndarray (shape (3,) or (3,1))
+        - list (3 elements)
+
+        :param obj: Object to rotate
+        :type obj: Translation | HPoint | np.ndarray | list
+        :return: Rotated object in the same format
+        :rtype: Translation | HPoint | np.ndarray | list
+        :raises TypeError: If object type is not supported
+        """
+        from se3kit.hpoint import HPoint
+        from se3kit.translation import Translation
+
+        if isinstance(obj, Translation):
+            # Rotate the translation vector
+            return Translation(self.m @ obj.m)
+
+        if isinstance(obj, HPoint):
+            # HPoint is 4x1, we only rotate the xyz part (3x1)
+            # The last element (homogeneous 1.0) remains unchanged
+            rot_xyz = self.m @ obj.xyz
+            return HPoint(rot_xyz)
+
+        if isinstance(obj, list):
+            # User passed a list, assume 3-element vector
+            return (self.m @ np.array(obj)).tolist()
+
+        if isinstance(obj, np.ndarray):
+            # Check shape
+            if obj.shape == (3,) or obj.shape == (3, 1):
+                return self.m @ obj
+            else:
+                raise ValueError(f"Numpy array must be shape (3,) or (3,1), got {obj.shape}")
+
+        raise TypeError(f"Cannot rotate object of type {type(obj)}")
+
     @staticmethod
     def eye():
         """
