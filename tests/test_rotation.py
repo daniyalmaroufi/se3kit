@@ -375,6 +375,31 @@ class TestRotation(unittest.TestCase):
         with self.assertRaises(ValueError):
             r.rotate_object(np.array([1, 2]))  # Wrong shape
 
+    def test_transpose_property(self):
+        """Test that the T property returns the correct transpose of the rotation matrix."""
+        # Create a non-identity rotation matrix
+        r = rotation.Rotation.rotate_z(np.pi / 4)
+
+        # Get transpose using T property
+        r_t = r.T
+
+        # Verify that r.T.m equals r.m.T
+        self.assertTrue(
+            all(is_near(a, b, tol=1e-10) for a, b in zip(r_t.m.flat, r.m.T.flat)),
+            "T property should return transpose of rotation matrix",
+        )
+
+    def test_transpose_times_rotation_is_identity(self):
+        """Test that rotation * rotation.T yields the identity matrix."""
+        # Create a non-identity rotation matrix
+        r = rotation.Rotation.from_zyx([0.5, 0.3, -0.2])
+
+        # Compute r * r.T
+        result = r * r.T
+
+        # Verify that the result is the identity matrix
+        self.assertTrue(result.is_identity(), "rotation * rotation.T should yield identity matrix")
+
 
 if __name__ == "__main__":
     unittest.main()
