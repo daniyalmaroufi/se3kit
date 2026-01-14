@@ -9,14 +9,9 @@ import logging
 
 import numpy as np
 
-from se3kit.ros_compat import get_ros_geometry_msgs
 from se3kit.rotation import Rotation
 from se3kit.transformation import Transformation
 from se3kit.translation import Translation
-
-# Retrieve the ROS geometry message types (Point, Quaternion, Pose, Vector3)
-Point, Quaternion, Pose, Vector3 = get_ros_geometry_msgs()
-use_geomsg = Quaternion is not None
 
 # module logger
 logger = logging.getLogger(__name__)

@@ -45,12 +45,12 @@ class EyeInHandCalibration:
         if not isinstance(robot_transform, Transformation) or not isinstance(
             camera_transform, Transformation
         ):
-            return False
+            raise TypeError(
+                f"Both inputs must be Transformation objects. Got {type(robot_transform)} for robot_transform and {type(camera_transform)} for camera_transform."
+            )
 
         self.robot_transforms.append(robot_transform)
         self.camera_transforms.append(camera_transform)
-
-        return True
 
     def add_pairs(self, robot_transforms, camera_transforms):
         """
@@ -70,12 +70,9 @@ class EyeInHandCalibration:
             if len(robot_transforms) == 0:
                 raise ValueError("Cannot add empty transform lists.")
 
-            for i, (rt, ct) in enumerate(zip(robot_transforms, camera_transforms)):
-                success = self.add_pair(rt, ct)
-                if not success:
-                    raise TypeError(
-                        f"Both inputs must be Transformation objects. Got {type(rt)} and {type(ct)} at index {i}."
-                    )
+            for rt, ct in zip(robot_transforms, camera_transforms):
+                self.add_pair(rt, ct)
+
         else:
             raise TypeError("Inputs must be Transformations or lists of Transformations.")
 
@@ -90,7 +87,9 @@ class EyeInHandCalibration:
             raise TypeError("Indices must be a list.")
 
         for index in indices:
-            if not isinstance(index, int) or not (0 <= index < self.num_pairs):
+            if not isinstance(index, int):
+                raise TypeError("All indices must be integers.")
+            if index < 0 or index >= self.num_pairs:
                 raise ValueError(
                     f"Index {index} is out of range. Valid indices are 0 to {self.num_pairs - 1}."
                 )
