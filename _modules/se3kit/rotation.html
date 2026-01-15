@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>se3kit.rotation &mdash; SE3kit 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
@@ -152,6 +152,51 @@
 <span class="sd">        :rtype: Rotation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Rotation</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">m</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Rotation.rotate_object">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.rotate_object">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rotates a vector-like object by this rotation matrix.</span>
+
+<span class="sd">        Supported types:</span>
+<span class="sd">        - se3kit.translation.Translation</span>
+<span class="sd">        - se3kit.hpoint.HPoint</span>
+<span class="sd">        - numpy.ndarray (shape (3,) or (3,1))</span>
+<span class="sd">        - list (3 elements)</span>
+
+<span class="sd">        :param obj: Object to rotate</span>
+<span class="sd">        :type obj: Translation | HPoint | np.ndarray | list</span>
+<span class="sd">        :return: Rotated object in the same format</span>
+<span class="sd">        :rtype: Translation | HPoint | np.ndarray | list</span>
+<span class="sd">        :raises TypeError: If object type is not supported</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.hpoint</span><span class="w"> </span><span class="kn">import</span> <span class="n">HPoint</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">se3kit.translation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Translation</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Translation</span><span class="p">):</span>
+            <span class="c1"># Rotate the translation vector</span>
+            <span class="k">return</span> <span class="n">Translation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">@</span> <span class="n">obj</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">HPoint</span><span class="p">):</span>
+            <span class="c1"># HPoint is 4x1, we only rotate the xyz part (3x1)</span>
+            <span class="c1"># The last element (homogeneous 1.0) remains unchanged</span>
+            <span class="n">rot_xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">@</span> <span class="n">obj</span><span class="o">.</span><span class="n">xyz</span>
+            <span class="k">return</span> <span class="n">HPoint</span><span class="p">(</span><span class="n">rot_xyz</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="c1"># User passed a list, assume 3-element vector</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="c1"># Check shape</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">@</span> <span class="n">obj</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Numpy array must be shape (3,) or (3,1), got </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot rotate object of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="Rotation.eye">
 <a class="viewcode-back" href="../../se3kit.html#se3kit.rotation.Rotation.eye">[docs]</a>
@@ -583,7 +628,7 @@
 <span class="sd">        :rtype: float</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rot_rel</span> <span class="o">=</span> <span class="n">rot_1</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">rot_2</span>
-        <span class="n">trace_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rot_rel</span><span class="p">)</span>
+        <span class="n">trace_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rot_rel</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
         <span class="c1"># Clip for numerical stability</span>
         <span class="n">cos_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">trace_val</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">rad2deg</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">cos_theta</span><span class="p">))</span> <span class="k">if</span> <span class="n">degrees</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">cos_theta</span><span class="p">)</span></div>
@@ -667,7 +712,7 @@
 
 <span class="sd">        The input quaternion is expected in the format ``(x, y, z, w)``, where</span>
 <span class="sd">        ``w`` is the real component. Internally this is converted into an</span>
-<span class="sd">        ``np.quaternion`` object with ordering ``(w, x, y, z)`` before being passed</span>
+<span class="sd">        ``quaternion.quaternion`` object with ordering ``(w, x, y, z)`` before being passed</span>
 <span class="sd">        to the ``Rotation`` constructor.</span>
 
 <span class="sd">        :param q: Quaternion as a tuple or list in the order ``(x, y, z, w)``.</span>

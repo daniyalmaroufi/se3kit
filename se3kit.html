@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SE3kit package &mdash; SE3kit 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -84,6 +84,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.from_zyx"><code class="docutils literal notranslate"><span class="pre">Rotation.from_zyx()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.is_identity"><code class="docutils literal notranslate"><span class="pre">Rotation.is_identity()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.is_valid"><code class="docutils literal notranslate"><span class="pre">Rotation.is_valid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.rotate_object"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_object()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.rotate_x"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_x()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.rotate_y"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_y()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.rotation.Rotation.rotate_z"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_z()</span></code></a></li>
@@ -102,13 +103,11 @@
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.convert_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Transformation.convert_m_to_mm()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.convert_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Transformation.convert_mm_to_m()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.from_xyz_mm_abc"><code class="docutils literal notranslate"><span class="pre">Transformation.from_xyz_mm_abc()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.inv"><code class="docutils literal notranslate"><span class="pre">Transformation.inv</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.inv"><code class="docutils literal notranslate"><span class="pre">Transformation.inv()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.is_valid"><code class="docutils literal notranslate"><span class="pre">Transformation.is_valid()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.m"><code class="docutils literal notranslate"><span class="pre">Transformation.m</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.rotation"><code class="docutils literal notranslate"><span class="pre">Transformation.rotation</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.scaled"><code class="docutils literal notranslate"><span class="pre">Transformation.scaled()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.scaled_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Transformation.scaled_m_to_mm()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.scaled_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Transformation.scaled_mm_to_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.scale"><code class="docutils literal notranslate"><span class="pre">Transformation.scale()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.transform_hpoint"><code class="docutils literal notranslate"><span class="pre">Transformation.transform_hpoint()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.translation"><code class="docutils literal notranslate"><span class="pre">Transformation.translation</span></code></a></li>
 </ul>
@@ -123,10 +122,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.convert_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Translation.convert_mm_to_m()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.is_valid"><code class="docutils literal notranslate"><span class="pre">Translation.is_valid()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.norm"><code class="docutils literal notranslate"><span class="pre">Translation.norm()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.scale_inplace"><code class="docutils literal notranslate"><span class="pre">Translation.scale_inplace()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.scaled_copy"><code class="docutils literal notranslate"><span class="pre">Translation.scaled_copy()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.scaled_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Translation.scaled_m_to_mm()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.scaled_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Translation.scaled_mm_to_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.scale"><code class="docutils literal notranslate"><span class="pre">Translation.scale()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.x"><code class="docutils literal notranslate"><span class="pre">Translation.x</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.xyz"><code class="docutils literal notranslate"><span class="pre">Translation.xyz</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.y"><code class="docutils literal notranslate"><span class="pre">Translation.y</span></code></a></li>
@@ -146,12 +142,18 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-se3kit.calibration">se3kit.calibration module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#se3kit.calibration.EyeInHandCalibration"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.EyeInHandCalibration.add_pair"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.add_pair()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.EyeInHandCalibration.add_pairs"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.add_pairs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.EyeInHandCalibration.num_pairs"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.num_pairs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.EyeInHandCalibration.remove_pairs"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.remove_pairs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.EyeInHandCalibration.reset_pairs"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.reset_pairs()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.EyeInHandCalibration.run_calibration"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.run_calibration()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#se3kit.calibration.PivotCalibration"><code class="docutils literal notranslate"><span class="pre">PivotCalibration</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.PivotCalibration.add_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.add_poses()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.PivotCalibration.find_similar_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.find_similar_poses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.PivotCalibration.num_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.num_poses</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.PivotCalibration.remove_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.remove_poses()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.PivotCalibration.reset_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.reset_poses()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.calibration.PivotCalibration.run_pivot_calibration"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.run_pivot_calibration()</span></code></a></li>
@@ -579,7 +581,7 @@ the corresponding 3x3 rotation matrix:</p>
 <dd><p>Create a <code class="docutils literal notranslate"><span class="pre">Rotation</span></code> object from a quaternion.</p>
 <p>The input quaternion is expected in the format <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">z,</span> <span class="pre">w)</span></code>, where
 <code class="docutils literal notranslate"><span class="pre">w</span></code> is the real component. Internally this is converted into an
-<code class="docutils literal notranslate"><span class="pre">np.quaternion</span></code> object with ordering <code class="docutils literal notranslate"><span class="pre">(w,</span> <span class="pre">x,</span> <span class="pre">y,</span> <span class="pre">z)</span></code> before being passed
+<code class="docutils literal notranslate"><span class="pre">quaternion.quaternion</span></code> object with ordering <code class="docutils literal notranslate"><span class="pre">(w,</span> <span class="pre">x,</span> <span class="pre">y,</span> <span class="pre">z)</span></code> before being passed
 to the <code class="docutils literal notranslate"><span class="pre">Rotation</span></code> constructor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -681,6 +683,31 @@ This method verifies the following:</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.rotation.Rotation.rotate_object">
+<span class="sig-name descname"><span class="pre">rotate_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/rotation.html#Rotation.rotate_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.rotation.Rotation.rotate_object" title="Link to this definition"></a></dt>
+<dd><p>Rotates a vector-like object by this rotation matrix.</p>
+<p>Supported types:
+- se3kit.translation.Translation
+- se3kit.hpoint.HPoint
+- numpy.ndarray (shape (3,) or (3,1))
+- list (3 elements)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference internal" href="#se3kit.translation.Translation" title="se3kit.translation.Translation"><em>Translation</em></a><em> | </em><a class="reference internal" href="#se3kit.hpoint.HPoint" title="se3kit.hpoint.HPoint"><em>HPoint</em></a><em> | </em><em>np.ndarray</em><em> | </em><em>list</em>) – Object to rotate</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rotated object in the same format</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.translation.Translation" title="se3kit.translation.Translation">Translation</a> | <a class="reference internal" href="#se3kit.hpoint.HPoint" title="se3kit.hpoint.HPoint">HPoint</a> | np.ndarray | list</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>TypeError</strong> – If object type is not supported</p>
 </dd>
 </dl>
 </dd></dl>
@@ -867,22 +894,28 @@ rotational and translational parts.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="se3kit.transformation.Transformation.convert_m_to_mm">
-<span class="sig-name descname"><span class="pre">convert_m_to_mm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.convert_m_to_mm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.convert_m_to_mm" title="Link to this definition"></a></dt>
-<dd><p>Converts the translation component from meters to millimeters in-place.</p>
+<span class="sig-name descname"><span class="pre">convert_m_to_mm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.convert_m_to_mm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.convert_m_to_mm" title="Link to this definition"></a></dt>
+<dd><p>Converts the translation component from meters to millimeters.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inplace</strong> – Whether to modify in-place or return a copy, defaults to True</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None if inplace, else a new Transformation</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="se3kit.transformation.Transformation.convert_mm_to_m">
-<span class="sig-name descname"><span class="pre">convert_mm_to_m</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.convert_mm_to_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.convert_mm_to_m" title="Link to this definition"></a></dt>
-<dd><p>Converts the translation component from millimeters to meters in-place.</p>
+<span class="sig-name descname"><span class="pre">convert_mm_to_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.convert_mm_to_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.convert_mm_to_m" title="Link to this definition"></a></dt>
+<dd><p>Converts the translation component from millimeters to meters.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inplace</strong> – Whether to modify in-place or return a copy, defaults to True</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None if inplace, else a new Transformation</p>
 </dd>
 </dl>
 </dd></dl>
@@ -905,9 +938,9 @@ and ABC Euler angles.</p>
 </dl>
 </dd></dl>
 
-<dl class="py property">
+<dl class="py method">
 <dt class="sig sig-object py" id="se3kit.transformation.Transformation.inv">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inv</span></span><a class="headerlink" href="#se3kit.transformation.Transformation.inv" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">inv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.inv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.inv" title="Link to this definition"></a></dt>
 <dd><p>Returns the inverse of this transformation.</p>
 <p>The inverse is computed by inverting the 4x4 transformation matrix.</p>
 <dl class="field-list simple">
@@ -976,41 +1009,20 @@ homogeneous transformation matrix.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="se3kit.transformation.Transformation.scaled">
-<span class="sig-name descname"><span class="pre">scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.scaled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.scaled" title="Link to this definition"></a></dt>
-<dd><p>Returns a copy of the transformation with translation scaled by a factor.</p>
-<p>Rotation remains unchanged.</p>
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.scale">
+<span class="sig-name descname"><span class="pre">scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.scale" title="Link to this definition"></a></dt>
+<dd><p>Scales the translation component by a factor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>factor</strong> (<em>float</em>) – Scaling factor</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>factor</strong> (<em>float</em>) – Scaling factor</p></li>
+<li><p><strong>inplace</strong> – Whether to modify in-place or return a copy, defaults to True</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Scaled transformation</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#se3kit.transformation.Transformation" title="se3kit.transformation.Transformation">se3kit.transformation.Transformation</a></p>
+<dd class="field-even"><p>None if inplace, else a new Transformation</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="se3kit.transformation.Transformation.scaled_m_to_mm">
-<span class="sig-name descname"><span class="pre">scaled_m_to_mm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.scaled_m_to_mm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.scaled_m_to_mm" title="Link to this definition"></a></dt>
-<dd><p>Returns a copy of the transformation with translation converted from meters to millimeters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Scaled transformation</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#se3kit.transformation.Transformation" title="se3kit.transformation.Transformation">se3kit.transformation.Transformation</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="se3kit.transformation.Transformation.scaled_mm_to_m">
-<span class="sig-name descname"><span class="pre">scaled_mm_to_m</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.scaled_mm_to_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.scaled_mm_to_m" title="Link to this definition"></a></dt>
-<dd><p>Returns a copy with translation scaled from millimeters to meters.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1097,14 +1109,36 @@ The comparison is based on the Euclidean distance between the two translation ve
 
 <dl class="py method">
 <dt class="sig sig-object py" id="se3kit.translation.Translation.convert_m_to_mm">
-<span class="sig-name descname"><span class="pre">convert_m_to_mm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.convert_m_to_mm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.convert_m_to_mm" title="Link to this definition"></a></dt>
-<dd><p>Converts the translation in-place from meters to millimeters.</p>
+<span class="sig-name descname"><span class="pre">convert_m_to_mm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.convert_m_to_mm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.convert_m_to_mm" title="Link to this definition"></a></dt>
+<dd><p>Converts the translation from meters to millimeters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inplace</strong> (<em>bool</em>) – Whether to modify the current object in-place or return a new one, defaults to True</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Scaled Translation if not inplace, else None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.translation.Translation" title="se3kit.translation.Translation">se3kit.translation.Translation</a> | None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="se3kit.translation.Translation.convert_mm_to_m">
-<span class="sig-name descname"><span class="pre">convert_mm_to_m</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.convert_mm_to_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.convert_mm_to_m" title="Link to this definition"></a></dt>
-<dd><p>Converts the translation in-place from millimeters to meters.</p>
+<span class="sig-name descname"><span class="pre">convert_mm_to_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.convert_mm_to_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.convert_mm_to_m" title="Link to this definition"></a></dt>
+<dd><p>Converts the translation from millimeters to meters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inplace</strong> (<em>bool</em>) – Whether to modify the current object in-place or return a new one, defaults to True</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Scaled Translation if not inplace, else None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.translation.Translation" title="se3kit.translation.Translation">se3kit.translation.Translation</a> | None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1143,57 +1177,21 @@ The comparison is based on the Euclidean distance between the two translation ve
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="se3kit.translation.Translation.scale_inplace">
-<span class="sig-name descname"><span class="pre">scale_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.scale_inplace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.scale_inplace" title="Link to this definition"></a></dt>
-<dd><p>Scales the translation in-place by a factor.</p>
+<dt class="sig sig-object py" id="se3kit.translation.Translation.scale">
+<span class="sig-name descname"><span class="pre">scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.scale" title="Link to this definition"></a></dt>
+<dd><p>Scales the translation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>factor</strong> (<em>float</em>) – Scaling factor</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="se3kit.translation.Translation.scaled_copy">
-<span class="sig-name descname"><span class="pre">scaled_copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.scaled_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.scaled_copy" title="Link to this definition"></a></dt>
-<dd><p>Returns a new Translation scaled by a factor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>factor</strong> (<em>float</em>) – Scaling factor</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>factor</strong> (<em>float</em>) – Scaling factor</p></li>
+<li><p><strong>inplace</strong> (<em>bool</em>) – Whether to modify the current object in-place or return a new one, defaults to True</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Scaled Translation</p>
+<dd class="field-even"><p>Scaled Translation if not inplace, else None</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#se3kit.translation.Translation" title="se3kit.translation.Translation">se3kit.translation.Translation</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="se3kit.translation.Translation.scaled_m_to_mm">
-<span class="sig-name descname"><span class="pre">scaled_m_to_mm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.scaled_m_to_mm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.scaled_m_to_mm" title="Link to this definition"></a></dt>
-<dd><p>Returns a new Translation scaled from meters to millimeters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Scaled Translation in millimeters</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#se3kit.translation.Translation" title="se3kit.translation.Translation">se3kit.translation.Translation</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="se3kit.translation.Translation.scaled_mm_to_m">
-<span class="sig-name descname"><span class="pre">scaled_mm_to_m</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.scaled_mm_to_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.scaled_mm_to_m" title="Link to this definition"></a></dt>
-<dd><p>Returns a new Translation scaled from millimeters to meters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Scaled Translation in meters</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#se3kit.translation.Translation" title="se3kit.translation.Translation">se3kit.translation.Translation</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#se3kit.translation.Translation" title="se3kit.translation.Translation">se3kit.translation.Translation</a> | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1372,10 +1370,69 @@ The comparison is based on the Euclidean distance between the two translation ve
 <p>Calibration module for se3kit.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="se3kit.calibration.EyeInHandCalibration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">se3kit.calibration.</span></span><span class="sig-name descname"><span class="pre">EyeInHandCalibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_transforms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_transforms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/eye_in_hand_calibration.html#EyeInHandCalibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.EyeInHandCalibration" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">se3kit.calibration.</span></span><span class="sig-name descname"><span class="pre">EyeInHandCalibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/eye_in_hand_calibration.html#EyeInHandCalibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.EyeInHandCalibration" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Hand-eye calibration class: solves T_X in  A_i * T_X = T_X * B_i
 where A_i are robot poses and B_i are calibration board in camera poses.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.calibration.EyeInHandCalibration.add_pair">
+<span class="sig-name descname"><span class="pre">add_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_transform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_transform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/eye_in_hand_calibration.html#EyeInHandCalibration.add_pair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.EyeInHandCalibration.add_pair" title="Link to this definition"></a></dt>
+<dd><p>Adds a single pair of robot and camera transforms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>robot_transform</strong> – Transformation object (robot EE pose)</p></li>
+<li><p><strong>camera_transform</strong> – Transformation object (camera pose)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.calibration.EyeInHandCalibration.add_pairs">
+<span class="sig-name descname"><span class="pre">add_pairs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_transforms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_transforms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/eye_in_hand_calibration.html#EyeInHandCalibration.add_pairs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.EyeInHandCalibration.add_pairs" title="Link to this definition"></a></dt>
+<dd><p>Adds pairs of robot and camera transforms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>robot_transforms</strong> – single Transformation or list of Transformations (robot EE poses)</p></li>
+<li><p><strong>camera_transforms</strong> – single Transformation or list of Transformations (camera poses)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.calibration.EyeInHandCalibration.num_pairs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_pairs</span></span><a class="headerlink" href="#se3kit.calibration.EyeInHandCalibration.num_pairs" title="Link to this definition"></a></dt>
+<dd><p>Returns the number of transform pairs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number of pairs</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.calibration.EyeInHandCalibration.remove_pairs">
+<span class="sig-name descname"><span class="pre">remove_pairs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/eye_in_hand_calibration.html#EyeInHandCalibration.remove_pairs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.EyeInHandCalibration.remove_pairs" title="Link to this definition"></a></dt>
+<dd><p>Removes pairs at the specified indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>indices</strong> (<em>list</em>) – list of indices to remove</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.calibration.EyeInHandCalibration.reset_pairs">
+<span class="sig-name descname"><span class="pre">reset_pairs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/eye_in_hand_calibration.html#EyeInHandCalibration.reset_pairs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.EyeInHandCalibration.reset_pairs" title="Link to this definition"></a></dt>
+<dd><p>Resets the lists of robot and camera transforms.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="se3kit.calibration.EyeInHandCalibration.run_calibration">
 <span class="sig-name descname"><span class="pre">run_calibration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/calibration/eye_in_hand_calibration.html#EyeInHandCalibration.run_calibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.calibration.EyeInHandCalibration.run_calibration" title="Link to this definition"></a></dt>
@@ -1416,6 +1473,20 @@ then solves translation p_x with least-squares.
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="se3kit.calibration.PivotCalibration.num_poses">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_poses</span></span><a class="headerlink" href="#se3kit.calibration.PivotCalibration.num_poses" title="Link to this definition"></a></dt>
+<dd><p>Returns the number of poses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number of poses</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
 </dd>
 </dl>
 </dd></dl>

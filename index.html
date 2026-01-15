@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SE3kit documentation &mdash; SE3kit 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -214,6 +214,7 @@
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.from_zyx"><code class="docutils literal notranslate"><span class="pre">Rotation.from_zyx()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.is_identity"><code class="docutils literal notranslate"><span class="pre">Rotation.is_identity()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.is_valid"><code class="docutils literal notranslate"><span class="pre">Rotation.is_valid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.rotate_object"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_object()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.rotate_x"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_x()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.rotate_y"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_y()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.rotation.Rotation.rotate_z"><code class="docutils literal notranslate"><span class="pre">Rotation.rotate_z()</span></code></a></li>
@@ -232,13 +233,11 @@
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.convert_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Transformation.convert_m_to_mm()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.convert_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Transformation.convert_mm_to_m()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.from_xyz_mm_abc"><code class="docutils literal notranslate"><span class="pre">Transformation.from_xyz_mm_abc()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.inv"><code class="docutils literal notranslate"><span class="pre">Transformation.inv</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.inv"><code class="docutils literal notranslate"><span class="pre">Transformation.inv()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.is_valid"><code class="docutils literal notranslate"><span class="pre">Transformation.is_valid()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.m"><code class="docutils literal notranslate"><span class="pre">Transformation.m</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.rotation"><code class="docutils literal notranslate"><span class="pre">Transformation.rotation</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.scaled"><code class="docutils literal notranslate"><span class="pre">Transformation.scaled()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.scaled_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Transformation.scaled_m_to_mm()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.scaled_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Transformation.scaled_mm_to_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.scale"><code class="docutils literal notranslate"><span class="pre">Transformation.scale()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.transform_hpoint"><code class="docutils literal notranslate"><span class="pre">Transformation.transform_hpoint()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.transformation.Transformation.translation"><code class="docutils literal notranslate"><span class="pre">Transformation.translation</span></code></a></li>
 </ul>
@@ -253,10 +252,7 @@
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.convert_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Translation.convert_mm_to_m()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.is_valid"><code class="docutils literal notranslate"><span class="pre">Translation.is_valid()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.norm"><code class="docutils literal notranslate"><span class="pre">Translation.norm()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.scale_inplace"><code class="docutils literal notranslate"><span class="pre">Translation.scale_inplace()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.scaled_copy"><code class="docutils literal notranslate"><span class="pre">Translation.scaled_copy()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.scaled_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Translation.scaled_m_to_mm()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.scaled_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Translation.scaled_mm_to_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.scale"><code class="docutils literal notranslate"><span class="pre">Translation.scale()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.x"><code class="docutils literal notranslate"><span class="pre">Translation.x</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.xyz"><code class="docutils literal notranslate"><span class="pre">Translation.xyz</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.translation.Translation.y"><code class="docutils literal notranslate"><span class="pre">Translation.y</span></code></a></li>
@@ -276,12 +272,18 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="se3kit.html#module-se3kit.calibration">se3kit.calibration module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.calibration.EyeInHandCalibration"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.EyeInHandCalibration.add_pair"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.add_pair()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.EyeInHandCalibration.add_pairs"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.add_pairs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.EyeInHandCalibration.num_pairs"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.num_pairs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.EyeInHandCalibration.remove_pairs"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.remove_pairs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.EyeInHandCalibration.reset_pairs"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.reset_pairs()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.EyeInHandCalibration.run_calibration"><code class="docutils literal notranslate"><span class="pre">EyeInHandCalibration.run_calibration()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration"><code class="docutils literal notranslate"><span class="pre">PivotCalibration</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration.add_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.add_poses()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration.find_similar_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.find_similar_poses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration.num_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.num_poses</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration.remove_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.remove_poses()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration.reset_poses"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.reset_poses()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="se3kit.html#se3kit.calibration.PivotCalibration.run_pivot_calibration"><code class="docutils literal notranslate"><span class="pre">PivotCalibration.run_pivot_calibration()</span></code></a></li>

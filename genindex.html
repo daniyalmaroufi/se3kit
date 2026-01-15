@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Index &mdash; SE3kit 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -93,6 +93,10 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="se3kit.html#se3kit.calibration.EyeInHandCalibration.add_pair">add_pair() (se3kit.calibration.EyeInHandCalibration method)</a>
+</li>
+      <li><a href="se3kit.html#se3kit.calibration.EyeInHandCalibration.add_pairs">add_pairs() (se3kit.calibration.EyeInHandCalibration method)</a>
+</li>
       <li><a href="se3kit.html#se3kit.calibration.PivotCalibration.add_poses">add_poses() (se3kit.calibration.PivotCalibration method)</a>
 </li>
       <li><a href="se3kit.html#se3kit.rotation.Rotation.angle_difference">angle_difference() (se3kit.rotation.Rotation static method)</a>
@@ -107,10 +111,10 @@
       </ul></li>
       <li><a href="se3kit.html#se3kit.rotation.Rotation.as_abc">as_abc() (se3kit.rotation.Rotation method)</a>
 </li>
-      <li><a href="se3kit.html#se3kit.hpoint.HPoint.as_array">as_array() (se3kit.hpoint.HPoint method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="se3kit.html#se3kit.hpoint.HPoint.as_array">as_array() (se3kit.hpoint.HPoint method)</a>
+</li>
       <li><a href="se3kit.html#se3kit.rotation.Rotation.as_axisangle">as_axisangle() (se3kit.rotation.Rotation method)</a>
 </li>
       <li><a href="se3kit.html#se3kit.rotation.Rotation.as_geometry_orientation">as_geometry_orientation() (se3kit.rotation.Rotation method)</a>
@@ -211,7 +215,7 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="se3kit.html#se3kit.transformation.Transformation.inv">inv (se3kit.transformation.Transformation property)</a>
+      <li><a href="se3kit.html#se3kit.transformation.Transformation.inv">inv() (se3kit.transformation.Transformation method)</a>
 </li>
       <li><a href="se3kit.html#se3kit.utils.is_identity">is_identity() (in module se3kit.utils)</a>
 
@@ -267,6 +271,12 @@
       <li><a href="se3kit.html#se3kit.translation.Translation.norm">norm() (se3kit.translation.Translation method)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="se3kit.html#se3kit.calibration.EyeInHandCalibration.num_pairs">num_pairs (se3kit.calibration.EyeInHandCalibration property)</a>
+</li>
+      <li><a href="se3kit.html#se3kit.calibration.PivotCalibration.num_poses">num_poses (se3kit.calibration.PivotCalibration property)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="P">P</h2>
@@ -284,14 +294,20 @@
 </li>
       <li><a href="se3kit.html#se3kit.utils.rad2deg">rad2deg() (in module se3kit.utils)</a>
 </li>
+      <li><a href="se3kit.html#se3kit.calibration.EyeInHandCalibration.remove_pairs">remove_pairs() (se3kit.calibration.EyeInHandCalibration method)</a>
+</li>
       <li><a href="se3kit.html#se3kit.calibration.PivotCalibration.remove_poses">remove_poses() (se3kit.calibration.PivotCalibration method)</a>
+</li>
+      <li><a href="se3kit.html#se3kit.calibration.EyeInHandCalibration.reset_pairs">reset_pairs() (se3kit.calibration.EyeInHandCalibration method)</a>
 </li>
       <li><a href="se3kit.html#se3kit.calibration.PivotCalibration.reset_poses">reset_poses() (se3kit.calibration.PivotCalibration method)</a>
 </li>
-      <li><a href="se3kit.html#se3kit.rotation.Rotation.rotate_x">rotate_x() (se3kit.rotation.Rotation static method)</a>
+      <li><a href="se3kit.html#se3kit.rotation.Rotation.rotate_object">rotate_object() (se3kit.rotation.Rotation method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="se3kit.html#se3kit.rotation.Rotation.rotate_x">rotate_x() (se3kit.rotation.Rotation static method)</a>
+</li>
       <li><a href="se3kit.html#se3kit.rotation.Rotation.rotate_y">rotate_y() (se3kit.rotation.Rotation static method)</a>
 </li>
       <li><a href="se3kit.html#se3kit.rotation.Rotation.rotate_z">rotate_z() (se3kit.rotation.Rotation static method)</a>
@@ -310,22 +326,10 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="se3kit.html#se3kit.translation.Translation.scale_inplace">scale_inplace() (se3kit.translation.Translation method)</a>
-</li>
-      <li><a href="se3kit.html#se3kit.transformation.Transformation.scaled">scaled() (se3kit.transformation.Transformation method)</a>
-</li>
-      <li><a href="se3kit.html#se3kit.translation.Translation.scaled_copy">scaled_copy() (se3kit.translation.Translation method)</a>
-</li>
-      <li><a href="se3kit.html#se3kit.transformation.Transformation.scaled_m_to_mm">scaled_m_to_mm() (se3kit.transformation.Transformation method)</a>
+      <li><a href="se3kit.html#se3kit.transformation.Transformation.scale">scale() (se3kit.transformation.Transformation method)</a>
 
       <ul>
-        <li><a href="se3kit.html#se3kit.translation.Translation.scaled_m_to_mm">(se3kit.translation.Translation method)</a>
-</li>
-      </ul></li>
-      <li><a href="se3kit.html#se3kit.transformation.Transformation.scaled_mm_to_m">scaled_mm_to_m() (se3kit.transformation.Transformation method)</a>
-
-      <ul>
-        <li><a href="se3kit.html#se3kit.translation.Translation.scaled_mm_to_m">(se3kit.translation.Translation method)</a>
+        <li><a href="se3kit.html#se3kit.translation.Translation.scale">(se3kit.translation.Translation method)</a>
 </li>
       </ul></li>
       <li>
@@ -342,8 +346,6 @@
         <li><a href="se3kit.html#module-se3kit.degrees">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     se3kit.hpoint
 
@@ -351,6 +353,8 @@
         <li><a href="se3kit.html#module-se3kit.hpoint">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     se3kit.rotation
 
