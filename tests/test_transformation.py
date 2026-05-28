@@ -272,11 +272,6 @@ class TestTransformation(unittest.TestCase):
         if not use_geomsg or ROS_VERSION == 0:
             self.skipTest("ROS not available")
 
-        try:
-            from geometry_msgs.msg import PoseStamped
-        except ImportError:
-            self.skipTest("geometry_msgs not available")
-
         # Create original Transformation
         t_original = transformation.Transformation(
             transformation.Translation([1.5, 2.5, 3.5]),
@@ -297,11 +292,6 @@ class TestTransformation(unittest.TestCase):
         if not use_geomsg or ROS_VERSION == 0:
             self.skipTest("ROS not available")
 
-        try:
-            from geometry_msgs.msg import Transform
-        except ImportError:
-            self.skipTest("geometry_msgs not available")
-
         # Create original Transformation
         t_original = transformation.Transformation(
             transformation.Translation([1.5, 2.5, 3.5]),
@@ -311,6 +301,9 @@ class TestTransformation(unittest.TestCase):
         # Convert to Transform and back
         tf_msg = t_original.as_transform()
         t_recovered = transformation.Transformation(tf_msg)
+
+        # Verify they match
+        self.assertTrue(transformation.Transformation.are_close(t_original, t_recovered, rot_tol=1e-5, trans_tol=1e-5))
 
         # Verify they match
         self.assertTrue(transformation.Transformation.are_close(t_original, t_recovered, rot_tol=1e-5, trans_tol=1e-5))
