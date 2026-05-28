@@ -244,6 +244,20 @@ class Translation:
             raise ModuleNotFoundError("geometry_msgs module not available")
         return Point(x=self.x, y=self.y, z=self.z)
 
+    def as_geometry_vector3(self):
+        """
+        Converts the translation to a ROS geometry_msgs Vector3 message.
+
+        Works for ROS1 or ROS2 depending on the environment.
+
+        :return: ROS geometry_msgs.msg.Vector3 message
+        :rtype: geometry_msgs.msg.Vector3
+        :raises ModuleNotFoundError: If geometry_msgs is not available
+        """
+        if not use_geomsg:
+            raise ModuleNotFoundError("geometry_msgs module not available")
+        return Vector3(x=self.x, y=self.y, z=self.z)
+
     @staticmethod
     def are_close(trans_1, trans_2, tol=0.001):
         """

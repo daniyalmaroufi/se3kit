@@ -3,7 +3,7 @@ import logging
 import numpy as np
 
 from se3kit.hpoint import HPoint
-from se3kit.ros_compat import Pose, use_geomsg
+from se3kit.ros_compat import Pose, PoseStamped, ROS_VERSION, Transform, use_geomsg
 from se3kit.rotation import Rotation
 from se3kit.translation import Translation
 from se3kit.utils import is_near
@@ -24,6 +24,8 @@ class Transformation:
         Can initialize from:
         - A 4x4 numpy matrix
         - A ROS geometry_msgs.msg.Pose message (ROS1 or ROS2)
+        - A ROS geometry_msgs.msg.PoseStamped message (TF2, ROS1 or ROS2)
+        - A ROS geometry_msgs.msg.Transform message (TF2, ROS1 or ROS2)
         - A se3kit.translation.Translation object
         - se3kit.translation.Translation + se3kit.rotation.Rotation (in any order)
 
@@ -40,6 +42,18 @@ class Transformation:
                 if not Transformation.is_valid(init):
                     raise ValueError("Transformation matrix is invalid.")
                 self._matrix = init
+
+            elif use_geomsg and isinstance(init, PoseStamped):
+                # Single argument is a ROS PoseStamped message (TF2)
+                # Extract the pose from the stamped message
+                self.rotation = Rotation(init.pose.orientation)
+                self.translation = Translation(init.pose.position)
+
+            elif use_geomsg and isinstance(init, Transform):
+                # Single argument is a ROS Transform message (TF2)
+                # Extract translation and rotation directly
+                self.rotation = Rotation(init.rotation)
+                self.translation = Translation(init.translation)
 
             elif use_geomsg and isinstance(init, Pose):
                 # Single argument is a ROS Pose message and rotation and translation are extracted
@@ -222,6 +236,60 @@ class Transformation:
         return Pose(
             position=self.translation.as_geometry_point(),
             orientation=self.rotation.as_geometry_orientation(),
+        )
+
+    def as_pose_stamped(self, frame_id="base_link", stamp=None):
+        """
+        Converts this Transformation to a ROS PoseStamped message (TF2).
+
+        Works for ROS1 or ROS2 depending on the environment.
+
+        :param frame_id: Frame ID for the message header, defaults to "base_link"
+        :type frame_id: str
+        :param stamp: ROS timestamp for the message header, defaults to current time (ROS only)
+        :return: ROS PoseStamped message
+        :rtype: geometry_msgs.msg.PoseStamped
+        :raises ModuleNotFoundError: if geometry_msgs module not available
+        """
+        if not use_geomsg or PoseStamped is None:
+            raise ModuleNotFoundError("geometry_msgs.msg.PoseStamped not available")
+
+        if stamp is None:
+            try:
+                if ROS_VERSION == 2:
+                    import rclpy
+                    stamp = rclpy.clock.Clock().now()
+                elif ROS_VERSION == 1:
+                    import rospy
+                    stamp = rospy.Time.now()
+            except Exception:
+                pass
+
+        # Create header with frame_id and timestamp
+        from geometry_msgs.msg import Header  # type: ignore
+        header = Header(frame_id=frame_id, stamp=stamp)
+
+        return PoseStamped(
+            header=header,
+            pose=self.as_geometry_pose(),
+        )
+
+    def as_transform(self):
+        """
+        Converts this Transformation to a ROS Transform message (TF2).
+
+        Works for ROS1 or ROS2 depending on the environment.
+
+        :return: ROS Transform message
+        :rtype: geometry_msgs.msg.Transform
+        :raises ModuleNotFoundError: if geometry_msgs module not available
+        """
+        if not use_geomsg or Transform is None:
+            raise ModuleNotFoundError("geometry_msgs.msg.Transform not available")
+
+        return Transform(
+            translation=self.translation.as_geometry_vector3(),
+            rotation=self.rotation.as_geometry_orientation(),
         )
 
     @staticmethod
