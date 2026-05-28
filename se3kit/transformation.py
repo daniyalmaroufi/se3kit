@@ -10,6 +10,7 @@ from se3kit.utils import is_near
 
 # Constants to avoid magic-numbers in argument checks
 _TRANSLATION_ROTATION_ARG_COUNT = 2
+_ROS_VERSION_2 = 2
 
 logger = logging.getLogger(__name__)
 
@@ -256,14 +257,14 @@ class Transformation:
 
         if stamp is None:
             try:
-                if ROS_VERSION == 2:
+                if ROS_VERSION == _ROS_VERSION_2:
                     import rclpy
                     stamp = rclpy.clock.Clock().now()
                 elif ROS_VERSION == 1:
                     import rospy
                     stamp = rospy.Time.now()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug("Failed to get ROS timestamp: %s", e)
 
         # Create header with frame_id and timestamp
         from geometry_msgs.msg import Header  # type: ignore
