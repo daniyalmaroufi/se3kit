@@ -44,22 +44,8 @@ class Transformation:
                     raise ValueError("Transformation matrix is invalid.")
                 self._matrix = init
 
-            elif use_geomsg and isinstance(init, PoseStamped):
-                # Single argument is a ROS PoseStamped message (TF2)
-                # Extract the pose from the stamped message
-                self.rotation = Rotation(init.pose.orientation)
-                self.translation = Translation(init.pose.position)
-
-            elif use_geomsg and isinstance(init, Transform):
-                # Single argument is a ROS Transform message (TF2)
-                # Extract translation and rotation directly
-                self.rotation = Rotation(init.rotation)
-                self.translation = Translation(init.translation)
-
-            elif use_geomsg and isinstance(init, Pose):
-                # Single argument is a ROS Pose message and rotation and translation are extracted
-                self.rotation = Rotation(init.orientation)
-                self.translation = Translation(init.position)
+            elif use_geomsg and self._init_from_ros_message(init):
+                pass
 
             elif isinstance(init, Translation):
                 # Single argument is a Translation object
@@ -89,6 +75,22 @@ class Transformation:
 
         elif len(args) > _TRANSLATION_ROTATION_ARG_COUNT:
             raise TypeError(f"Too many arguments for Transformation: {args}")
+
+
+    def _init_from_ros_message(self, msg):
+        """Helper method to initialize from ROS message types."""
+        if isinstance(msg, PoseStamped):
+            self.rotation = Rotation(msg.pose.orientation)
+            self.translation = Translation(msg.pose.position)
+        elif isinstance(msg, Transform):
+            self.rotation = Rotation(msg.rotation)
+            self.translation = Translation(msg.translation)
+        elif isinstance(msg, Pose):
+            self.rotation = Rotation(msg.orientation)
+            self.translation = Translation(msg.position)
+        else:
+            return False
+        return True
 
     def __mul__(self, other):
         """
