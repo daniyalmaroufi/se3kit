@@ -133,6 +133,188 @@ class TestTransformation(unittest.TestCase):
             transformation.Rotation.are_close(tf1.rotation, r), "Rotation should be unchanged"
         )
 
+    def test_pose_stamped_initialization(self):
+        """Test Transformation initialization from PoseStamped message (TF2)."""
+        from se3kit.ros_compat import ROS_VERSION, use_geomsg
+
+        if not use_geomsg or ROS_VERSION == 0:
+            self.skipTest("ROS not available")
+
+        try:
+            from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
+        except ImportError:
+            self.skipTest("geometry_msgs not available")
+
+        # Create a PoseStamped message
+        pose = Pose(
+            position=Point(x=1.0, y=2.0, z=3.0),
+            orientation=Quaternion(x=0, y=0, z=0.7071068, w=0.7071068),  # 90 deg around Z
+        )
+        pose_stamped = PoseStamped()
+        pose_stamped.pose = pose
+        pose_stamped.header.frame_id = "base_link"
+
+        # Initialize Transformation from PoseStamped
+        t = transformation.Transformation(pose_stamped)
+
+        # Verify translation
+        self.assertTrue(np.all(utils.is_near(t.translation.xyz, [1.0, 2.0, 3.0])))
+
+        # Verify rotation (should be 90 deg around Z)
+        rpy = t.rotation.as_rpy()
+        self.assertTrue(np.all(utils.is_near(rpy, [0, 0, np.pi / 2], tol=1e-5)))
+
+    def test_transform_initialization(self):
+        """Test Transformation initialization from Transform message (TF2)."""
+        from se3kit.ros_compat import ROS_VERSION, use_geomsg
+
+        if not use_geomsg or ROS_VERSION == 0:
+            self.skipTest("ROS not available")
+
+        try:
+            from geometry_msgs.msg import Transform, Vector3, Quaternion
+        except ImportError:
+            self.skipTest("geometry_msgs not available")
+
+        # Create a Transform message
+        transform = Transform(
+            translation=Vector3(x=1.0, y=2.0, z=3.0),
+            rotation=Quaternion(x=0, y=0, z=0.7071068, w=0.7071068),  # 90 deg around Z
+        )
+
+        # Initialize Transformation from Transform
+        t = transformation.Transformation(transform)
+
+        # Verify translation
+        self.assertTrue(np.all(utils.is_near(t.translation.xyz, [1.0, 2.0, 3.0])))
+
+        # Verify rotation (should be 90 deg around Z)
+        rpy = t.rotation.as_rpy()
+        self.assertTrue(np.all(utils.is_near(rpy, [0, 0, np.pi / 2], tol=1e-5)))
+
+    def test_as_pose_stamped(self):
+        """Test conversion of Transformation to PoseStamped message."""
+        from se3kit.ros_compat import ROS_VERSION, use_geomsg
+
+        if not use_geomsg or ROS_VERSION == 0:
+            self.skipTest("ROS not available")
+
+        try:
+            from geometry_msgs.msg import PoseStamped
+        except ImportError:
+            self.skipTest("geometry_msgs not available")
+
+        # Create a Transformation
+        t = transformation.Transformation(
+            transformation.Translation([1.0, 2.0, 3.0]),
+            transformation.Rotation.from_rpy([0, 0, np.pi / 2]),
+        )
+
+        # Convert to PoseStamped
+        pose_stamped = t.as_pose_stamped(frame_id="base_link")
+
+        # Verify result type
+        self.assertIsInstance(pose_stamped, PoseStamped)
+
+        # Verify header
+        self.assertEqual(pose_stamped.header.frame_id, "base_link")
+
+        # Verify translation
+        self.assertTrue(
+            np.all(utils.is_near([pose_stamped.pose.position.x, pose_stamped.pose.position.y, pose_stamped.pose.position.z], [1.0, 2.0, 3.0]))
+        )
+
+        # Verify rotation
+        q = pose_stamped.pose.orientation
+        rotation = transformation.Rotation([q.x, q.y, q.z, q.w])
+        rpy = rotation.as_rpy()
+        self.assertTrue(np.all(utils.is_near(rpy, [0, 0, np.pi / 2], tol=1e-5)))
+
+    def test_as_transform(self):
+        """Test conversion of Transformation to Transform message."""
+        from se3kit.ros_compat import ROS_VERSION, use_geomsg
+
+        if not use_geomsg or ROS_VERSION == 0:
+            self.skipTest("ROS not available")
+
+        try:
+            from geometry_msgs.msg import Transform
+        except ImportError:
+            self.skipTest("geometry_msgs not available")
+
+        # Create a Transformation
+        t = transformation.Transformation(
+            transformation.Translation([1.0, 2.0, 3.0]),
+            transformation.Rotation.from_rpy([0, 0, np.pi / 2]),
+        )
+
+        # Convert to Transform
+        tf_msg = t.as_transform()
+
+        # Verify result type
+        self.assertIsInstance(tf_msg, Transform)
+
+        # Verify translation
+        self.assertTrue(
+            np.all(utils.is_near([tf_msg.translation.x, tf_msg.translation.y, tf_msg.translation.z], [1.0, 2.0, 3.0]))
+        )
+
+        # Verify rotation
+        q = tf_msg.rotation
+        rotation = transformation.Rotation([q.x, q.y, q.z, q.w])
+        rpy = rotation.as_rpy()
+        self.assertTrue(np.all(utils.is_near(rpy, [0, 0, np.pi / 2], tol=1e-5)))
+
+    def test_tf2_roundtrip_pose_stamped(self):
+        """Test round-trip conversion: Transformation → PoseStamped → Transformation."""
+        from se3kit.ros_compat import ROS_VERSION, use_geomsg
+
+        if not use_geomsg or ROS_VERSION == 0:
+            self.skipTest("ROS not available")
+
+        try:
+            from geometry_msgs.msg import PoseStamped
+        except ImportError:
+            self.skipTest("geometry_msgs not available")
+
+        # Create original Transformation
+        t_original = transformation.Transformation(
+            transformation.Translation([1.5, 2.5, 3.5]),
+            transformation.Rotation.from_rpy([0.1, 0.2, 0.3]),
+        )
+
+        # Convert to PoseStamped and back
+        pose_stamped = t_original.as_pose_stamped()
+        t_recovered = transformation.Transformation(pose_stamped)
+
+        # Verify they match
+        self.assertTrue(transformation.Transformation.are_close(t_original, t_recovered, rot_tol=1e-5, trans_tol=1e-5))
+
+    def test_tf2_roundtrip_transform(self):
+        """Test round-trip conversion: Transformation → Transform → Transformation."""
+        from se3kit.ros_compat import ROS_VERSION, use_geomsg
+
+        if not use_geomsg or ROS_VERSION == 0:
+            self.skipTest("ROS not available")
+
+        try:
+            from geometry_msgs.msg import Transform
+        except ImportError:
+            self.skipTest("geometry_msgs not available")
+
+        # Create original Transformation
+        t_original = transformation.Transformation(
+            transformation.Translation([1.5, 2.5, 3.5]),
+            transformation.Rotation.from_rpy([0.1, 0.2, 0.3]),
+        )
+
+        # Convert to Transform and back
+        tf_msg = t_original.as_transform()
+        t_recovered = transformation.Transformation(tf_msg)
+
+        # Verify they match
+        self.assertTrue(transformation.Transformation.are_close(t_original, t_recovered, rot_tol=1e-5, trans_tol=1e-5))
+
 
 if __name__ == "__main__":
     unittest.main()
