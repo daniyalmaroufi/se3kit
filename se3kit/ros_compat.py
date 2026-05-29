@@ -15,8 +15,14 @@ ROS_VERSION = 0
 # Probe ROS2 first, then ROS1 using importlib to avoid importing unused modules
 if _importlib_util.find_spec("rclpy") is not None:
     try:
-        from geometry_msgs.msg import Point, Pose, Quaternion, Vector3  # type: ignore
-        from geometry_msgs.msg import PoseStamped, Transform  # type: ignore
+        from geometry_msgs.msg import (  # type: ignore
+            Point,
+            Pose,
+            PoseStamped,
+            Quaternion,
+            Transform,
+            Vector3,
+        )
 
         ROS_VERSION = 2
         use_geomsg = True
@@ -24,8 +30,14 @@ if _importlib_util.find_spec("rclpy") is not None:
         ROS_VERSION = 0
 elif _importlib_util.find_spec("rospy") is not None:
     try:
-        from geometry_msgs.msg import Point, Pose, Quaternion, Vector3  # type: ignore
-        from geometry_msgs.msg import PoseStamped, Transform  # type: ignore
+        from geometry_msgs.msg import (  # type: ignore
+            Point,
+            Pose,
+            PoseStamped,
+            Quaternion,
+            Transform,
+            Vector3,
+        )
 
         ROS_VERSION = 1
         use_geomsg = True

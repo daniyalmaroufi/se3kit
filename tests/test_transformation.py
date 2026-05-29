@@ -141,7 +141,7 @@ class TestTransformation(unittest.TestCase):
             self.skipTest("ROS not available")
 
         try:
-            from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
+            from geometry_msgs.msg import Point, Pose, PoseStamped, Quaternion
         except ImportError:
             self.skipTest("geometry_msgs not available")
 
@@ -172,7 +172,7 @@ class TestTransformation(unittest.TestCase):
             self.skipTest("ROS not available")
 
         try:
-            from geometry_msgs.msg import Transform, Vector3, Quaternion
+            from geometry_msgs.msg import Quaternion, Transform, Vector3
         except ImportError:
             self.skipTest("geometry_msgs not available")
 
@@ -221,7 +221,16 @@ class TestTransformation(unittest.TestCase):
 
         # Verify translation
         self.assertTrue(
-            np.all(utils.is_near([pose_stamped.pose.position.x, pose_stamped.pose.position.y, pose_stamped.pose.position.z], [1.0, 2.0, 3.0]))
+            np.all(
+                utils.is_near(
+                    [
+                        pose_stamped.pose.position.x,
+                        pose_stamped.pose.position.y,
+                        pose_stamped.pose.position.z,
+                    ],
+                    [1.0, 2.0, 3.0],
+                )
+            )
         )
 
         # Verify rotation
@@ -256,7 +265,12 @@ class TestTransformation(unittest.TestCase):
 
         # Verify translation
         self.assertTrue(
-            np.all(utils.is_near([tf_msg.translation.x, tf_msg.translation.y, tf_msg.translation.z], [1.0, 2.0, 3.0]))
+            np.all(
+                utils.is_near(
+                    [tf_msg.translation.x, tf_msg.translation.y, tf_msg.translation.z],
+                    [1.0, 2.0, 3.0],
+                )
+            )
         )
 
         # Verify rotation
@@ -283,7 +297,11 @@ class TestTransformation(unittest.TestCase):
         t_recovered = transformation.Transformation(pose_stamped)
 
         # Verify they match
-        self.assertTrue(transformation.Transformation.are_close(t_original, t_recovered, rot_tol=1e-5, trans_tol=1e-5))
+        self.assertTrue(
+            transformation.Transformation.are_close(
+                t_original, t_recovered, rot_tol=1e-5, trans_tol=1e-5
+            )
+        )
 
     def test_tf2_roundtrip_transform(self):
         """Test round-trip conversion: Transformation → Transform → Transformation."""
@@ -303,10 +321,18 @@ class TestTransformation(unittest.TestCase):
         t_recovered = transformation.Transformation(tf_msg)
 
         # Verify they match
-        self.assertTrue(transformation.Transformation.are_close(t_original, t_recovered, rot_tol=1e-5, trans_tol=1e-5))
+        self.assertTrue(
+            transformation.Transformation.are_close(
+                t_original, t_recovered, rot_tol=1e-5, trans_tol=1e-5
+            )
+        )
 
         # Verify they match
-        self.assertTrue(transformation.Transformation.are_close(t_original, t_recovered, rot_tol=1e-5, trans_tol=1e-5))
+        self.assertTrue(
+            transformation.Transformation.are_close(
+                t_original, t_recovered, rot_tol=1e-5, trans_tol=1e-5
+            )
+        )
 
 
 if __name__ == "__main__":
