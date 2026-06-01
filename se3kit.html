@@ -99,6 +99,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#se3kit.transformation.Transformation"><code class="docutils literal notranslate"><span class="pre">Transformation</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.are_close"><code class="docutils literal notranslate"><span class="pre">Transformation.are_close()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.as_geometry_pose"><code class="docutils literal notranslate"><span class="pre">Transformation.as_geometry_pose()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.as_pose_stamped"><code class="docutils literal notranslate"><span class="pre">Transformation.as_pose_stamped()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.as_transform"><code class="docutils literal notranslate"><span class="pre">Transformation.as_transform()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.compose"><code class="docutils literal notranslate"><span class="pre">Transformation.compose()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.convert_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Transformation.convert_m_to_mm()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.transformation.Transformation.convert_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Transformation.convert_mm_to_m()</span></code></a></li>
@@ -118,6 +120,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#se3kit.translation.Translation"><code class="docutils literal notranslate"><span class="pre">Translation</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.are_close"><code class="docutils literal notranslate"><span class="pre">Translation.are_close()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.as_geometry_point"><code class="docutils literal notranslate"><span class="pre">Translation.as_geometry_point()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.as_geometry_vector3"><code class="docutils literal notranslate"><span class="pre">Translation.as_geometry_vector3()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.convert_m_to_mm"><code class="docutils literal notranslate"><span class="pre">Translation.convert_m_to_mm()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.convert_mm_to_m"><code class="docutils literal notranslate"><span class="pre">Translation.convert_mm_to_m()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#se3kit.translation.Translation.is_valid"><code class="docutils literal notranslate"><span class="pre">Translation.is_valid()</span></code></a></li>
@@ -873,6 +876,48 @@ rotational and translational parts.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.as_pose_stamped">
+<span class="sig-name descname"><span class="pre">as_pose_stamped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'base_link'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.as_pose_stamped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.as_pose_stamped" title="Link to this definition"></a></dt>
+<dd><p>Converts this Transformation to a ROS PoseStamped message (TF2).</p>
+<p>Works for ROS1 or ROS2 depending on the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_id</strong> (<em>str</em>) – Frame ID for the message header, defaults to “base_link”</p></li>
+<li><p><strong>stamp</strong> – ROS timestamp for the message header, defaults to current time (ROS only)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ROS PoseStamped message</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>geometry_msgs.msg.PoseStamped</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ModuleNotFoundError</strong> – if geometry_msgs module not available</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.transformation.Transformation.as_transform">
+<span class="sig-name descname"><span class="pre">as_transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.as_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.as_transform" title="Link to this definition"></a></dt>
+<dd><p>Converts this Transformation to a ROS Transform message (TF2).</p>
+<p>Works for ROS1 or ROS2 depending on the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ROS Transform message</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>geometry_msgs.msg.Transform</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ModuleNotFoundError</strong> – if geometry_msgs module not available</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="se3kit.transformation.Transformation.compose">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/transformation.html#Transformation.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.transformation.Transformation.compose" title="Link to this definition"></a></dt>
 <dd><p>Composes two Transformations (matrix multiplication).</p>
@@ -1100,6 +1145,24 @@ The comparison is based on the Euclidean distance between the two translation ve
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>geometry_msgs.msg.Point</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ModuleNotFoundError</strong> – If geometry_msgs is not available</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="se3kit.translation.Translation.as_geometry_vector3">
+<span class="sig-name descname"><span class="pre">as_geometry_vector3</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/se3kit/translation.html#Translation.as_geometry_vector3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#se3kit.translation.Translation.as_geometry_vector3" title="Link to this definition"></a></dt>
+<dd><p>Converts the translation to a ROS geometry_msgs Vector3 message.</p>
+<p>Works for ROS1 or ROS2 depending on the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ROS geometry_msgs.msg.Vector3 message</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>geometry_msgs.msg.Vector3</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ModuleNotFoundError</strong> – If geometry_msgs is not available</p>

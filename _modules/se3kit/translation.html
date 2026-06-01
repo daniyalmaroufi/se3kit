@@ -332,6 +332,23 @@
         <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="Translation.as_geometry_vector3">
+<a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation.as_geometry_vector3">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_geometry_vector3</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the translation to a ROS geometry_msgs Vector3 message.</span>
+
+<span class="sd">        Works for ROS1 or ROS2 depending on the environment.</span>
+
+<span class="sd">        :return: ROS geometry_msgs.msg.Vector3 message</span>
+<span class="sd">        :rtype: geometry_msgs.msg.Vector3</span>
+<span class="sd">        :raises ModuleNotFoundError: If geometry_msgs is not available</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">use_geomsg</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span><span class="s2">&quot;geometry_msgs module not available&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Vector3</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Translation.are_close">
 <a class="viewcode-back" href="../../se3kit.html#se3kit.translation.Translation.are_close">[docs]</a>
     <span class="nd">@staticmethod</span>
