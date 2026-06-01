@@ -95,7 +95,7 @@ class Translation:
         :rtype: se3kit.translation.Translation
         :raises TypeError: If `other` is not a numeric scalar
         """
-        if isinstance(other, int | float):
+        if isinstance(other, (int, float)):
             return Translation(self.m * other)
         raise TypeError(f"Cannot multiply Translation with {type(other)}")
 
@@ -109,7 +109,7 @@ class Translation:
         :rtype: se3kit.translation.Translation
         :raises TypeError: If `other` is not a numeric scalar
         """
-        if isinstance(other, int | float):
+        if isinstance(other, (int, float)):
             return Translation(self.m / other)
         raise TypeError(f"Cannot divide Translation with {type(other)}")
 

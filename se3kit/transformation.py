@@ -324,7 +324,7 @@ class Transformation:
         :return: Resulting Transformation
         :rtype: se3kit.transformation.Transformation
         """
-        return Transformation(a.matrix @ b.matrix)
+        return Transformation(a.m @ b.m)
 
     @staticmethod
     def are_close(transform_1, transform_2, rot_tol=0.0174533, trans_tol=0.001, degrees=False):

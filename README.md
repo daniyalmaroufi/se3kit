@@ -161,8 +161,8 @@ Seamlessly convert between millimeters and meters for transformations.
 ```python
 import se3kit as se3
 
-T_mm = se3.Transformation.convert_m_to_mm(T_end_effector)
-T_m  = se3.Transformation.convert_mm_to_m(T_mm)
+T_mm = T_end_effector.convert_m_to_mm(inplace=False)
+T_m  = T_mm.convert_mm_to_m(inplace=False)
 
 print(T_mm.translation.xyz)
 ```

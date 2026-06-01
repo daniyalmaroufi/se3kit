@@ -39,7 +39,7 @@ distance = t1.norm()
 print(f"Distance from origin: {distance:.2f} meters")
 
 # Scale translations (e.g., halving the movement)
-t_half = t1.scale(0.5)
+t_half = t1.scale(0.5, inplace=False)
 print(f"Scaled Translation: {t_half.xyz}")
 ```
 
@@ -53,9 +53,8 @@ import numpy as np
 # Rotate 90 degrees around the Z axis using Roll-Pitch-Yaw
 rot_z = se3.Rotation.from_rpy([0.0, 0.0, np.pi/2])
 
-# Avoid Gimbal Lock by using Quaternions (w, x, y, z)
-quat = np.quaternion(0.707, 0, 0, 0.707)
-rot_quat = se3.Rotation.from_quat(quat)
+# Avoid Gimbal Lock by using Quaternions (x, y, z, w)
+rot_quat = se3.Rotation.from_quat((0, 0, 0.707, 0.707))
 
 # Extract basis vectors (X, Y, Z axes of the rotated frame)
 print("X-axis points towards:", rot_z.x_axis) # [0, 1, 0]
@@ -63,7 +62,7 @@ print("Z-axis points towards:", rot_z.z_axis) # [0, 0, 1]
 
 # Calculate the exact angle between two different rotations
 rot_identity = se3.Rotation.eye()
-diff_angle = rot_identity.angle_difference(rot_z)
+diff_angle = se3.Rotation.angle_difference(rot_identity, rot_z)
 print(f"Angle difference: {se3.utils.rad2deg(diff_angle)} degrees")
 ```
 
@@ -122,7 +121,7 @@ T1 = se3.Transformation(se3.Translation([1.0, 0.0, 0.0]), se3.Rotation.from_rpy(
 # T2 is slightly off due to floating point math approximations
 T2 = se3.Transformation(se3.Translation([1.0000000001, 0.0, 0.0]), se3.Rotation.from_rpy([0, 0, 3.1415926535]))
 
-print(f"Are T1 and T2 close? {T1.are_close(T2)}") # Output: True
+print(f"Are T1 and T2 close? {se3.Transformation.are_close(T1, T2)}") # Output: True
 ```
 
 ### Verifying Mathematical Validity
@@ -134,7 +133,7 @@ import se3kit as se3
 T1 = se3.Transformation(se3.Translation([1.0, 2.0, 3.0]), se3.Rotation())
 
 # Check if the transformation matrix is a valid SE(3) matrix
-print(f"Is T1 a valid SE(3) matrix? {T1.is_valid()}") # Output: True
+print(f"Is T1 a valid SE(3) matrix? {se3.Transformation.is_valid(T1.m)}") # Output: True
 ```
 
 ---
@@ -193,13 +192,13 @@ Many industrial robots (like Universal Robots) output their poses in a specific 
 ```python
 import se3kit as se3
 
-# Input: X=500mm, Y=200mm, Z=300mm, Rotations: Rx=0.1, Ry=0.2, Rz=0.3 radians
+# Input: X=500mm, Y=200mm, Z=300mm, Rotations: A=0.1, B=0.2, C=0.3 radians
 T_industrial = se3.Transformation.from_xyz_mm_abc(
-    x_mm=500.0, y_mm=200.0, z_mm=300.0, 
-    a=0.1, b=0.2, c=0.3
+    [500.0, 200.0, 300.0, 0.1, 0.2, 0.3]
 )
 
-# Internally, the pose is automatically converted to standard SI meters
+# Convert mm to meters
+T_industrial.convert_mm_to_m()
 print(f"Translation in meters: {T_industrial.translation.xyz}") # Output: [0.5, 0.2, 0.3]
 ```
 
@@ -269,8 +268,8 @@ T_robot_mm = se3.Transformation(
     se3.Rotation.from_rpy([0, 0, 0])
 )
 
-# Safely convert to standard SI meters
-T_sim_m = se3.Transformation.convert_mm_to_m(T_robot_mm)
+# Safely convert to standard SI meters (inplace=False returns a new object)
+T_sim_m = T_robot_mm.convert_mm_to_m(inplace=False)
 print(f"Translation in meters: {T_sim_m.translation.xyz}")
 ```
 
