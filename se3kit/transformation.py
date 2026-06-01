@@ -3,7 +3,7 @@ import logging
 import numpy as np
 
 from se3kit.hpoint import HPoint
-from se3kit.ros_compat import Pose, PoseStamped, ROS_VERSION, Transform, use_geomsg
+from se3kit.ros_compat import ROS_VERSION, Pose, PoseStamped, Transform, use_geomsg
 from se3kit.rotation import Rotation
 from se3kit.translation import Translation
 from se3kit.utils import is_near
@@ -260,15 +260,18 @@ class Transformation:
             try:
                 if ROS_VERSION == _ROS_VERSION_2:
                     import rclpy
+
                     stamp = rclpy.clock.Clock().now()
                 elif ROS_VERSION == 1:
                     import rospy
+
                     stamp = rospy.Time.now()
             except Exception as e:
                 logger.debug("Failed to get ROS timestamp: %s", e)
 
         # Create header with frame_id and timestamp
         from geometry_msgs.msg import Header  # type: ignore
+
         header = Header(frame_id=frame_id, stamp=stamp)
 
         return PoseStamped(
