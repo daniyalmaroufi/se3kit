@@ -16,7 +16,7 @@ repos:
   hooks:
     - id: run-unittests
       name: Run unit tests (unittest discover)
-      entry: python -m unittest discover -v
+      entry: python3 -m unittest discover -v
       language: system
       pass_filenames: false
       types: [python]
