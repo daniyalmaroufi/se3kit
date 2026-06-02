@@ -443,6 +443,174 @@ class Rotation:
         w = skew_to_vector((self.m - self.m.T) / (2 * np.sin(theta)))
         return w, (theta if not degrees else rad2deg(theta))
 
+    def __repr__(self):
+        """
+        Official string representation of the Rotation object.
+
+        Returns a string that can reconstruct the object via eval() when numpy is imported.
+
+        :return: Reconstructable string representation.
+        :rtype: str
+        """
+        matrix_str = np.array2string(self.m, separator=', ')
+        return f"Rotation(np.array({matrix_str}))"
+
+    def __str__(self):
+        """
+        Human-friendly string representation showing RPY angles in degrees.
+
+        :return: Formatted string with roll, pitch, yaw in degrees.
+        :rtype: str
+        """
+        rpy = self.as_rpy(degrees=True)
+        return f"Rotation(rpy_deg=[{rpy[0]:.6f}, {rpy[1]:.6f}, {rpy[2]:.6f}])"
+
+    def to_dict(self):
+        """
+        Serializes the rotation to a plain Python dictionary.
+
+        Includes the rotation matrix, quaternion (xyzw), and RPY angles (radians)
+        so consumers can pick whichever representation they need.
+
+        :return: Dictionary with keys 'type', 'quaternion_xyzw', 'rpy_rad', 'matrix'.
+        :rtype: dict
+        """
+        q = self.as_quat()
+        rpy = self.as_rpy()
+        return {
+            "type": "Rotation",
+            "quaternion_xyzw": [float(q.x), float(q.y), float(q.z), float(q.w)],
+            "rpy_rad": [float(rpy[0]), float(rpy[1]), float(rpy[2])],
+            "matrix": self.m.tolist(),
+        }
+
+    @staticmethod
+    def from_dict(d):
+        """
+        Constructs a Rotation from a dictionary.
+
+        Checks for keys in order of fidelity: 'matrix' (lossless) > 'quaternion_xyzw' > 'rpy_rad'.
+
+        :param d: Dictionary with rotation data.
+        :type d: dict
+        :return: Rotation object.
+        :rtype: Rotation
+        :raises ValueError: If no recognized key is found.
+        """
+        if "matrix" in d:
+            return Rotation(np.array(d["matrix"]))
+        if "quaternion_xyzw" in d:
+            return Rotation.from_quat(d["quaternion_xyzw"])
+        if "rpy_rad" in d:
+            return Rotation.from_rpy(d["rpy_rad"])
+        raise ValueError("Dict must contain 'matrix', 'quaternion_xyzw', or 'rpy_rad'")
+
+    def to_json(self, indent=2):
+        """
+        Serializes the rotation to a JSON string.
+
+        :param indent: JSON indentation level, defaults to 2.
+        :type indent: int
+        :return: JSON string.
+        :rtype: str
+        """
+        import json
+        return json.dumps(self.to_dict(), indent=indent)
+
+    @staticmethod
+    def from_json(json_str):
+        """
+        Constructs a Rotation from a JSON string.
+
+        :param json_str: JSON string containing rotation data.
+        :type json_str: str
+        :return: Rotation object.
+        :rtype: Rotation
+        """
+        import json
+        return Rotation.from_dict(json.loads(json_str))
+
+    def to_csv(self, path, header=True, fmt="quaternion"):
+        """
+        Writes the rotation to a CSV file.
+
+        :param path: File path to write to.
+        :type path: str or pathlib.Path
+        :param header: Whether to write a header row, defaults to True.
+        :type header: bool
+        :param fmt: Output format. One of 'quaternion' (qx,qy,qz,qw), 'rpy_rad',
+            'rpy_deg', or 'matrix' (r00..r22). Defaults to 'quaternion'.
+        :type fmt: str
+        """
+        import csv
+        from pathlib import Path
+
+        path = Path(path)
+        headers, values = self._csv_data(fmt)
+
+        with open(path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            if header:
+                writer.writerow(headers)
+            writer.writerow(values)
+
+    @staticmethod
+    def from_csv(path, fmt="quaternion"):
+        """
+        Reads a Rotation from the first data row of a CSV file.
+
+        :param path: File path to read from.
+        :type path: str or pathlib.Path
+        :param fmt: Input format matching the CSV columns. One of 'quaternion',
+            'rpy_rad', 'rpy_deg', or 'matrix'. Defaults to 'quaternion'.
+        :type fmt: str
+        :return: Rotation object.
+        :rtype: Rotation
+        """
+        import csv
+        from pathlib import Path
+
+        path = Path(path)
+        with open(path, newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+        # Skip header if first row is non-numeric
+        data_row = rows[0]
+        try:
+            float(data_row[0])
+        except ValueError:
+            data_row = rows[1]
+
+        values = [float(v) for v in data_row]
+
+        if fmt == "quaternion":
+            return Rotation.from_quat(values)  # qx, qy, qz, qw
+        if fmt == "rpy_rad":
+            return Rotation.from_rpy(values)
+        if fmt == "rpy_deg":
+            return Rotation.from_rpy(values, degrees=True)
+        if fmt == "matrix":
+            return Rotation(np.array(values).reshape(3, 3))
+        raise ValueError(f"Unknown format: {fmt}")
+
+    def _csv_data(self, fmt):
+        """Returns (headers, values) for the given CSV format."""
+        if fmt == "quaternion":
+            q = self.as_quat()
+            return ["qx", "qy", "qz", "qw"], [float(q.x), float(q.y), float(q.z), float(q.w)]
+        if fmt == "rpy_rad":
+            rpy = self.as_rpy()
+            return ["roll", "pitch", "yaw"], [float(rpy[0]), float(rpy[1]), float(rpy[2])]
+        if fmt == "rpy_deg":
+            rpy = self.as_rpy(degrees=True)
+            return ["roll_deg", "pitch_deg", "yaw_deg"], [float(rpy[0]), float(rpy[1]), float(rpy[2])]
+        if fmt == "matrix":
+            headers = [f"r{i}{j}" for i in range(3) for j in range(3)]
+            values = [float(self.m[i, j]) for i in range(3) for j in range(3)]
+            return headers, values
+        raise ValueError(f"Unknown format: {fmt}")
+
     @property
     def x_axis(self):
         """
