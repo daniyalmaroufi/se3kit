@@ -132,6 +132,58 @@ class HPoint:
         """
         return self.m.copy()
 
+    def to_dict(self):
+        """
+        Serializes the homogeneous point to a plain Python dictionary.
+
+        :return: Dictionary with keys 'type' and 'xyz'.
+        :rtype: dict
+        """
+        return {
+            "type": "HPoint",
+            "xyz": [float(self.x), float(self.y), float(self.z)],
+        }
+
+    @staticmethod
+    def from_dict(d):
+        """
+        Constructs an HPoint from a dictionary.
+
+        :param d: Dictionary with 'xyz' key (3-element list).
+        :type d: dict
+        :return: HPoint object.
+        :rtype: HPoint
+        :raises ValueError: If 'xyz' key is missing.
+        """
+        if "xyz" in d:
+            return HPoint(d["xyz"])
+        raise ValueError("Dict must contain 'xyz' key")
+
+    def to_json(self, indent=2):
+        """
+        Serializes the homogeneous point to a JSON string.
+
+        :param indent: JSON indentation level, defaults to 2.
+        :type indent: int
+        :return: JSON string.
+        :rtype: str
+        """
+        import json
+        return json.dumps(self.to_dict(), indent=indent)
+
+    @staticmethod
+    def from_json(json_str):
+        """
+        Constructs an HPoint from a JSON string.
+
+        :param json_str: JSON string containing point data.
+        :type json_str: str
+        :return: HPoint object.
+        :rtype: HPoint
+        """
+        import json
+        return HPoint.from_dict(json.loads(json_str))
+
     def __repr__(self):
         """
         Official string representation of the HPoint object.

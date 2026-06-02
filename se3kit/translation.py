@@ -258,6 +258,122 @@ class Translation:
             raise ModuleNotFoundError("geometry_msgs module not available")
         return Vector3(x=self.x, y=self.y, z=self.z)
 
+    def __repr__(self):
+        """
+        Official string representation of the Translation object.
+
+        :return: Reconstructable string representation.
+        :rtype: str
+        """
+        return f"Translation([{float(self.m[0])!r}, {float(self.m[1])!r}, {float(self.m[2])!r}])"
+
+    def __str__(self):
+        """
+        Human-friendly string representation.
+
+        :return: Formatted string with xyz values.
+        :rtype: str
+        """
+        return f"Translation(xyz=[{self.m[0]:.6f}, {self.m[1]:.6f}, {self.m[2]:.6f}])"
+
+    def to_dict(self):
+        """
+        Serializes the translation to a plain Python dictionary.
+
+        :return: Dictionary with keys 'type' and 'xyz'.
+        :rtype: dict
+        """
+        return {
+            "type": "Translation",
+            "xyz": [float(self.m[0]), float(self.m[1]), float(self.m[2])],
+        }
+
+    @staticmethod
+    def from_dict(d):
+        """
+        Constructs a Translation from a dictionary.
+
+        :param d: Dictionary with 'xyz' key.
+        :type d: dict
+        :return: Translation object.
+        :rtype: Translation
+        :raises ValueError: If 'xyz' key is missing.
+        """
+        if "xyz" in d:
+            return Translation(d["xyz"])
+        raise ValueError("Dict must contain 'xyz' key")
+
+    def to_json(self, indent=2):
+        """
+        Serializes the translation to a JSON string.
+
+        :param indent: JSON indentation level, defaults to 2.
+        :type indent: int
+        :return: JSON string.
+        :rtype: str
+        """
+        import json
+        return json.dumps(self.to_dict(), indent=indent)
+
+    @staticmethod
+    def from_json(json_str):
+        """
+        Constructs a Translation from a JSON string.
+
+        :param json_str: JSON string containing translation data.
+        :type json_str: str
+        :return: Translation object.
+        :rtype: Translation
+        """
+        import json
+        return Translation.from_dict(json.loads(json_str))
+
+    def to_csv(self, path, header=True):
+        """
+        Writes the translation to a CSV file.
+
+        :param path: File path to write to.
+        :type path: str or pathlib.Path
+        :param header: Whether to write a header row, defaults to True.
+        :type header: bool
+        """
+        import csv
+        from pathlib import Path
+
+        path = Path(path)
+        with open(path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            if header:
+                writer.writerow(["x", "y", "z"])
+            writer.writerow([float(self.m[0]), float(self.m[1]), float(self.m[2])])
+
+    @staticmethod
+    def from_csv(path):
+        """
+        Reads a Translation from the first data row of a CSV file.
+
+        :param path: File path to read from.
+        :type path: str or pathlib.Path
+        :return: Translation object.
+        :rtype: Translation
+        """
+        import csv
+        from pathlib import Path
+
+        path = Path(path)
+        with open(path, newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+        # Skip header if first row is non-numeric
+        data_row = rows[0]
+        try:
+            float(data_row[0])
+        except ValueError:
+            data_row = rows[1]
+
+        return Translation([float(v) for v in data_row])
+
     @staticmethod
     def are_close(trans_1, trans_2, tol=0.001):
         """

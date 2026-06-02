@@ -297,6 +297,169 @@ class Transformation:
             rotation=self.rotation.as_geometry_orientation(),
         )
 
+    def __repr__(self):
+        """
+        Official string representation of the Transformation object.
+
+        Returns a string that can reconstruct the object via eval() when numpy is imported.
+
+        :return: Reconstructable string representation.
+        :rtype: str
+        """
+        matrix_str = np.array2string(self._matrix, separator=', ')
+        return f"Transformation(np.array({matrix_str}))"
+
+    def __str__(self):
+        """
+        Human-friendly string representation showing translation and RPY angles.
+
+        :return: Formatted multi-line string.
+        :rtype: str
+        """
+        t = self.translation
+        rpy = self.rotation.as_rpy(degrees=True)
+        return (
+            f"Transformation(\n"
+            f"  xyz=[{t.x:.6f}, {t.y:.6f}, {t.z:.6f}],\n"
+            f"  rpy_deg=[{rpy[0]:.6f}, {rpy[1]:.6f}, {rpy[2]:.6f}]\n"
+            f")"
+        )
+
+    def to_dict(self):
+        """
+        Serializes the transformation to a plain Python dictionary.
+
+        Includes the full 4x4 matrix and decomposed translation/rotation sub-dicts.
+
+        :return: Dictionary with keys 'type', 'translation', 'rotation', 'matrix'.
+        :rtype: dict
+        """
+        return {
+            "type": "Transformation",
+            "translation": self.translation.to_dict(),
+            "rotation": self.rotation.to_dict(),
+            "matrix": self._matrix.tolist(),
+        }
+
+    @staticmethod
+    def from_dict(d):
+        """
+        Constructs a Transformation from a dictionary.
+
+        Checks for keys in order of fidelity: 'matrix' (lossless 4x4) > decomposed
+        'translation' + 'rotation'.
+
+        :param d: Dictionary with transformation data.
+        :type d: dict
+        :return: Transformation object.
+        :rtype: Transformation
+        :raises ValueError: If no recognized keys are found.
+        """
+        if "matrix" in d:
+            return Transformation(np.array(d["matrix"]))
+        if "translation" in d and "rotation" in d:
+            return Transformation(
+                Translation.from_dict(d["translation"]),
+                Rotation.from_dict(d["rotation"]),
+            )
+        raise ValueError("Dict must contain 'matrix' or both 'translation' and 'rotation'")
+
+    def to_json(self, indent=2):
+        """
+        Serializes the transformation to a JSON string.
+
+        :param indent: JSON indentation level, defaults to 2.
+        :type indent: int
+        :return: JSON string.
+        :rtype: str
+        """
+        import json
+        return json.dumps(self.to_dict(), indent=indent)
+
+    @staticmethod
+    def from_json(json_str):
+        """
+        Constructs a Transformation from a JSON string.
+
+        :param json_str: JSON string containing transformation data.
+        :type json_str: str
+        :return: Transformation object.
+        :rtype: Transformation
+        """
+        import json
+        return Transformation.from_dict(json.loads(json_str))
+
+    def to_csv(self, path, header=True, rotation_format="quaternion"):
+        """
+        Writes the transformation to a CSV file.
+
+        :param path: File path to write to.
+        :type path: str or pathlib.Path
+        :param header: Whether to write a header row, defaults to True.
+        :type header: bool
+        :param rotation_format: Rotation output format. One of 'quaternion', 'rpy_rad',
+            'rpy_deg', or 'matrix'. Defaults to 'quaternion'.
+        :type rotation_format: str
+        """
+        import csv
+        from pathlib import Path
+
+        path = Path(path)
+        rot_headers, rot_values = self.rotation._csv_data(rotation_format)
+        headers = ["x", "y", "z"] + rot_headers
+        values = [float(self.translation.x), float(self.translation.y), float(self.translation.z)] + rot_values
+
+        with open(path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            if header:
+                writer.writerow(headers)
+            writer.writerow(values)
+
+    @staticmethod
+    def from_csv(path, rotation_format="quaternion"):
+        """
+        Reads a Transformation from the first data row of a CSV file.
+
+        :param path: File path to read from.
+        :type path: str or pathlib.Path
+        :param rotation_format: Rotation input format matching the CSV columns.
+            Defaults to 'quaternion'.
+        :type rotation_format: str
+        :return: Transformation object.
+        :rtype: Transformation
+        """
+        import csv
+        from pathlib import Path
+
+        path = Path(path)
+        with open(path, newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+        # Skip header if first row is non-numeric
+        data_row = rows[0]
+        try:
+            float(data_row[0])
+        except ValueError:
+            data_row = rows[1]
+
+        values = [float(v) for v in data_row]
+        trans = Translation(values[:3])
+        rot_values = values[3:]
+
+        if rotation_format == "quaternion":
+            rot = Rotation.from_quat(rot_values)
+        elif rotation_format == "rpy_rad":
+            rot = Rotation.from_rpy(rot_values)
+        elif rotation_format == "rpy_deg":
+            rot = Rotation.from_rpy(rot_values, degrees=True)
+        elif rotation_format == "matrix":
+            rot = Rotation(np.array(rot_values).reshape(3, 3))
+        else:
+            raise ValueError(f"Unknown rotation format: {rotation_format}")
+
+        return Transformation(trans, rot)
+
     @staticmethod
     def from_xyz_mm_abc(xyz_abc, degrees=False):
         """
